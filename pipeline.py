@@ -3,7 +3,6 @@ from kfp.v2 import compiler
 import kfp
 
 from components.process_data import process_data
-# from components.serve_model import serve_model_component
 from components.train_model import fine_tune_model
 # from components.upload_model import upload_serving_model_container
 from constants import project_region, serving_image, model_display_name, staging_bucket, \

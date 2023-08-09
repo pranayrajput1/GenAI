@@ -29,7 +29,7 @@ def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
     logger.addHandler(logging.StreamHandler())
 
     try:
-        model.fine_tune_model(dataset_path.path, model_artifact_path.path, model_name)
+        model.fine_tune_model(dataset_path.path, model_name, model_artifact_path.path)
 
     except Exception as e:
         logging.error("Failed to train model!")
