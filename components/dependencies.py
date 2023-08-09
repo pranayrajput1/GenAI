@@ -4,12 +4,18 @@ DEPENDENCY_VERSIONS = {
     "numpy": "numpy==1.24.4",
     "pandas": "pandas==2.0.2",
     "fsspec": "fsspec==2023.6.0",
-    "pyarrow": "pyarrow==9.0.0",
+    "pyarrow": "pyarrow==12.0.1",
     "gcsfs": "gcsfs==2023.6.0",
-    "google-cloud-storage": "google-cloud-storage==2.9.0",
-    "google-cloud-aiplatform": "google-cloud-aiplatform==1.26.0",
-    "google-cloud-build": "google-cloud-build==3.16.0",
+    "google-cloud-storage": "google-cloud-storage==2.10.0",
+    "google-cloud-aiplatform": "google-cloud-aiplatform==1.29.0",
+    "google-cloud-build": "google-cloud-build==3.19.0",
     "kfp": "kfp[all]==1.8.19",
+    "psutil": "psutil==5.9.5",
+    "datasets": "datasets~=2.14.4",
+    "deepspeed": "deepspeed==0.10.0",
+    "transformers": "transformers[torch]>=4.28.1,<5",
+    "torch": "torch~=2.0.1",
+    "accelerate": "accelerate>=0.16.0,<1",
 }
 
 

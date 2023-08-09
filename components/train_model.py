@@ -10,11 +10,9 @@ from constants import base_image
         'pandas',
         'kfp',
         'numpy',
-        'scikit-learn',
         'fsspec',
         'pyarrow',
         'gcsfs',
-        'scikit-learn',
         'google-cloud-storage',
     )
 )
