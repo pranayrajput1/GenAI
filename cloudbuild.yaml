@@ -1,0 +1,47 @@
+steps:
+  # Install dependencies
+  - name: 'python:3.10.6'
+    entrypoint: pip
+    args: ["install", "-r", "requirements.txt", "--user"]
+
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/llm-dolly/train-dolly-pipeline/llm-dolly-image:0.1', '.' ]
+    id: 'build'
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', 'us-central1-docker.pkg.dev/llm-dolly/train-dolly-pipeline/llm-dolly-image:0.1' ]
+    id: 'push'
+    waitFor: ['build']
+
+  # Compile pipeline
+  - name: 'python:3.10.6'
+    entrypoint: 'python'
+    args: ['pipeline.py']
+    id: 'compile'
+    waitFor: ['push']
+
+  # Upload compiled pipeline to GCS.
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cp', 'llm_pipeline.json', 'gs://llm-bucket-dolly']
+    id:  'upload'
+    waitFor: ['compile']
+
+  # download service key file from gcs.
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cp', 'gs://llm-key-bucket/llm-dolly-4238b15abc7d.json', 'llm-dolly-4238b15abc7d.json']
+    id:  'get_key_json'
+    waitFor: ['upload']
+
+  # Trigger and create the pipeline
+  - name: 'python:3.10.6'
+    entrypoint: 'python'
+    env:
+      - "GOOGLE_APPLICATION_CREDENTIALS=./llm-dolly-4238b15abc7d.json"
+    args: ['pipeline_run.py']
+    id: 'run_pipeline'
+    waitFor: ['get_key_json']
+options:
+  logging: CLOUD_LOGGING_ONLY
+
