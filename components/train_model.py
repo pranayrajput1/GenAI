@@ -21,6 +21,13 @@ def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
                     save_model_bucket_name: str,
                     model_artifact_path: dsl.OutputPath()
                     ):
+    """
+    Function to perform model fine_tuning on custom dataset and save the trained model to gcs bucket
+    @param dataset_path: parquet file dataset path
+    @param model_name: original model name
+    @param save_model_bucket_name: bucket name where model needs to be saved
+    @param model_artifact_path: bucket path where model is saved and displayed as output in pipeline
+    """
     import logging
     from src import model
 

@@ -17,6 +17,11 @@ def process_data(
         dataset_bucket: str,
         dataset: dsl.Output[dsl.Dataset]
 ):
+    """
+    Function to load dataset from gcs bucket and pass to next component as a parquet file path.
+    @param dataset_bucket: bucket name where dataset is stored
+    @param dataset: parquet file dataset path
+    """
     import logging
     import pandas as pd
 
