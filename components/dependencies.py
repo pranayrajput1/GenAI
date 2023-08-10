@@ -8,7 +8,7 @@ DEPENDENCY_VERSIONS = {
     "gcsfs": "gcsfs==2023.6.0",
     "google-cloud-storage": "google-cloud-storage==2.10.0",
     "google-cloud-aiplatform": "google-cloud-aiplatform==1.29.0",
-    "google-cloud-build": "google-cloud-build==3.19.0",
+    "google-cloud-build": "google-cloud-build==3.20.0",
     "kfp": "kfp[all]==1.8.19",
     "psutil": "psutil==5.9.5",
     "datasets": "datasets~=2.14.4",

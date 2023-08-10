@@ -13,7 +13,7 @@ from components.dependencies import resolve_dependencies
         'fsspec'
     )
 )
-def process_data(dataset: dsl.Output[dsl.Dataset]):
+def process_data(dataset: dsl.Output[dsl.Dataset], staging_bucket, dataset_name):
     import logging
     import pandas as pd
 
@@ -22,7 +22,7 @@ def process_data(dataset: dsl.Output[dsl.Dataset]):
     logger.addHandler(logging.StreamHandler())
 
     try:
-        read_file = pd.read_csv("gs://llm-bucket-dolly/queries_train.csv")
+        read_file = pd.read_csv(f"{staging_bucket}/{dataset_name}")
         train_df = pd.DataFrame(read_file)
         train_df.to_parquet(dataset.path)
 

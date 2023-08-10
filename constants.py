@@ -3,6 +3,7 @@ from pathlib import Path
 path = Path(__file__).resolve().parent
 
 
+dataset_name = "query_train.csv"
 original_model_name = "databricks/dolly-v2-3b"
 model_path = "./model_dir"
 
