@@ -11,6 +11,6 @@ ENV AIP_MODEL_DIR=gs://fine_tuned_model/
 #ENV AIP_PREDICT_ROUTE=/predict
 #ENV AIP_HTTP_PORT=8080
 
-ENTRYPOINT ["python", "serving_container/serve_model.py"]
+#ENTRYPOINT ["python", "serving_container/serve_model.py"]
 
 ENV PYTHONPATH /usr/src/app

@@ -1,16 +1,14 @@
-# from kfp.v2.components.component_decorator import component
-# from components.dependencies import resolve_dependencies
-from constants import base_image, project_id, trigger_id
+from kfp.v2.components.component_decorator import component
+from components.dependencies import resolve_dependencies
+from constants import base_image
 
 
-#
-#
-# @component(
-#     base_image=base_image,
-#     packages_to_install=resolve_dependencies(
-#         'google-cloud-build'
-#     )
-# )
+@component(
+    base_image=base_image,
+    packages_to_install=resolve_dependencies(
+        'google-cloud-build'
+    )
+)
 def upload_container(project_id: str,
                      trigger_id: str,
                      ):
@@ -28,12 +26,12 @@ def upload_container(project_id: str,
     logger.addHandler(logging.StreamHandler())
 
     try:
-        def upload_model(project, trigger):
+        def upload_model(get_project_id, get_trigger_id):
             logging.info("Making Client Connection: ")
             cloud_build_client = cloudbuild_v1.CloudBuildClient()
 
             logging.info("Triggering Cloud Build For DB Scan Serving Container")
-            response = cloud_build_client.run_build_trigger(project_id=project, trigger_id=trigger)
+            response = cloud_build_client.run_build_trigger(project_id=get_project_id, trigger_id=get_trigger_id)
 
             if response.result():
                 logging.info("Cloud Build Successful")
@@ -49,6 +47,3 @@ def upload_container(project_id: str,
     except Exception as e:
         logging.error("Failed to create serving container and push task")
         raise e
-
-
-upload_container(project_id, trigger_id)

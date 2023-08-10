@@ -3,8 +3,10 @@ from datasets import load_dataset
 from functools import partial
 import numpy as np
 from transformers import (Trainer, TrainingArguments)
-from utils.helper_functions import get_log, get_memory_usage
 from kfp.v2 import dsl
+
+from src.save_model_helper import save_model
+from utils.helper_functions import get_log, get_memory_usage
 import pandas as pd
 import json
 import os
@@ -14,18 +16,25 @@ logging = get_log()
 
 def fine_tune_model(dataset_path: str,
                     model_name: str,
-                    model_artifact_path: dsl.Output[dsl.Model]
+                    save_model_bucket_name: str,
+                    model_artifact_path: dsl.OutputPath()
                     ):
+    logging.info("Task: Reading training dataset")
     train_df = pd.read_parquet(dataset_path)
-    training_prompts = train_df.to_dict(orient="records")
-    save_train_data_path = "./train_data/"
 
+    logging.info("Task: Converting csv data to json format")
+    training_prompts = train_df.to_dict(orient="records")
+
+    logging.info("Task: Making Directory if not exist for saving training json data")
+    save_train_data_path = "./train_data/"
     os.makedirs(save_train_data_path, exist_ok=True)
 
+    logging.info(f"Task: Dumping the training json data to the directory: {save_train_data_path}")
     json_file_path = os.path.join(save_train_data_path, 'train_queries.json')
     with open(json_file_path, 'w') as f:
         json.dump(training_prompts, f)
 
+    logging.info("Task: Defining special tokens to be to be used in model training")
     """To be added as special tokens"""
     INSTRUCTION_KEY = "### Instruction:"
     INPUT_KEY = "Input:"
@@ -33,7 +42,9 @@ def fine_tune_model(dataset_path: str,
     END_KEY = "### End"
     RESPONSE_KEY_NL = f"{RESPONSE_KEY}\n"
 
+    logging.info("Task: Defining load tokenizer function")
     """This is the function to load tokenizer"""
+
     def load_tokenizer(pretrained_model_name_or_path):
         tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
         tokenizer.pad_token = tokenizer.eos_token
@@ -44,7 +55,9 @@ def fine_tune_model(dataset_path: str,
         get_memory_usage()
         return tokenizer
 
+    logging.info("Task: Defining load model function")
     """This is the function to load model"""
+
     def load_model(pretrained_model_name_or_path, gradient_checkpointing):
         default_model = AutoModelForCausalLM.from_pretrained(
             pretrained_model_name_or_path,
@@ -55,7 +68,9 @@ def fine_tune_model(dataset_path: str,
         get_memory_usage()
         return default_model
 
+    logging.info("Task: Defining function to get model & tokenizer")
     """This is the function to call for loading both tokenizer and model"""
+
     def get_model_tokenizer(
             pretrained_model_name_or_path, gradient_checkpointing):
         pretrained_tokenizer = load_tokenizer(pretrained_model_name_or_path)
@@ -65,12 +80,14 @@ def fine_tune_model(dataset_path: str,
         model.resize_token_embeddings(len(tokenizer))
         return pretrained_model, pretrained_tokenizer
 
+    logging.info("Task: Reading model and tokenizer")
     """Loading model and tokenizer here"""
     model, tokenizer = get_model_tokenizer(
         pretrained_model_name_or_path=model_name,
         gradient_checkpointing=True
     )
 
+    logging.info("Task: Getting max length of the model")
     """Find max length in model configuration"""
     max_length = getattr(model.config, "max_position_embeddings", None)
 
@@ -78,6 +95,7 @@ def fine_tune_model(dataset_path: str,
         "Below is an instruction that describes a task. Write a response that appropriately completes the request."
     )
 
+    logging.info("Task: Defining the parameters if no input format is provided")
     PROMPT_NO_INPUT_FORMAT = """{intro}
     {instruction_key}
     {instruction}
@@ -92,6 +110,7 @@ def fine_tune_model(dataset_path: str,
         end_key=END_KEY,
     )
 
+    logging.info("Task: Defining the parameters if input format is provided")
     """training prompt that contains an input string that serves as context"""
     PROMPT_WITH_INPUT_FORMAT = """{intro}
     {instruction_key}
@@ -111,7 +130,9 @@ def fine_tune_model(dataset_path: str,
         end_key=END_KEY,
     )
 
+    logging.info("Task: Defining the function to load and process training dataset")
     """Function to load training dataset"""
+
     def load_training_dataset(path_or_dataset="./train_data/"):
         dataset = load_dataset(path_or_dataset)["train"]
 
@@ -135,7 +156,9 @@ def fine_tune_model(dataset_path: str,
         dataset = dataset.map(_add_text)
         return dataset
 
+    logging.info("Task: Defining the function to process the data into batches")
     """Function to preprocess dataset into batches and tokenize them"""
+
     def preprocess_batch(batch, tokenizer, max_length):
         return tokenizer(
             batch["text"],
@@ -143,11 +166,13 @@ def fine_tune_model(dataset_path: str,
             truncation=True,
         )
 
+    logging.info("Task: Defining the function to map the data")
     """Function to call load dataset and process that."""
-    def preprocess_dataset(tokenizer, max_length):
+
+    def preprocess_dataset(get_tokenizer, get_max_length):
         dataset = load_training_dataset()
         _preprocessing_function = partial(
-            preprocess_batch, max_length=max_length, tokenizer=tokenizer)
+            preprocess_batch, max_length=get_max_length, tokenizer=get_tokenizer)
         dataset = dataset.map(
             _preprocessing_function,
             batched=True,
@@ -161,10 +186,13 @@ def fine_tune_model(dataset_path: str,
         get_memory_usage()
         return dataset
 
+    logging.info("Task: Retrieving the processed data for model training")
     """Retrieving processed dataset"""
     processed_data = preprocess_dataset(tokenizer, max_length)
 
+    logging.info("Task: Defining the function to process data into tokens")
     """Prepare the input data for training a completion-only language model"""
+
     class DataCollatorForCompletionOnlyLM(DataCollatorForLanguageModeling):
         def torch_call(self, examples):
             batch = super().torch_call(examples)
@@ -193,16 +221,21 @@ def fine_tune_model(dataset_path: str,
             get_memory_usage()
             return batch
 
+    logging.info("Task: Getting the tokenized data")
     data_collator = DataCollatorForCompletionOnlyLM(
         tokenizer=tokenizer, mlm=False, return_tensors="pt", pad_to_multiple_of=8
     )
 
     """ model saving path """
+    logging.info("Task: Defining Directory if not exist for saving model")
     local_output_dir = "./model_dir/"
+    os.makedirs(local_output_dir, exist_ok=True)
 
+    logging.info("Task: Defining the epoch count for number of iteration of model training")
     """Epoch count to iterate over dataset multiple times"""
     epoch_count = 1
 
+    logging.info("Task: Defining the model training hyperparameters")
     """model training hyperparameter"""
     training_args = TrainingArguments(
         output_dir=local_output_dir,
@@ -230,6 +263,7 @@ def fine_tune_model(dataset_path: str,
         warmup_steps=0,
     )
 
+    logging.info("Task: Defining the parameters for the trainer")
     """setting model training arguments"""
     trainer = Trainer(
         model=model,
@@ -239,12 +273,25 @@ def fine_tune_model(dataset_path: str,
         data_collator=data_collator,
     )
 
+    logging.info("Task: Starting the model training")
     """begin model training"""
     trainer.train()
+
+    logging.info("Task: Model training completed successfully")
     logging.debug("Memory usage in model training")
     get_memory_usage()
 
+    logging.info(f"Task: Saving the trained model to directory: {local_output_dir}")
     """save model after training"""
     trainer.save_model(output_dir=local_output_dir)
+    logging.info(f"Task: Model saved successfully to the directory: {local_output_dir}")
+
     logging.debug("Memory usage in model saving")
     get_memory_usage()
+
+    logging.debug(f"Task: Saving model to GCS Bucket: {save_model_bucket_name}")
+    save_model(save_model_bucket_name, local_output_dir)
+    logging.debug(f"Task: Saved model file to GCS Bucket: {save_model_bucket_name} successfully")
+
+    logging.debug("Task: Setting saved model directory bucket path")
+    model_artifact_path.set(f'gs://{save_model_bucket_name}/')

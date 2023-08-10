@@ -17,8 +17,10 @@ from constants import base_image
     )
 )
 def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
-                    model_artifact_path: dsl.Output[dsl.Model],
-                    model_name: str):
+                    model_name: str,
+                    save_model_bucket_name: str,
+                    model_artifact_path: dsl.OutputPath()
+                    ):
     import logging
     from src import model
 
@@ -27,7 +29,7 @@ def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
     logger.addHandler(logging.StreamHandler())
 
     try:
-        model.fine_tune_model(dataset_path.path, model_name, model_artifact_path.path)
+        model.fine_tune_model(dataset_path.path, model_name, save_model_bucket_name, model_artifact_path)
 
     except Exception as e:
         logging.error("Failed to train model!")

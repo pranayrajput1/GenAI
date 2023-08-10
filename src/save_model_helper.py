@@ -1,27 +1,7 @@
-from kfp.v2 import dsl
-from kfp.v2.components.component_decorator import component
-from components.dependencies import resolve_dependencies
-from constants import base_image
-
-
-@component(
-    base_image=base_image,
-    packages_to_install=resolve_dependencies(
-        'kfp',
-        'fsspec',
-        'pyarrow',
-        'gcsfs',
-        'google-cloud-storage',
-    )
-)
-def save_model(bucket_name: str,
-               llm_model: dsl.OutputPath(),
-               model_dir="./model_dir/"
-               ):
+def save_model(bucket_name: str, model_dir):
     """
     Function to save model files to the gcs_bucket.
     @param bucket_name: gcs_bucket name where model files has to be saved
-    @param llm_model: saved_model gcs_bucket path
     @param model_dir:local model files directory
     """
     import logging
@@ -52,9 +32,6 @@ def save_model(bucket_name: str,
                 blob.upload_from_filename(file_path)
 
                 logging.debug(f"Task: Uploaded file: {file_name} to {bucket_name} successfully")
-
-        logging.debug("Task: Setting saved model directory bucket path")
-        llm_model.set(f'gs://{bucket_name}/')
 
     except Exception as e:
         logging.error(f"Some error occurred in uploading model files to the bucket nameL: {bucket_name}")

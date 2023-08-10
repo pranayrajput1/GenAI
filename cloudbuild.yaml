@@ -30,7 +30,7 @@ steps:
 
   # download service key file from gcs.
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', 'gs://llm-key-bucket/llm-dolly-4238b15abc7d.json', 'llm-dolly-4238b15abc7d.json']
+    args: ['cp', 'gs://llm-dolly-kubeflow-pipeline/llm-dolly-4238b15abc7d.json', 'llm-dolly-4238b15abc7d.json']
     id:  'get_key_json'
     waitFor: ['upload']
 
