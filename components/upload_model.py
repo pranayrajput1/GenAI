@@ -1,14 +1,16 @@
-from kfp.v2.components.component_decorator import component
-from components.dependencies import resolve_dependencies
-from constants import base_image
+# from kfp.v2.components.component_decorator import component
+# from components.dependencies import resolve_dependencies
+from constants import base_image, project_id, trigger_id
 
 
-@component(
-    base_image=base_image,
-    packages_to_install=resolve_dependencies(
-        'google-cloud-build'
-    )
-)
+#
+#
+# @component(
+#     base_image=base_image,
+#     packages_to_install=resolve_dependencies(
+#         'google-cloud-build'
+#     )
+# )
 def upload_container(project_id: str,
                      trigger_id: str,
                      ):
@@ -47,3 +49,6 @@ def upload_container(project_id: str,
     except Exception as e:
         logging.error("Failed to create serving container and push task")
         raise e
+
+
+upload_container(project_id, trigger_id)

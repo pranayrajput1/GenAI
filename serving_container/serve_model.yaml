@@ -7,7 +7,7 @@ steps:
 
   # Downloading Trained model from model artifact
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: [ 'cp', 'gs://trained_model/*', 'serving_container/trained_model/' ]
+    args: [ 'cp', 'gs://fine_tuned_model/*', 'serving_container/trained_model/' ]
     id: 'model'
 
   # Build the serving container image

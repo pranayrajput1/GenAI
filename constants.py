@@ -14,7 +14,7 @@ service_account = "1053338264064-compute@developer.gserviceaccount.com"
 project_region = "us-central1"
 project_id = "llm-dolly"
 
-trigger_id = ""
+trigger_id = "889113a9-dada-49b0-beb7-ada0efba4bc2"
 serving_image = ""
 model_display_name = "dolly_v2_3b"
 staging_bucket = "gs://llm-bucket-dolly/"
