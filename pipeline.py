@@ -3,10 +3,13 @@ from kfp.v2 import compiler
 import kfp
 
 from components.process_data import process_data
+from components.save_trained_model import save_model
+from components.serve_model import serve_model_component
 from components.train_model import fine_tune_model
-# from components.upload_model import upload_serving_model_container
+from components.upload_model import upload_container
 from constants import project_region, serving_image, model_display_name, \
-    pipeline_description, pipeline_name, pipeline_root_gcs, original_model_name
+    pipeline_description, pipeline_name, pipeline_root_gcs, original_model_name, model_bucket_name, model_path, \
+    trigger_id, staging_bucket
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -28,15 +31,20 @@ def pipeline(
         .set_cpu_request("8") \
         .set_memory_limit("64G")
 
+    """Save Model To GCS Bucket"""
+    save_model_task = save_model(model_bucket_name) \
+        .after(train_model_task) \
+        .set_display_name("Save Model")
+
     """Upload model package"""
-    # upload_model_task = upload_serving_model_container(project_id, trigger_id) \
-    #     .after(train_model_task) \
-    #     .set_display_name("Model_Upload")
+    upload_model_task = upload_container(project_id, trigger_id) \
+        .after(save_model_task) \
+        .set_display_name("Model_Upload")
 
     """Serve Model To Endpoint"""
-    # serve_model_component(project_id, project_region, staging_bucket, serving_image, model_display_name) \
-    #     .after(upload_model_task) \
-    #     .set_display_name("Serve_Model")
+    serve_model_component(project_id, project_region, staging_bucket, serving_image, model_display_name) \
+        .after(upload_model_task) \
+        .set_display_name("Serve_Model")
 
 
 def compile_pipeline(pipeline_template_name='./llm_pipeline.json'):
