@@ -5,8 +5,8 @@ import kfp
 from components.process_data import process_data
 from components.train_model import fine_tune_model
 # from components.upload_model import upload_serving_model_container
-from constants import project_region, serving_image, model_display_name, staging_bucket, \
-    pipeline_description, pipeline_name, pipeline_root_gcs, original_model_name, dataset_name
+from constants import project_region, serving_image, model_display_name, \
+    pipeline_description, pipeline_name, pipeline_root_gcs, original_model_name
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def pipeline(
         project_id: str,
         job_id: str
 ):
-    process_data_task = process_data(staging_bucket, dataset_name).set_display_name("Process Data")
+    process_data_task = process_data().set_display_name("Process Data")
 
     """Fine Tune Model Pipeline"""
     train_model_task = fine_tune_model(process_data_task.output, original_model_name) \
