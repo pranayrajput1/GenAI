@@ -284,7 +284,7 @@ def fine_tune_model(dataset_path: str,
     logging.info(f"Task: Saving the trained model to directory: {local_output_dir}")
     """save model after training"""
     trainer.save_model(output_dir=local_output_dir)
-    logging.info(f"Task: Model saved successfully to the directory: {local_output_dir}")
+    logging.info(f"Task: Model saved successfully to the local directory: {local_output_dir}")
 
     logging.debug("Memory usage in model saving")
     get_memory_usage()

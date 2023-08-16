@@ -8,12 +8,18 @@ from constants import base_image
     base_image=base_image,
     packages_to_install=resolve_dependencies(
         'pandas',
+        'numpy',
         'kfp',
         'numpy',
         'fsspec',
         'pyarrow',
         'gcsfs',
         'google-cloud-storage',
+        'datasets',
+        'accelerate',
+        'torch',
+        'psutil',
+        'transformers'
     )
 )
 def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],

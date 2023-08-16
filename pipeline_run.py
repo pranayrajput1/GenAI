@@ -6,7 +6,7 @@ from constants import project_region, service_account, pipeline_name, project_id
 
 def run_pipeline_job(
         sync: bool = False, *,
-        pipeline_template_name: str = 'gs://llm-bucket-dolly/llm_pipeline.json',
+        pipeline_template_name: str = './llm_pipeline.json',
         cleanup_compiled_pipeline: bool = False,
         enable_caching: bool = False,
 ) -> aiplatform.PipelineJob:

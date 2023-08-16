@@ -11,10 +11,9 @@ DEPENDENCY_VERSIONS = {
     "google-cloud-build": "google-cloud-build==3.20.0",
     "kfp": "kfp[all]==1.8.19",
     "psutil": "psutil==5.9.5",
-    "datasets": "datasets~=2.14.4",
-    "deepspeed": "deepspeed==0.10.0",
+    "datasets": "datasets>=2.10.0,<3",
     "transformers": "transformers[torch]>=4.28.1,<5",
-    "torch": "torch~=2.0.1",
+    "torch": "torch>=1.13.1,<2",
     "accelerate": "accelerate>=0.16.0,<1",
 }
 
