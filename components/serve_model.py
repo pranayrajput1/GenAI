@@ -70,7 +70,6 @@ def serve_model_component(
 
             logging.info("Task: Uploaded Model to an Endpoint Successfully")
 
-
     except Exception as e:
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")
         raise e

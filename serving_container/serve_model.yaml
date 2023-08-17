@@ -1,24 +1,24 @@
 steps:
 
   # Install dependencies
-  - name: 'python:3.10.6'
+  - name: 'python:3.8'
     entrypoint: pip
     args: [ "install", "-r", "serving_container/requirements.txt", "--user" ]
 
   # Downloading Trained model from model artifact
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: [ 'cp', 'gs://fine_tuned_model/*', 'serving_container/trained_model/' ]
+    args: [ 'cp', 'gs://llm_dolly_model/*', 'serving_container/trained_model/' ]
     id: 'model'
 
   # Build the serving container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '.', '-t', 'us-central1-docker.pkg.dev/llm-dolly/model-serving/llm-model-serve-image:0.1', '-f', 'serving_container/Dockerfile' ]
+    args: [ 'build', '.', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/nashtech-ai-docker-registry/llm-dolly-serve-image:0.1', '-f', 'serving_container/Dockerfile' ]
     id: 'build'
     waitFor: ['model']
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev/llm-dolly/model-serving/llm-model-serve-image:0.1' ]
+    args: [ 'push', 'us-central1-docker.pkg.dev//nashtech-ai-dev-389315/nashtech-ai-docker-registry/llm-dolly-serve-image:0.1' ]
     id: 'push'
     waitFor: ['build']
 

@@ -27,8 +27,8 @@ def pipeline(
     """Fine Tune Model Pipeline"""
     train_model_task = fine_tune_model(process_data_task.outputs["dataset"],
                                        original_model_name,
-                                       component_execution,
-                                       save_model_bucket_name) \
+                                       save_model_bucket_name,
+                                       component_execution) \
         .after(process_data_task) \
         .set_display_name("Dolly Fine Tuning") \
         # .set_cpu_request("8") \

@@ -132,3 +132,4 @@ dmypy.json
 .pyre/
 
 *.json
+/dataset/query_train.csv

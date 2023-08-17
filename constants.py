@@ -3,7 +3,7 @@ from pathlib import Path
 path = Path(__file__).resolve().parent
 
 dataset_dir = path / "dataset"
-dataset_path = dataset_dir / "query_train.json"
+dataset_path = dataset_dir / "query_train.csv"
 
 dataset_name = "query_train.json"
 save_model_bucket_name = "llm_dolly_model"

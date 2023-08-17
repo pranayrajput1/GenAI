@@ -1,10 +1,11 @@
 from kfp.v2 import dsl
 from kfp.v2.components.component_decorator import component
 from components.dependencies import resolve_dependencies
+from constants import base_image
 
 
 @component(
-    base_image="python:3.10.6",
+    base_image=base_image,
     packages_to_install=resolve_dependencies(
         'pandas',
         'google-cloud-storage',
