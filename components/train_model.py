@@ -25,6 +25,7 @@ from constants import base_image
 def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
                     model_name: str,
                     save_model_bucket_name: str,
+                    component_execution: bool,
                     model_artifact_path: dsl.OutputPath()
                     ):
     """
@@ -33,6 +34,7 @@ def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
     @param model_name: original model name
     @param save_model_bucket_name: bucket name where model needs to be saved
     @param model_artifact_path: bucket path where model is saved and displayed as output in pipeline
+    @param component_execution:
     """
     import logging
     from src import model
@@ -42,7 +44,11 @@ def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
     logger.addHandler(logging.StreamHandler())
 
     try:
-        model.fine_tune_model(dataset_path.path, model_name, save_model_bucket_name, model_artifact_path)
+        if not component_execution:
+            logging.info("Component execution: model training is bypassed")
+        else:
+            logging.info("Started Model Training Task")
+            model.fine_tune_model(dataset_path.path, model_name, save_model_bucket_name, model_artifact_path)
 
     except Exception as e:
         logging.error("Failed to train model!")

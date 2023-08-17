@@ -11,6 +11,7 @@ from constants import base_image
 )
 def upload_container(project_id: str,
                      trigger_id: str,
+                     component_execution: bool
                      ):
     """
     Function to trigger cloud build over GCP, which create the serve model docker image.
@@ -26,23 +27,26 @@ def upload_container(project_id: str,
     logger.addHandler(logging.StreamHandler())
 
     try:
-        def upload_model(get_project_id, get_trigger_id):
-            logging.info("Making Client Connection: ")
-            cloud_build_client = cloudbuild_v1.CloudBuildClient()
+        if not component_execution:
+            logging.info("Component execution: upload serving container image is bypassed")
+        else:
+            def upload_model(get_project_id, get_trigger_id):
+                logging.info("Making Client Connection: ")
+                cloud_build_client = cloudbuild_v1.CloudBuildClient()
 
-            logging.info("Triggering Cloud Build For DB Scan Serving Container")
-            response = cloud_build_client.run_build_trigger(project_id=get_project_id, trigger_id=get_trigger_id)
+                logging.info("Triggering Cloud Build For DB Scan Serving Container")
+                response = cloud_build_client.run_build_trigger(project_id=get_project_id, trigger_id=get_trigger_id)
 
-            if response.result():
-                logging.info("Cloud Build Successful")
-                return True
-            else:
-                logging.info("Cloud Build Failed !")
-                raise RuntimeError
+                if response.result():
+                    logging.info("Cloud Build Successful")
+                    return True
+                else:
+                    logging.info("Cloud Build Failed !")
+                    raise RuntimeError
 
-        if upload_model(project_id, trigger_id) is True:
-            logging.info("Cloud Build completed successfully passing to next component")
-            pass
+            if upload_model(project_id, trigger_id) is True:
+                logging.info("Cloud Build completed successfully passing to next component")
+                pass
 
     except Exception as e:
         logging.error("Failed to create serving container and push task")

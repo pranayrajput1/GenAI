@@ -9,12 +9,14 @@ DEPENDENCY_VERSIONS = {
     "google-cloud-storage": "google-cloud-storage==2.10.0",
     "google-cloud-aiplatform": "google-cloud-aiplatform==1.29.0",
     "google-cloud-build": "google-cloud-build==3.20.0",
+    "google": "google~=3.0.0",
     "kfp": "kfp[all]==1.8.19",
     "psutil": "psutil==5.9.5",
     "datasets": "datasets>=2.10.0,<3",
     "transformers": "transformers[torch]>=4.28.1,<5",
     "torch": "torch>=1.13.1,<2",
     "accelerate": "accelerate>=0.16.0,<1",
+
 }
 
 

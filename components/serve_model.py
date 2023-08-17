@@ -16,6 +16,7 @@ def serve_model_component(
         staging_bucket: str,
         serving_image_uri: str,
         model_display_name: str,
+        component_execution: bool,
         vertex_endpoint: Output[Artifact],
         vertex_model: Output[Model],
         machine_type: str = 'e2-standard-2',
@@ -40,31 +41,35 @@ def serve_model_component(
     logger.addHandler(logging.StreamHandler())
 
     try:
-        logging.info(f"Task: Initiating aiplatform for project: {project_id} & {location}")
-        aiplatform.init(project=project_id, location=location, staging_bucket=staging_bucket)
+        if not component_execution:
+            logging.info("Component execution: serve model execution is bypassed")
+        else:
+            logging.info(f"Task: Initiating aiplatform for project: {project_id} & {location}")
+            aiplatform.init(project=project_id, location=location, staging_bucket=staging_bucket)
 
-        logging.info("Task: Uploading model to model registry")
+            logging.info("Task: Uploading model to model registry")
 
-        model = aiplatform.Model.upload(display_name=model_display_name,
-                                        location=location,
-                                        serving_container_image_uri=serving_image_uri,
-                                        serving_container_ports=[8080]
-                                        )
+            model = aiplatform.Model.upload(display_name=model_display_name,
+                                            location=location,
+                                            serving_container_image_uri=serving_image_uri,
+                                            serving_container_ports=[8080]
+                                            )
 
-        logging.info("Task: Uploaded Model to Model Registry Successfully")
+            logging.info("Task: Uploaded Model to Model Registry Successfully")
 
-        logging.info("Task: Deploying Model to an endpoint")
-        endpoint = model.deploy(machine_type=machine_type,
-                                min_replica_count=1,
-                                max_replica_count=2,
-                                accelerator_type=None,
-                                accelerator_count=None)
-        logging.info(endpoint)
+            logging.info("Task: Deploying Model to an endpoint")
+            endpoint = model.deploy(machine_type=machine_type,
+                                    min_replica_count=1,
+                                    max_replica_count=2,
+                                    accelerator_type=None,
+                                    accelerator_count=None)
+            logging.info(endpoint)
 
-        vertex_endpoint.uri = endpoint.resource_name
-        vertex_model.uri = model.resource_name
+            vertex_endpoint.uri = endpoint.resource_name
+            vertex_model.uri = model.resource_name
 
-        logging.info("Task: Uploaded Model to an Endpoint Successfully")
+            logging.info("Task: Uploaded Model to an Endpoint Successfully")
+
 
     except Exception as e:
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")
