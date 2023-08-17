@@ -14,11 +14,14 @@ from components.dependencies import resolve_dependencies
     )
 )
 def process_data(
+        dataset_bucket: str,
         dataset: dsl.Output[dsl.Dataset]
+
 ):
     """
     Function to load dataset from gcs bucket and pass to next component as a parquet file path.
     @param dataset: parquet file dataset path
+    @param dataset_bucket:
     """
     import logging
     import pandas as pd
@@ -27,12 +30,9 @@ def process_data(
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler())
 
-    dataset_path = "./dataset/query_train.json"
     try:
-        logging.debug(f"Task: Getting dataset from gcs bucket: '{dataset_path}'")
-        # read_file = pd.read_csv(f"gs://{dataset_bucket}/query_train.csv")
-
-        read_file = pd.read_csv(dataset_path)
+        logging.debug(f"Task: Getting dataset from gcs bucket: '{dataset_bucket}'")
+        read_file = pd.read_csv(f"gs://{dataset_bucket}/query_train.csv")
         train_df = pd.DataFrame(read_file)
 
         logging.debug("Task: Saving dataset to parquet file")
@@ -41,5 +41,3 @@ def process_data(
     except Exception as e:
         logging.error("Failed to process data!")
         raise e
-
-
