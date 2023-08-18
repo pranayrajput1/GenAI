@@ -1,4 +1,10 @@
-def save_model(bucket_name: str, model_dir):
+from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+
+def save_model(bucket_name: str, model_dir: str):
     """
     Function to save model files to the gcs_bucket.
     @param bucket_name: gcs_bucket name where model files has to be saved

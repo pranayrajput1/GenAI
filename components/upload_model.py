@@ -34,7 +34,7 @@ def upload_container(project_id: str,
                 logging.info("Making Client Connection: ")
                 cloud_build_client = cloudbuild_v1.CloudBuildClient()
 
-                logging.info("Triggering Cloud Build For DB Scan Serving Container")
+                logging.info("Triggering Cloud Build For Dolly Model Serving Container")
                 response = cloud_build_client.run_build_trigger(project_id=get_project_id, trigger_id=get_trigger_id)
 
                 if response.result():

@@ -19,7 +19,7 @@ def serve_model_component(
         component_execution: bool,
         vertex_endpoint: Output[Artifact],
         vertex_model: Output[Model],
-        machine_type: str = 'e2-standard-2',
+        machine_type: str = 'e2-highmem-8',
 
 ):
     """

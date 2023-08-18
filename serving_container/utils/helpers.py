@@ -61,13 +61,13 @@ def load_model(pretrained_model_name_or_path, gradient_checkpointing):
 
 def get_model_tokenizer(
         pretrained_model_name_or_path, gradient_checkpointing):
-    tokenizer = load_tokenizer(pretrained_model_name_or_path)
-    model = load_model(
+    pretrained_tokenizer = load_tokenizer(pretrained_model_name_or_path)
+    pretrained_model = load_model(
         pretrained_model_name_or_path, gradient_checkpointing
     )
-    model.resize_token_embeddings(len(tokenizer))
+    pretrained_model.resize_token_embeddings(len(pretrained_tokenizer))
     get_memory_usage()
-    return model, tokenizer
+    return pretrained_model, pretrained_tokenizer
 
 
 def get_special_token_id(tokenizer: PreTrainedTokenizer, key: str) -> int:

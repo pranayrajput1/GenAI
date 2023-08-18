@@ -1,10 +1,9 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling
 from datasets import load_dataset
 from functools import partial
 import numpy as np
 from transformers import (Trainer, TrainingArguments)
 from src.save_model_helper import save_model
-from utils.helper_functions import get_log, get_memory_usage
+from utils.helper_functions import get_log, get_memory_usage, get_model_tokenizer
 import pandas as pd
 import json
 import os
@@ -32,54 +31,18 @@ def fine_tune_model(dataset_path: str,
         with open(json_file_path, 'w') as f:
             json.dump(training_prompts, f)
 
-        logging.info("Task: Defining special tokens to be to be used in model training")
-        """To be added as special tokens"""
-        INSTRUCTION_KEY = "### Instruction:"
-        INPUT_KEY = "Input:"
-        RESPONSE_KEY = "### Response:"
-        END_KEY = "### End"
-        RESPONSE_KEY_NL = f"{RESPONSE_KEY}\n"
 
-        logging.info("Task: Defining load tokenizer function")
-        """This is the function to load tokenizer"""
-
-        def load_tokenizer(pretrained_model_name_or_path):
-            tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
-            tokenizer.pad_token = tokenizer.eos_token
-            tokenizer.add_special_tokens(
-                {"additional_special_tokens": [END_KEY, INSTRUCTION_KEY, RESPONSE_KEY_NL]}
-            )
-            logging.debug("Memory usage in loading model tokenizer")
-            get_memory_usage()
-            return tokenizer
-
-        logging.info("Task: Defining load model function")
-        """This is the function to load model"""
-
-        def load_model(pretrained_model_name_or_path, gradient_checkpointing):
-            default_model = AutoModelForCausalLM.from_pretrained(
-                pretrained_model_name_or_path,
-                trust_remote_code=True,
-                use_cache=False if gradient_checkpointing else True
-            )
-            logging.debug("Memory usage in loading model")
-            get_memory_usage()
-            return default_model
-
-        logging.info("Task: Defining function to get model & tokenizer")
-        """This is the function to call for loading both tokenizer and model"""
-
-        def get_model_tokenizer(
-                pretrained_model_name_or_path, gradient_checkpointing):
-            pretrained_tokenizer = load_tokenizer(pretrained_model_name_or_path)
-            pretrained_model = load_model(
-                pretrained_model_name_or_path, gradient_checkpointing
-            )
-            model.resize_token_embeddings(len(tokenizer))
-            return pretrained_model, pretrained_tokenizer
+        # logging.info("Task: Defining special tokens to be to be used in model training")
+        # """To be added as special tokens"""
+        # INSTRUCTION_KEY = "### Instruction:"
+        # INPUT_KEY = "Input:"
+        # RESPONSE_KEY = "### Response:"
+        # END_KEY = "### End"
+        # RESPONSE_KEY_NL = f"{RESPONSE_KEY}\n"
 
         logging.info("Task: Reading model and tokenizer")
         """Loading model and tokenizer here"""
+
         model, tokenizer = get_model_tokenizer(
             pretrained_model_name_or_path=model_name,
             gradient_checkpointing=True
@@ -87,13 +50,15 @@ def fine_tune_model(dataset_path: str,
 
         """ model saving path """
         logging.info("Task: Defining Directory if not exist for saving model")
-        local_output_dir = "./model_dir/"
+        local_output_dir = "model_dir"
         os.makedirs(local_output_dir, exist_ok=True)
 
-        logging.info(f"Task: Saving the default model to directory: {local_output_dir}")
-        """save model after training"""
-        model.save_model(output_dir=local_output_dir)
+        logging.info(f"Task: Saving the default model & tokenizer to directory: {local_output_dir}")
+        model.save_pretrained(local_output_dir)
         logging.info(f"Task: Model saved successfully to the local directory: {local_output_dir}")
+
+        tokenizer.save_pretrained(local_output_dir)
+        logging.info(f"Task: Tokenizer saved successfully to the local directory: {local_output_dir}")
 
         # logging.info("Task: Getting max length of the model")
         # """Find max length in model configuration"""
@@ -233,8 +198,6 @@ def fine_tune_model(dataset_path: str,
         # data_collator = DataCollatorForCompletionOnlyLM(
         #     tokenizer=tokenizer, mlm=False, return_tensors="pt", pad_to_multiple_of=8
         # )
-
-
 
         # logging.info("Task: Defining the epoch count for number of iteration of model training")
         # """Epoch count to iterate over dataset multiple times"""
