@@ -18,7 +18,7 @@ steps:
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev//nashtech-ai-dev-389315/nashtech-ai-docker-registry/llm-dolly-serve-image:0.1' ]
+    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/nashtech-ai-docker-registry/llm-dolly-serve-image:0.1' ]
     id: 'push'
     waitFor: ['build']
 

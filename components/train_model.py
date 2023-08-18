@@ -25,7 +25,7 @@ def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
                     model_name: str,
                     save_model_bucket_name: str,
                     component_execution: bool,
-                    model_artifact_path: dsl.OutputPath()
+                    model_artifact_path: dsl.Output[dsl.Artifact]
                     ):
     """
     Function to perform model fine_tuning on custom dataset and save the trained model to gcs bucket
@@ -50,7 +50,7 @@ def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
             model.fine_tune_model(dataset_path.path, model_name, save_model_bucket_name)
 
             logging.info("Task: Setting saved model directory bucket path")
-            model_artifact_path.set(f'gs://{save_model_bucket_name}/')
+            model_artifact_path.uri = f'https://storage.cloud.google.com/{save_model_bucket_name}/'
 
     except Exception as e:
         logging.error("Failed to train model!")
