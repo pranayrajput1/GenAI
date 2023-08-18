@@ -15,6 +15,7 @@ model_path = "./trained_model/"
 """Reading trained model saved as joblib file"""
 start_time = time.time()
 
+logging.info("Task: Loading Saved Model and Tokenizer ")
 model, tokenizer = get_model_tokenizer(
     pretrained_model_name_or_path=model_path,
     gradient_checkpointing=True
