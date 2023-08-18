@@ -34,8 +34,8 @@ base_image = f"{project_region}-docker.pkg.dev/{project_id}/{docker_artifact_reg
 
 serving_image = f"{project_region}-docker.pkg.dev/{project_id}/{docker_artifact_registry}/{serve_image_qualifier}:{base_image_tag}"
 
-first_trigger_id = "b53c5514-dc86-46eb-bcf6-d48b9e7498d8"
+serving_trigger_id = "e908a62f-bec1-473a-9e7e-eaaa7775efc8"
 
-component_execution = False
+component_execution = True
 
 "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/nashtech-ai-docker-registry/llm-dolly-image:0.1"

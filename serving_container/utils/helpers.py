@@ -2,6 +2,7 @@ import time
 import psutil
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import logging
+from transformers import PreTrainedTokenizer
 
 logging.basicConfig(level=logging.INFO)
 
@@ -67,3 +68,121 @@ def get_model_tokenizer(
     model.resize_token_embeddings(len(tokenizer))
     get_memory_usage()
     return model, tokenizer
+
+
+def get_special_token_id(tokenizer: PreTrainedTokenizer, key: str) -> int:
+    """Gets the token ID for a given string that has been added to the tokenizer as a special token.
+
+    When training, we configure the tokenizer so that the sequences like "### Instruction:" and "### End" are
+    treated specially and converted to a single, new token.  This retrieves the token ID each of these keys map to.
+
+    Args:
+        tokenizer (PreTrainedTokenizer): the tokenizer
+        key (str): the key to convert to a single token
+
+    Raises:
+        ValueError: if more than one ID was generated
+
+    Returns:
+        int: the token ID for the given key
+    """
+    token_ids = tokenizer.encode(key)
+    if len(token_ids) > 1:
+        raise ValueError(f"Expected only a single token for '{key}' but found {token_ids}")
+    logging.error(f"Expected only a single token for '{key}' but found {token_ids}")
+    return token_ids[0]
+
+
+PROMPT_FOR_GENERATION_FORMAT = """{intro}
+{instruction_key}
+{instruction}
+{response_key}
+""".format(
+    intro=INTRO_BLURB,
+    instruction_key=INSTRUCTION_KEY,
+    instruction="{instruction}",
+    response_key=RESPONSE_KEY,
+)
+
+
+def preprocess(tokenizer, instruction_text):
+    prompt_text = PROMPT_FOR_GENERATION_FORMAT.format(
+        instruction=instruction_text
+    )
+    inputs = tokenizer(prompt_text, return_tensors="pt", )
+    inputs["prompt_text"] = prompt_text
+    inputs["instruction_text"] = instruction_text
+    return inputs
+
+
+def forward(model, tokenizer, model_inputs, max_length=200):
+    input_ids = model_inputs["input_ids"]
+    attention_mask = model_inputs.get("attention_mask", None)
+
+    if input_ids.shape[1] == 0:
+        input_ids = None
+        attention_mask = None
+        in_b = 1
+    else:
+        in_b = input_ids.shape[0]
+
+    generated_sequence = model.generate(
+        input_ids=input_ids.to(model.device),
+        attention_mask=attention_mask,
+        pad_token_id=tokenizer.pad_token_id,
+        max_length=max_length
+    )
+
+    out_b = generated_sequence.shape[0]
+    generated_sequence = generated_sequence.reshape(
+        in_b, out_b // in_b, *generated_sequence.shape[1:]
+    )
+    instruction_text = model_inputs.get("instruction_text", None)
+    get_memory_usage()
+    return {
+        "generated_sequence": generated_sequence,
+        "input_ids": input_ids, "instruction_text": instruction_text
+    }
+
+
+def postprocess(tokenizer, model_outputs, return_full_text=False):
+    response_key_token_id = get_special_token_id(tokenizer, RESPONSE_KEY_NL)
+    end_key_token_id = get_special_token_id(tokenizer, END_KEY)
+    generated_sequence = model_outputs["generated_sequence"][0]
+    instruction_text = model_outputs["instruction_text"]
+    generated_sequence = generated_sequence.numpy().tolist()
+    records = []
+
+    print(response_key_token_id, end_key_token_id)
+
+    for sequence in generated_sequence:
+        decoded = None
+
+        try:
+            response_pos = sequence.index(response_key_token_id)
+        except ValueError:
+            logging.error(
+                f"Could not find response key {response_key_token_id} in: {sequence}"
+            )
+            response_pos = None
+
+        if response_pos:
+            try:
+                end_pos = sequence.index(end_key_token_id)
+            except ValueError:
+                # logger.warning(
+                #     f"Could not find end key, the output is truncated!"
+                # )
+                print("Could not find end key, the output is truncated!")
+                end_pos = None
+            decoded = tokenizer.decode(
+                sequence[response_pos + 1: end_pos]).strip()
+
+        # If True,append the decoded text to the original instruction.
+        if return_full_text:
+            decoded = f"{instruction_text}\n{decoded}"
+        rec = {"generated_text": decoded}
+        records.append(rec)
+
+    get_memory_usage()
+    return records
