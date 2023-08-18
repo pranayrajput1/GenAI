@@ -9,7 +9,6 @@ from constants import base_image
     packages_to_install=resolve_dependencies(
         'pandas',
         'numpy',
-        'kfp',
         'numpy',
         'fsspec',
         'pyarrow',
@@ -48,7 +47,10 @@ def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
             logging.info("Component execution: model training is bypassed")
         else:
             logging.info("Started Model Training Task")
-            model.fine_tune_model(dataset_path.path, model_name, save_model_bucket_name, model_artifact_path)
+            model.fine_tune_model(dataset_path.path, model_name, save_model_bucket_name)
+
+            logging.info("Task: Setting saved model directory bucket path")
+            model_artifact_path.set(f'gs://{save_model_bucket_name}/')
 
     except Exception as e:
         logging.error("Failed to train model!")
