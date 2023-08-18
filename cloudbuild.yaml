@@ -6,12 +6,12 @@ steps:
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/train-dolly-pipeline/llm-dolly-image:0.1', '.' ]
+    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/nashtech-ai-docker-registry/llm-dolly-image:0.1', '.' ]
     id: 'build'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/train-dolly-pipeline/llm-dolly-image:0.1' ]
+    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/nashtech-ai-docker-registry/llm-dolly-image:0.1' ]
     id: 'push'
     waitFor: ['build']
 

@@ -34,7 +34,7 @@ base_image = f"{project_region}-docker.pkg.dev/{project_id}/{docker_artifact_reg
 
 serving_image = f"{project_region}-docker.pkg.dev/{project_id}/{docker_artifact_registry}/{serve_image_qualifier}:{base_image_tag}"
 
-trigger_id = ""
+first_trigger_id = "b53c5514-dc86-46eb-bcf6-d48b9e7498d8"
 
 component_execution = False
 
