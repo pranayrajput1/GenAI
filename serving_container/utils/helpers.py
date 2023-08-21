@@ -54,16 +54,19 @@ def load_model(pretrained_model_name_or_path, gradient_checkpointing):
         pretrained_model_name_or_path,
         trust_remote_code=True,
         device_map="auto",
-        use_cache=False if gradient_checkpointing else True
+        use_cache=False if gradient_checkpointing else True,
+        offload_folder="offload",
     )
     return model
 
 
 def get_model_tokenizer(
-        pretrained_model_name_or_path, gradient_checkpointing):
+        pretrained_model_name_or_path,
+        gradient_checkpointing
+):
     pretrained_tokenizer = load_tokenizer(pretrained_model_name_or_path)
     pretrained_model = load_model(
-        pretrained_model_name_or_path, gradient_checkpointing
+        pretrained_model_name_or_path,gradient_checkpointing
     )
     pretrained_model.resize_token_embeddings(len(pretrained_tokenizer))
     get_memory_usage()
