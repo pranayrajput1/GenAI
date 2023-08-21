@@ -23,6 +23,7 @@ pipeline_root_gcs = f"gs://{project_id}/llm-dolly-pipeline"
 
 base_image_tag = "0.1"
 
+
 base_image_qualifier = "llm-dolly-image"
 serve_image_qualifier = "llm-dolly-serve-image"
 
