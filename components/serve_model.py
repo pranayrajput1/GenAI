@@ -1,15 +1,16 @@
 from kfp.v2.components.component_decorator import component
-from kfp.v2.dsl import Artifact, Output, Model
+# from kfp.v2.dsl import Artifact, Output, Model
 from components.dependencies import resolve_dependencies
-from constants import base_image
+from constants import base_image, project_id, project_region, staging_bucket, serving_image, model_display_name, \
+    component_execution
 
 
-@component(
-    base_image=base_image,
-    packages_to_install=resolve_dependencies(
-        'google-cloud-aiplatform'
-    )
-)
+# @component(
+#     base_image=base_image,
+#     packages_to_install=resolve_dependencies(
+#         'google-cloud-aiplatform'
+#     )
+# )
 def serve_model_component(
         project_id: str,
         location: str,
@@ -17,8 +18,8 @@ def serve_model_component(
         serving_image_uri: str,
         model_display_name: str,
         component_execution: bool,
-        vertex_endpoint: Output[Artifact],
-        vertex_model: Output[Model],
+        # vertex_endpoint: Output[Artifact],
+        # vertex_model: Output[Model],
         machine_type: str = 'e2-highmem-8',
 
 ):
@@ -65,11 +66,15 @@ def serve_model_component(
                                     accelerator_count=None, )
             logging.info(endpoint)
 
-            vertex_endpoint.uri = endpoint.resource_name
-            vertex_model.uri = model.resource_name
+            # vertex_endpoint.uri = endpoint.resource_name
+            # vertex_model.uri = model.resource_name
 
             logging.info("Task: Uploaded Model to an Endpoint Successfully")
 
     except Exception as e:
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")
         raise e
+
+
+serve_model_component(project_id, project_region, staging_bucket, serving_image, model_display_name,
+                      component_execution)

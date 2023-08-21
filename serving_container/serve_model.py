@@ -7,16 +7,16 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
-"""Download model from gcs bucket"""
-bucket_name = "llm_dolly_model"
-
-logging.info("Task: Making Directory: trained_model if not exist for saving trained model from gcs bucket")
+# """Download model from gcs bucket"""
+# bucket_name = "llm_dolly_model"
+#
+# logging.info("Task: Making Directory: trained_model if not exist for saving trained model from gcs bucket")
 model_path = "trained_model"
-os.makedirs(model_path, exist_ok=True)
-
-logging.info(f"Task: Downloading model files from GCS Bucket: {bucket_name}")
-download_model_files_from_bucket(bucket_name, model_path)
-logging.info("Task: Model Files Downloaded Successfully")
+# os.makedirs(model_path, exist_ok=True)
+#
+# logging.info(f"Task: Downloading model files from GCS Bucket: {bucket_name}")
+# download_model_files_from_bucket(bucket_name, model_path)
+# logging.info("Task: Model Files Downloaded Successfully")
 
 logging.info(f"Task: Loading Saved Model and Tokenizer from local: {model_path} directory")
 model, tokenizer = get_model_tokenizer(

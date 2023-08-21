@@ -2,11 +2,11 @@ from google.cloud import aiplatform
 
 
 def delete_endpoint_sample(
-    project: str,
-    endpoint_id: str,
-    location: str = "us-central1",
-    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
-    timeout: int = 300,
+        project: str,
+        endpoint_id: str,
+        location: str = "us-central1",
+        api_endpoint: str = "us-central1-aiplatform.googleapis.com",
+        timeout: int = 300,
 ):
     # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
@@ -22,4 +22,4 @@ def delete_endpoint_sample(
     print("delete_endpoint_response:", delete_endpoint_response)
 
 
-delete_endpoint_sample("nashtech-ai-dev-389315", "4849393835282792448")
+delete_endpoint_sample("nashtech-ai-dev-389315", "1737969442723201024")
