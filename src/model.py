@@ -264,3 +264,6 @@ def fine_tune_model(dataset_path: str,
     except Exception as e:
         logging.error("Some error occurred in model training component!")
         raise e
+
+
+fine_tune_model()

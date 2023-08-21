@@ -2,7 +2,6 @@ from kfp.v2.components.component_decorator import component
 from kfp.v2.dsl import Artifact, Output, Model
 from components.dependencies import resolve_dependencies
 from constants import base_image
-# from constants import project_id, project_region, staging_bucket, serving_image, model_display_name, component_execution, service_account
 
 
 @component(
@@ -76,12 +75,3 @@ def serve_model_component(
     except Exception as e:
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")
         raise e
-
-
-# serve_model_component(project_id,
-#                       project_region,
-#                       staging_bucket,
-#                       serving_image,
-#                       model_display_name,
-#                       component_execution,
-#                       service_account)

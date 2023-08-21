@@ -16,7 +16,7 @@ from constants import base_image
 )
 def process_data(
         dataset_bucket: str,
-        dataset_name: str,
+        dataset_file_name: str,
         dataset: dsl.Output[dsl.Dataset],
         dataset_details: dsl.Output[dsl.Metrics]
 
@@ -24,9 +24,9 @@ def process_data(
     """
     Function to load dataset from gcs bucket and pass to next component as a parquet file path.
     @param dataset: parquet file dataset path
-    @param dataset_bucket:
-    @param dataset_details:
-    @param dataset_name:
+    @param dataset_bucket: bucket name where dataset is stored
+    @param dataset_details: dataset dimension details
+    @param dataset_file_name: name of the dataset
     """
     import logging
     import pandas as pd
@@ -37,7 +37,7 @@ def process_data(
 
     try:
         logging.debug(f"Task: Getting dataset from gcs bucket: '{dataset_bucket}'")
-        read_file = pd.read_csv(f"gs://{dataset_bucket}/{dataset_name}")
+        read_file = pd.read_csv(f"gs://{dataset_bucket}/{dataset_file_name}")
         train_df = pd.DataFrame(read_file)
 
         logging.debug("Task: Saving dataset to parquet file")

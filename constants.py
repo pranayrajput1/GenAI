@@ -2,10 +2,8 @@ from pathlib import Path
 
 path = Path(__file__).resolve().parent
 
-dataset_dir = path / "dataset"
-dataset_path = dataset_dir / "query_train.csv"
 
-dataset_name = "query_train.json"
+dataset_name = "query_train.csv"
 save_model_bucket_name = "llm_dolly_model"
 original_model_name = "databricks/dolly-v2-3b"
 

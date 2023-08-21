@@ -7,25 +7,24 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
+"""Download model from gcs bucket"""
+bucket_name = "llm_dolly_model"
 
-# """Download model from gcs bucket"""
-# bucket_name = "llm_dolly_model"
-#
-# logging.info("Task: Making Directory: trained_model if not exist for saving trained model from gcs bucket")
-# model_path = "trained_model"
-# os.makedirs(model_path, exist_ok=True)
-#
-# logging.info(f"Task: Downloading model files from GCS Bucket: {bucket_name}")
-# download_model_files_from_bucket(bucket_name, model_path)
-# logging.info("Task: Model Files Downloaded Successfully")
-#
-# logging.info(f"Task: Loading Saved Model and Tokenizer from local: {model_path} directory")
-# model, tokenizer = get_model_tokenizer(
-#     pretrained_model_name_or_path=model_path,
-#     gradient_checkpointing=True
-# )
-# get_memory_usage()
-# logging.info("Model Loaded Successfully")
+logging.info("Task: Making Directory: trained_model if not exist for saving trained model from gcs bucket")
+model_path = "trained_model"
+os.makedirs(model_path, exist_ok=True)
+
+logging.info(f"Task: Downloading model files from GCS Bucket: {bucket_name}")
+download_model_files_from_bucket(bucket_name, model_path)
+logging.info("Task: Model Files Downloaded Successfully")
+
+logging.info(f"Task: Loading Saved Model and Tokenizer from local: {model_path} directory")
+model, tokenizer = get_model_tokenizer(
+    pretrained_model_name_or_path=model_path,
+    gradient_checkpointing=True
+)
+get_memory_usage()
+logging.info("Model Loaded Successfully")
 
 
 @app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
@@ -53,9 +52,11 @@ def predict_answer():
             for item in instances:
                 user_query = item
                 individual_query = user_query["input"]
-                response.append(f"Query: {individual_query}")
-        logging.info(f"Output: {response}")
-        return jsonify(response), 200
+                response.append(individual_query)
+
+        return jsonify({
+            "predictions": response
+        }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

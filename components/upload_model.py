@@ -51,6 +51,3 @@ def upload_container(project_id: str,
     except Exception as e:
         logging.error("Failed to create serving container and push task")
         raise e
-
-
-# upload_container("nashtech-ai-dev-389315", "e908a62f-bec1-473a-9e7e-eaaa7775efc8", True)
