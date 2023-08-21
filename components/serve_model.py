@@ -1,8 +1,8 @@
 from kfp.v2.components.component_decorator import component
-# from kfp.v2.dsl import Artifact, Output, Model
+from kfp.v2.dsl import Artifact, Output, Model
 from components.dependencies import resolve_dependencies
-from constants import base_image, project_id, project_region, staging_bucket, serving_image, model_display_name, \
-    component_execution
+from constants import base_image
+from constants import project_id, project_region, staging_bucket, serving_image, model_display_name, component_execution, service_account
 
 
 # @component(
@@ -18,6 +18,7 @@ def serve_model_component(
         serving_image_uri: str,
         model_display_name: str,
         component_execution: bool,
+        service_account: str,
         # vertex_endpoint: Output[Artifact],
         # vertex_model: Output[Model],
         machine_type: str = 'e2-highmem-8',
@@ -63,7 +64,8 @@ def serve_model_component(
                                     min_replica_count=1,
                                     max_replica_count=2,
                                     accelerator_type=None,
-                                    accelerator_count=None, )
+                                    accelerator_count=None,
+                                    service_account=service_account)
             logging.info(endpoint)
 
             # vertex_endpoint.uri = endpoint.resource_name
@@ -76,5 +78,10 @@ def serve_model_component(
         raise e
 
 
-serve_model_component(project_id, project_region, staging_bucket, serving_image, model_display_name,
-                      component_execution)
+serve_model_component(project_id,
+                      project_region,
+                      staging_bucket,
+                      serving_image,
+                      model_display_name,
+                      component_execution,
+                      service_account)

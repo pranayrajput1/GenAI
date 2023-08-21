@@ -7,24 +7,25 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
+
 # """Download model from gcs bucket"""
 # bucket_name = "llm_dolly_model"
 #
 # logging.info("Task: Making Directory: trained_model if not exist for saving trained model from gcs bucket")
-model_path = "trained_model"
+# model_path = "trained_model"
 # os.makedirs(model_path, exist_ok=True)
 #
 # logging.info(f"Task: Downloading model files from GCS Bucket: {bucket_name}")
 # download_model_files_from_bucket(bucket_name, model_path)
 # logging.info("Task: Model Files Downloaded Successfully")
-
-logging.info(f"Task: Loading Saved Model and Tokenizer from local: {model_path} directory")
-model, tokenizer = get_model_tokenizer(
-    pretrained_model_name_or_path=model_path,
-    gradient_checkpointing=True
-)
-get_memory_usage()
-logging.info("Model Loaded Successfully")
+#
+# logging.info(f"Task: Loading Saved Model and Tokenizer from local: {model_path} directory")
+# model, tokenizer = get_model_tokenizer(
+#     pretrained_model_name_or_path=model_path,
+#     gradient_checkpointing=True
+# )
+# get_memory_usage()
+# logging.info("Model Loaded Successfully")
 
 
 @app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
@@ -40,19 +41,33 @@ def predict_answer():
     """
     Function to take query as input and return answer as output.
     """
+    response = []
     try:
-        query = request.get_json(silent=True, force=True)
-        data = query['instances']
+        query = request.json
+        instances = query.get("instances", [])
 
-        if 'input' not in data:
-            return jsonify({'error': 'Input data is missing'}), 400
+        if len(instances) == 0:
+            return jsonify({"error": "No instances provided"}), 400
 
-        input_text = data['input']
-        response = {'message': f'Received input: {input_text}'}
+        else:
+            for item in instances:
+                user_query = item
+                individual_query = user_query["input"]
+                response.append(f"Query: {individual_query}")
+
         return jsonify(response), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route(os.environ['AIP_MODE'], methods=['POST'])
+def test_route():
+    """
+    Function to take query as input and return answer as output.
+    """
+    response = "Hello User"
+    return jsonify(response), 200
 
 
 if __name__ == '__main__':

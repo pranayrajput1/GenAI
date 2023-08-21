@@ -1,5 +1,7 @@
 from google.cloud import aiplatform
 
+from constants import project_id
+
 
 def delete_endpoint_sample(
         project: str,
@@ -22,4 +24,4 @@ def delete_endpoint_sample(
     print("delete_endpoint_response:", delete_endpoint_response)
 
 
-delete_endpoint_sample("nashtech-ai-dev-389315", "1737969442723201024")
+delete_endpoint_sample(project_id, "7143133420497928192")

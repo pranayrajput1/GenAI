@@ -8,7 +8,7 @@ from components.train_model import fine_tune_model
 from components.upload_model import upload_container
 from constants import pipeline_description, pipeline_name, pipeline_root_gcs, original_model_name, \
     save_model_bucket_name, project_region, dataset_bucket, model_display_name, serving_image, \
-    staging_bucket, component_execution, dataset_name, serving_trigger_id
+    staging_bucket, component_execution, dataset_name, serving_trigger_id, service_account
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -45,7 +45,8 @@ def pipeline(
                           staging_bucket,
                           serving_image,
                           model_display_name,
-                          component_execution) \
+                          component_execution,
+                          service_account) \
         .after(upload_model_task) \
         .set_display_name("Serve_Model") \
         .set_cpu_request("8") \

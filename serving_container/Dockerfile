@@ -4,10 +4,9 @@ WORKDIR /usr/src/app
 COPY /serving_container ./serving_container
 RUN pip install --no-cache-dir -r serving_container/requirements.txt
 
-
-#ENV AIP_MODEL_DIR=gs://llm_dolly_model/
 ENV AIP_HEALTH_ROUTE=/ping
 ENV AIP_PREDICT_ROUTE=/predict
+ENV AIP_MODE=/test_route
 #ENV AIP_HTTP_PORT=8080
 
 ENTRYPOINT ["python", "serving_container/serve_model.py"]
