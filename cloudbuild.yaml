@@ -1,8 +1,8 @@
 steps:
-#  # Install dependencies
-#  - name: 'python:3.8'
-#    entrypoint: pip
-#    args: ["install", "-r", "requirements_x86.txt", "--user"]
+  # Install dependencies
+  - name: 'python:3.8'
+    entrypoint: pip
+    args: ["install", "-r", "requirements_x86.txt", "--user"]
 #
 #  # Build the container image
 #  - name: 'gcr.io/cloud-builders/docker'
