@@ -47,7 +47,9 @@ def pipeline(
                           model_display_name,
                           component_execution) \
         .after(upload_model_task) \
-        .set_display_name("Serve_Model")
+        .set_display_name("Serve_Model") \
+        .set_cpu_request("8") \
+        .set_memory_limit("32G")
 
 
 def compile_pipeline(pipeline_template_name='./llm_pipeline.json'):

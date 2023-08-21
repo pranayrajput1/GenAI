@@ -3,6 +3,7 @@ import psutil
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import logging
 from transformers import PreTrainedTokenizer
+from google.cloud import storage
 
 logging.basicConfig(level=logging.INFO)
 
@@ -66,7 +67,7 @@ def get_model_tokenizer(
 ):
     pretrained_tokenizer = load_tokenizer(pretrained_model_name_or_path)
     pretrained_model = load_model(
-        pretrained_model_name_or_path,gradient_checkpointing
+        pretrained_model_name_or_path, gradient_checkpointing
     )
     pretrained_model.resize_token_embeddings(len(pretrained_tokenizer))
     get_memory_usage()
@@ -189,3 +190,22 @@ def postprocess(tokenizer, model_outputs, return_full_text=False):
 
     get_memory_usage()
     return records
+
+
+def download_model_files_from_bucket(bucket_name, destination_folder):
+    # Initialize a GCS client
+    client = storage.Client()
+
+    # Get the desired bucket
+    bucket = client.get_bucket(bucket_name)
+
+    # List all files in the bucket
+    blobs = bucket.list_blobs()
+
+    for blob in blobs:
+        # Construct the local file path
+        local_path = f"{destination_folder}/{blob.name}"
+
+        # Download the file
+        blob.download_to_filename(local_path)
+        logging.info(f"Downloaded: {blob.name} to {local_path}")
