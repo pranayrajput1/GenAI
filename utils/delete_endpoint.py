@@ -24,4 +24,4 @@ def delete_endpoint_sample(
     print("delete_endpoint_response:", delete_endpoint_response)
 
 
-delete_endpoint_sample(project_id, "7143133420497928192")
+delete_endpoint_sample(project_id, "6616212264095580160")

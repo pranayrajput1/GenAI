@@ -22,21 +22,20 @@ def pipeline(
         job_id: str
 ):
     # Dataset Processing
-    process_data_task = process_data(dataset_bucket, dataset_name).set_display_name("Data_Processing")
-
-    """Fine Tune Model Pipeline"""
-    train_model_task = fine_tune_model(process_data_task.outputs["dataset"],
-                                       original_model_name,
-                                       save_model_bucket_name,
-                                       component_execution) \
-        .after(process_data_task) \
-        .set_display_name("Dolly Fine Tuning") \
-        .set_cpu_request("8") \
-        .set_memory_limit("32G")
+    # process_data_task = process_data(dataset_bucket, dataset_name).set_display_name("Data_Processing")
+    #
+    # """Fine Tune Model Pipeline"""
+    # train_model_task = fine_tune_model(process_data_task.outputs["dataset"],
+    #                                    original_model_name,
+    #                                    save_model_bucket_name,
+    #                                    component_execution) \
+    #     .after(process_data_task) \
+    #     .set_display_name("Dolly Fine Tuning") \
+    #     .set_cpu_request("8") \
+    #     .set_memory_limit("32G")
 
     """Upload model package"""
     upload_model_task = upload_container(project_id, serving_trigger_id, component_execution) \
-        .after(train_model_task) \
         .set_display_name("Model_Upload")
 
     """Serve Model To Endpoint"""

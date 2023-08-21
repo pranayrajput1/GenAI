@@ -24,4 +24,4 @@ def delete_model_sample(model_id: str, project: str, location: str):
     model.delete()
 
 
-delete_model_sample("2688514837121597440", project_id, project_region)
+delete_model_sample("599055716254220288", project_id, project_region)

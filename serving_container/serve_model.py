@@ -45,7 +45,7 @@ def predict_answer():
     try:
         query = request.json
         instances = query.get("instances", [])
-
+        logging.info(f"Input Instance: {instances}")
         if len(instances) == 0:
             return jsonify({"error": "No instances provided"}), 400
 
@@ -54,20 +54,11 @@ def predict_answer():
                 user_query = item
                 individual_query = user_query["input"]
                 response.append(f"Query: {individual_query}")
-
+        logging.info(f"Output: {response}")
         return jsonify(response), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-@app.route(os.environ['AIP_MODE'], methods=['POST'])
-def test_route():
-    """
-    Function to take query as input and return answer as output.
-    """
-    response = "Hello User"
-    return jsonify(response), 200
 
 
 if __name__ == '__main__':
