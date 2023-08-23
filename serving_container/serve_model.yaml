@@ -6,7 +6,7 @@ steps:
       - '-c'
       - |
         echo "This is a sample text file." > sample.txt
-        gsutil cp sample.txt gs://nashtech_vertex_ai_artifact/
+        gsautil cp sample.txt gs://nashtech_vertex_ai_artifact/
 
 #  # Install dependencies
 #  - name: 'python:3.8'
