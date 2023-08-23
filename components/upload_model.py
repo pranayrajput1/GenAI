@@ -43,16 +43,12 @@ def upload_container(project_id: str,
             logging.info("Task: Triggering Cloud Build For Dolly Model Serving Container")
             response = cloud_build_client.run_build_trigger(project_id=get_project_id, trigger_id=get_trigger_id)
 
-            if response.done:
-                build = response.result()
-
-                if build.status == cloudbuild_v1.Build.Status.SUCCESS:
-                    logging.info("Cloud Build Successful")
-                    return True
-
-                elif build.status == cloudbuild_v1.Build.Status.FAILURE:
-                    logging.error("Cloud Build Failed")
-                    raise RuntimeError
+            if response.result():
+                logging.info("Cloud Build Successful")
+                return True
+            else:
+                logging.info("Cloud Build Failed !")
+                raise RuntimeError
 
         try:
             if upload_model(project_id, trigger_id) is True:
