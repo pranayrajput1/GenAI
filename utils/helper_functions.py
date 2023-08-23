@@ -1,8 +1,9 @@
 import logging
 import time
 import psutil
-from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling
-from google.cloud import aiplatform
+from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenizer
+from google.cloud import storage, aiplatform
+from constants import project_id, project_region
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
@@ -87,12 +88,138 @@ def get_model_tokenizer(
     return pretrained_model, pretrained_tokenizer
 
 
+INTRO_BLURB = (
+    "Below is an instruction that describes a task. Write a response that appropriately completes the request."
+)
 
-def cancel_training_pipeline_sample(
-    project: str,
-    training_pipeline_id: str,
-    location: str = "us-central1",
-    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
+"""To be added as special tokens"""
+
+PROMPT_FOR_GENERATION_FORMAT = """{intro}
+{instruction_key}
+{instruction}
+{response_key}
+""".format(
+    intro=INTRO_BLURB,
+    instruction_key=INSTRUCTION_KEY,
+    instruction="{instruction}",
+    response_key=RESPONSE_KEY,
+)
+
+
+def get_special_token_id(tokenizer: PreTrainedTokenizer, key: str) -> int:
+    token_ids = tokenizer.encode(key)
+    if len(token_ids) > 1:
+        raise ValueError(f"Expected only a single token for '{key}' but found {token_ids}")
+    return token_ids[0]
+
+
+def preprocess(tokenizer, instruction_text):
+    prompt_text = PROMPT_FOR_GENERATION_FORMAT.format(
+        instruction=instruction_text
+    )
+    inputs = tokenizer(prompt_text, return_tensors="pt", )
+    inputs["prompt_text"] = prompt_text
+    inputs["instruction_text"] = instruction_text
+    return inputs
+
+
+def forward(model, tokenizer, model_inputs, max_length=200):
+    input_ids = model_inputs["input_ids"]
+    attention_mask = model_inputs.get("attention_mask", None)
+
+    if input_ids.shape[1] == 0:
+        input_ids = None
+        attention_mask = None
+        in_b = 1
+    else:
+        in_b = input_ids.shape[0]
+
+    generated_sequence = model.generate(
+        input_ids=input_ids.to(model.device),
+        attention_mask=attention_mask,
+        pad_token_id=tokenizer.pad_token_id,
+        max_length=max_length
+    )
+
+    out_b = generated_sequence.shape[0]
+    generated_sequence = generated_sequence.reshape(
+        in_b, out_b // in_b, *generated_sequence.shape[1:]
+    )
+    instruction_text = model_inputs.get("instruction_text", None)
+    get_memory_usage()
+    return {
+        "generated_sequence": generated_sequence,
+        "input_ids": input_ids, "instruction_text": instruction_text
+    }
+
+
+def postprocess(tokenizer, model_outputs, return_full_text=False):
+    response_key_token_id = get_special_token_id(tokenizer, RESPONSE_KEY_NL)
+    end_key_token_id = get_special_token_id(tokenizer, END_KEY)
+    generated_sequence = model_outputs["generated_sequence"][0]
+    instruction_text = model_outputs["instruction_text"]
+    generated_sequence = generated_sequence.numpy().tolist()
+    records = []
+
+    print(response_key_token_id, end_key_token_id)
+
+    for sequence in generated_sequence:
+        decoded = None
+
+        try:
+            response_pos = sequence.index(response_key_token_id)
+        except ValueError:
+            logging.debug(
+                f"Could not find response key {response_key_token_id} in: {sequence}"
+            )
+            response_pos = None
+
+        if response_pos:
+            try:
+                end_pos = sequence.index(end_key_token_id)
+            except ValueError:
+                # logger.warning(
+                #     f"Could not find end key, the output is truncated!"
+                # )
+                print("Could not find end key, the output is truncated!")
+                end_pos = None
+            decoded = tokenizer.decode(
+                sequence[response_pos + 1: end_pos]).strip()
+
+        # If True,append the decoded text to the original instruction.
+        if return_full_text:
+            decoded = f"{instruction_text}\n{decoded}"
+        rec = {"generated_text": decoded}
+        records.append(rec)
+
+    get_memory_usage()
+    return records
+
+
+def download_model_files_from_bucket(bucket_name, destination_folder):
+    # Initialize a GCS client
+    client = storage.Client()
+
+    # Get the desired bucket
+    bucket = client.get_bucket(bucket_name)
+
+    # List all files in the bucket
+    blobs = bucket.list_blobs()
+
+    for blob in blobs:
+        # Construct the local file path
+        local_path = f"{destination_folder}/{blob.name}"
+
+        # Download the file
+        blob.download_to_filename(local_path)
+        logging.info(f"Downloaded: {blob.name} to {local_path}")
+
+
+def cancel_training_pipeline(
+        project: str,
+        training_pipeline_id: str,
+        location: str,
+        api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
     # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
@@ -103,5 +230,7 @@ def cancel_training_pipeline_sample(
         project=project, location=location, training_pipeline=training_pipeline_id
     )
     response = client.cancel_training_pipeline(name=name)
-    print("response:", response)
+    logging.info("response:", response)
 
+
+cancel_training_pipeline(project_id, training_pipeline_id="20230822141923", location=project_region)

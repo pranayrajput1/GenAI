@@ -2,13 +2,15 @@ import logging
 from kfp.v2 import compiler
 import kfp
 
+from components.model_validation import validate_model
 from components.process_data import process_data
 from components.serve_model import serve_model_component
 from components.train_model import fine_tune_model
 from components.upload_model import upload_container
 from constants import pipeline_description, pipeline_name, pipeline_root_gcs, original_model_name, \
     save_model_bucket_name, project_region, dataset_bucket, model_display_name, serving_image, \
-    staging_bucket, component_execution, dataset_name, serving_trigger_id, service_account, model_details_file_name
+    staging_bucket, component_execution, dataset_name, serving_trigger_id, service_account, model_details_file_name, \
+    validation_dataset, validation_threshold
 from utils.email_credentials import email, password, receiver
 
 logging.basicConfig(level=logging.DEBUG)
@@ -23,43 +25,57 @@ def pipeline(
         job_id: str
 ):
     # Dataset Processing
-    process_data_task = process_data(dataset_bucket, dataset_name).set_display_name("Data_Processing")
+    # process_data_task = process_data(dataset_bucket, dataset_name).set_display_name("Data_Processing")
+    #
+    # """Fine Tune Model Pipeline"""
+    # train_model_task = fine_tune_model(process_data_task.outputs["dataset"],
+    #                                    original_model_name,
+    #                                    save_model_bucket_name,
+    #                                    component_execution) \
+    #     .after(process_data_task) \
+    #     .set_display_name("Dolly Fine Tuning") \
+    #     .set_cpu_request("8") \
+    #     .set_memory_limit("32G")
 
-    """Fine Tune Model Pipeline"""
-    train_model_task = fine_tune_model(process_data_task.outputs["dataset"],
-                                       original_model_name,
-                                       save_model_bucket_name,
-                                       component_execution) \
-        .after(process_data_task) \
-        .set_display_name("Dolly Fine Tuning") \
+    """Model Validation Component"""
+    model_validation_task = validate_model(project_id,
+                                           project_region,
+                                           pipeline_name,
+                                           save_model_bucket_name,
+                                           dataset_bucket,
+                                           validation_dataset,
+                                           validation_threshold,
+                                           component_execution
+                                           ) \
+        .set_display_name("Model Validation") \
         .set_cpu_request("8") \
         .set_memory_limit("32G")
 
     """Upload model package"""
-    upload_model_task = upload_container(project_id,
-                                         pipeline_name,
-                                         serving_trigger_id,
-                                         component_execution,
-                                         email,
-                                         password,
-                                         receiver) \
-        .after(train_model_task) \
+    upload_model_task = upload_container(project_id=project_id,
+                                         pipeline_name=pipeline_name,
+                                         trigger_id=serving_trigger_id,
+                                         component_execution=component_execution,
+                                         user_email=email,
+                                         user_email_password=password,
+                                         receiver_email=receiver) \
+        .after(model_validation_task) \
         .set_display_name("Model_Upload")
 
-    """Serve Model To Endpoint"""
-    serve_model_component(project_id,
-                          project_region,
-                          staging_bucket,
-                          serving_image,
-                          model_display_name,
-                          component_execution,
-                          service_account,
-                          save_model_details_bucket=dataset_bucket,
-                          model_details_file_name=model_details_file_name) \
-        .after(upload_model_task) \
-        .set_display_name("Serve_Model") \
-        .set_cpu_request("8") \
-        .set_memory_limit("32G")
+    # """Serve Model To Endpoint"""
+    # serve_model_component(project_id,
+    #                       project_region,
+    #                       staging_bucket,
+    #                       serving_image,
+    #                       model_display_name,
+    #                       component_execution,
+    #                       service_account,
+    #                       save_model_details_bucket=dataset_bucket,
+    #                       model_details_file_name=model_details_file_name) \
+    #     .after(upload_model_task) \
+    #     .set_display_name("Serve_Model") \
+    #     .set_cpu_request("8") \
+    #     .set_memory_limit("32G")
 
 
 def compile_pipeline(pipeline_template_name='./llm_pipeline.json'):

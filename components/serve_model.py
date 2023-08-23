@@ -1,9 +1,7 @@
 from kfp.v2.components.component_decorator import component
 from kfp.v2.dsl import Artifact, Output, Model
 from components.dependencies import resolve_dependencies
-from constants import base_image, model_details_file_name
-from constants import project_id, project_region, staging_bucket, serving_image, model_display_name, \
-    component_execution, service_account, save_model_bucket_name, dataset_bucket
+from constants import base_image
 
 
 @component(

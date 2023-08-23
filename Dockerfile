@@ -11,8 +11,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy over and install source code from this package.
 COPY src ./src
-COPY model_dir ./model_dir
-COPY train_data ./train_data
 COPY utils ./utils
 COPY constants.py ./constants.py
 COPY README.md ./README.md

@@ -4,6 +4,10 @@ path = Path(__file__).resolve().parent
 
 
 dataset_name = "query_train.csv"
+validation_dataset = "validation_dataset.json"
+
+validation_threshold = 2
+
 save_model_bucket_name = "llm_dolly_model"
 original_model_name = "databricks/dolly-v2-3b"
 

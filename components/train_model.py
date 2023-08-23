@@ -9,7 +9,6 @@ from constants import base_image
     packages_to_install=resolve_dependencies(
         'pandas',
         'numpy',
-        'numpy',
         'fsspec',
         'pyarrow',
         'gcsfs',
@@ -50,7 +49,7 @@ def fine_tune_model(dataset_path: dsl.Input[dsl.Dataset],
             model.fine_tune_model(dataset_path.path, model_name, save_model_bucket_name)
 
             logging.info("Task: Setting saved model directory bucket path")
-            model_artifact_path.uri = f'https://storage.cloud.google.com/{save_model_bucket_name}/'
+            model_artifact_path.uri = f'https://storage.cloud.google.com/{save_model_bucket_name}'
 
     except Exception as e:
         logging.error("Failed to train model!")

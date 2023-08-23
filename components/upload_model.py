@@ -1,16 +1,14 @@
 from kfp.v2.components.component_decorator import component
 from components.dependencies import resolve_dependencies
-from constants import base_image, project_id, pipeline_name, serving_trigger_id, component_execution
-from utils.email_credentials import email, password, receiver
-from utils.send_email import send_cloud_build_success_email
+from constants import base_image
 
 
-# @component(
-#     base_image=base_image,
-#     packages_to_install=resolve_dependencies(
-#         'google-cloud-build'
-#     )
-# )
+@component(
+    base_image=base_image,
+    packages_to_install=resolve_dependencies(
+        'google-cloud-build'
+    )
+)
 def upload_container(project_id: str,
                      pipeline_name: str,
                      trigger_id: str,
@@ -26,7 +24,7 @@ def upload_container(project_id: str,
     @trigger_id: cloud build trigger ID.
     """
     from google.cloud.devtools import cloudbuild_v1
-    from utils.send_email import send_cloud_build_failed_email
+    from utils.send_email import send_cloud_build_failed_email, send_cloud_build_success_email
     import logging
 
     logger = logging.getLogger('tipper')
@@ -53,7 +51,6 @@ def upload_container(project_id: str,
         try:
             if upload_model(project_id, trigger_id) is True:
                 logging.info("Cloud Build completed successfully passing to next component")
-
                 logging.error(f"Sending Cloud Build Success Email to: {receiver_email}")
                 send_cloud_build_success_email(project_id, pipeline_name, user_email, user_email_password,
                                                receiver_email)
@@ -65,6 +62,3 @@ def upload_container(project_id: str,
             send_cloud_build_failed_email(project_id, pipeline_name, user_email, user_email_password,
                                           receiver_email)
             raise exc
-
-
-upload_container(project_id, pipeline_name, serving_trigger_id, component_execution, email, password, receiver)
