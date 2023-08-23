@@ -8,7 +8,8 @@ from components.train_model import fine_tune_model
 from components.upload_model import upload_container
 from constants import pipeline_description, pipeline_name, pipeline_root_gcs, original_model_name, \
     save_model_bucket_name, project_region, dataset_bucket, model_display_name, serving_image, \
-    staging_bucket, component_execution, dataset_name, serving_trigger_id, service_account
+    staging_bucket, component_execution, dataset_name, serving_trigger_id, service_account, model_details_file_name
+from utils.email_credentials import email, password, receiver
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -35,7 +36,13 @@ def pipeline(
         .set_memory_limit("32G")
 
     """Upload model package"""
-    upload_model_task = upload_container(project_id, serving_trigger_id, component_execution) \
+    upload_model_task = upload_container(project_id,
+                                         pipeline_name,
+                                         serving_trigger_id,
+                                         component_execution,
+                                         email,
+                                         password,
+                                         receiver) \
         .after(train_model_task) \
         .set_display_name("Model_Upload")
 
@@ -46,7 +53,9 @@ def pipeline(
                           serving_image,
                           model_display_name,
                           component_execution,
-                          service_account) \
+                          service_account,
+                          save_model_details_bucket=dataset_bucket,
+                          model_details_file_name=model_details_file_name) \
         .after(upload_model_task) \
         .set_display_name("Serve_Model") \
         .set_cpu_request("8") \

@@ -1,17 +1,22 @@
 from kfp.v2.components.component_decorator import component
 from components.dependencies import resolve_dependencies
-from constants import base_image
+from constants import base_image, project_id, pipeline_name, serving_trigger_id, component_execution
+from utils.email_credentials import email, password, receiver
 
 
-@component(
-    base_image=base_image,
-    packages_to_install=resolve_dependencies(
-        'google-cloud-build'
-    )
-)
+# @component(
+#     base_image=base_image,
+#     packages_to_install=resolve_dependencies(
+#         'google-cloud-build'
+#     )
+# )
 def upload_container(project_id: str,
+                     pipeline_name: str,
                      trigger_id: str,
-                     component_execution: bool
+                     component_execution: bool,
+                     user_email: str,
+                     user_email_password: str,
+                     receiver_email: str
                      ):
     """
     Function to trigger cloud build over GCP, which create the serve model docker image.
@@ -20,6 +25,7 @@ def upload_container(project_id: str,
     @trigger_id: cloud build trigger ID.
     """
     from google.cloud.devtools import cloudbuild_v1
+    from utils.send_email import send_cloud_build_failed_email, send_cloud_build_success_email
     import logging
 
     logger = logging.getLogger('tipper')
@@ -45,9 +51,19 @@ def upload_container(project_id: str,
                     raise RuntimeError
 
             if upload_model(project_id, trigger_id) is True:
+                logging.info(f"Sending CLoud Build Success Email to: {receiver_email}")
+                send_cloud_build_success_email(project_id,
+                                               pipeline_name,
+                                               user_email,
+                                               user_email_password,
+                                               receiver_email)
                 logging.info("Cloud Build completed successfully passing to next component")
-                pass
 
-    except Exception as e:
+    except Exception as err:
+        logging.info(f"Sending CLoud Build Failure Email to: {receiver_email}")
+        send_cloud_build_failed_email(project_id, pipeline_name, err, user_email, user_email_password, receiver_email)
         logging.error("Failed to create serving container and push task")
-        raise e
+        raise err
+
+
+upload_container(project_id, pipeline_name, serving_trigger_id, component_execution, email, password, receiver)

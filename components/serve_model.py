@@ -1,7 +1,9 @@
 from kfp.v2.components.component_decorator import component
 from kfp.v2.dsl import Artifact, Output, Model
 from components.dependencies import resolve_dependencies
-from constants import base_image
+from constants import base_image, model_details_file_name
+from constants import project_id, project_region, staging_bucket, serving_image, model_display_name, \
+    component_execution, service_account, save_model_bucket_name, dataset_bucket
 
 
 @component(
@@ -18,10 +20,11 @@ def serve_model_component(
         model_display_name: str,
         component_execution: bool,
         service_account: str,
+        save_model_details_bucket: str,
+        model_details_file_name: str,
         vertex_endpoint: Output[Artifact],
         vertex_model: Output[Model],
         machine_type: str = 'e2-highmem-8',
-
 ):
     """
     Function to upload model to model registry,
@@ -33,9 +36,13 @@ def serve_model_component(
     @model_display_name: Model display name
     @vertex_endpoint: created endpoint address
     @vertex_model: Model located at model registry
+    @model_details:
     """
     from google.cloud import aiplatform
+    from google.cloud import storage
     import logging
+    import json
+    import os
 
     logger = logging.getLogger('tipper')
     logger.setLevel(logging.DEBUG)
@@ -49,7 +56,6 @@ def serve_model_component(
             aiplatform.init(project=project_id, location=location, staging_bucket=staging_bucket)
 
             logging.info("Task: Uploading model to model registry")
-
             model = aiplatform.Model.upload(display_name=model_display_name,
                                             location=location,
                                             serving_container_image_uri=serving_image_uri,
@@ -71,6 +77,34 @@ def serve_model_component(
             vertex_model.uri = model.resource_name
 
             logging.info("Task: Uploaded Model to an Endpoint Successfully")
+
+            logging.info("Task: Extracting model id and endpoint id")
+            deployed_display_name = f"{model_display_name}_endpoint"
+            deployed_model_id = model.resource_name.split("/")[-1]
+            endpoint_id = endpoint.resource_name.split("/")[-1]
+
+            logging.info("Task: Appending ID's to the dictionary")
+            model_details = {
+                "deployed_display_name": deployed_display_name,
+                "endpoint_id": endpoint_id,
+                "deployed_model_id": deployed_model_id
+            }
+
+            logging.info(f"Task: Dumping model details to a json file as: {model_details_file_name}")
+            with open(model_details_file_name, "w") as file:
+                json.dump(model_details, file)
+
+            logging.info("Task: Making client connection to save model details to bucket")
+            client = storage.Client()
+            bucket = client.get_bucket(save_model_details_bucket)
+
+            blob = bucket.blob(model_details_file_name)
+
+            logging.info(f"Task: Uploading model details to GCS Bucket: {save_model_details_bucket}")
+            blob.upload_from_filename(model_details_file_name)
+
+            logging.info("Task: Removing model details files from local environment")
+            os.remove(model_details_file_name)
 
     except Exception as e:
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")

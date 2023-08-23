@@ -135,3 +135,5 @@ dmypy.json
 /dataset/query_train.csv
 /serving_container/trained_model/pytorch_model-00001-of-00002.bin
 /serving_container/trained_model/pytorch_model-00002-of-00002.bin
+/utils/email_credentials.py
+/utils/email_credentials.py

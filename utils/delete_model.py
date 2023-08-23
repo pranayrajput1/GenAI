@@ -1,6 +1,12 @@
 from google.cloud import aiplatform
+from google.cloud import storage
+from constants import project_id, project_region, dataset_bucket
+import json
+import os
 
-from constants import project_id, project_region
+from utils.helper_functions import get_log
+
+logging = get_log()
 
 
 def undeploy_model_from_endpoint(names):
@@ -17,10 +23,7 @@ def delete_endpoint_sample(
         api_endpoint: str = "us-central1-aiplatform.googleapis.com",
         timeout: int = 300,
 ):
-    # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.EndpointServiceClient(client_options=client_options)
     name = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
@@ -32,26 +35,43 @@ def delete_endpoint_sample(
 
 
 def delete_model_sample(model_id: str, project: str, location: str):
-    """
-    Delete a Model resource.
-    Args:
-        model_id: The ID of the model to delete. Parent resource name of the model is also accepted.
-        project: The project.
-        location: The region name.
-    Returns
-        None.
-    """
-    # Initialize the client.
     aiplatform.init(project=project, location=location)
-
-    # Get the model with the ID 'model_id'. The parent_name of Model resource can be also
-    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model = aiplatform.Model(model_name=model_id)
-
-    # Delete the model.
     model.delete()
 
 
-undeploy_model_from_endpoint("dolly_v2_3b_endpoint")
-delete_endpoint_sample(project_id, "9031549039249719296")
-delete_model_sample("4985350647080550400", project_id, project_region)
+def delete_model_from_deployment(
+        project: str,
+        region: str,
+        model_details_bucket: str,
+        model_details_file_name: str,
+):
+    client = storage.Client()
+
+    bucket = client.get_bucket(model_details_bucket)
+    blob = bucket.blob(model_details_file_name)
+    blob.download_to_filename(model_details_file_name)
+
+    with open(model_details_file_name, "r") as json_file:
+        data = json.load(json_file)
+
+    deployed_display_name = data["deployed_display_name"]
+    endpoint_id = data["endpoint_id"]
+    deployed_model_id = data["deployed_model_id"]
+
+    print(f"Deployed Model Details: deployed_display_name: {deployed_display_name}, endpoint_id: {endpoint_id}, "
+          f"deployed_model_id: {deployed_model_id}")
+    undeploy_model_from_endpoint(deployed_display_name)
+    delete_endpoint_sample(project, endpoint_id)
+    delete_model_sample(deployed_model_id, project, region)
+
+    logging.info("Task: Removing model details files from local environment")
+    os.remove(model_details_file_name)
+
+    return "Model Undeployed Successfully"
+
+
+delete_model_from_deployment(project_id,
+                             project_region,
+                             model_details_bucket="nashtech_vertex_ai_artifact",
+                             model_details_file_name="model_details.json")

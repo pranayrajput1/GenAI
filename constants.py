@@ -8,7 +8,7 @@ save_model_bucket_name = "llm_dolly_model"
 original_model_name = "databricks/dolly-v2-3b"
 
 dataset_bucket = "nashtech_vertex_ai_artifact"
-
+model_details_file_name = "model_details.json"
 service_account = "nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com"
 
 project_region = "us-central1"
