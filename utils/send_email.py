@@ -17,7 +17,6 @@ def client_connection(user_email, user_email_password, sent_from, to, email_text
 def send_cloud_build_failed_email(
         project: str,
         pipeline: str,
-        failure_reason,
         user_email: str,
         user_email_password: str,
         receiver_email: str
@@ -27,14 +26,13 @@ def send_cloud_build_failed_email(
     subject = 'Pipeline Cloud Build Status'
     body = f'''
     This is to inform the status of cloud build of your pipeline: "{pipeline}"
-    for project: "{project}" has failed! Cause of failure:
-    {failure_reason}
+    for project: "{project}" has failed!
     '''
     email_text = """
     From: {}
     To: {}
     Subject: {}
-    
+
     {}
     """.format(sent_from, ", ".join(to), subject, body)
 
