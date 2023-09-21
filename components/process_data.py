@@ -4,7 +4,7 @@ from components.dependencies import resolve_dependencies
 
 
 @component(
-    base_image="python:3.10.6",
+    base_image="python:3.8",
     packages_to_install=resolve_dependencies(
         'pandas',
         'numpy',

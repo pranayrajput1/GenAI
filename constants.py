@@ -21,8 +21,8 @@ SERVE_IMAGE_QUALIFIER = "dbscan-serve-image"
 BASE_IMAGE_TAG = "0.0.1"
 SERVING_IMAGE_TAG = "0.0.1"
 
-BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/db-scan-pipeline/{BASE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
-SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/model-serving/{SERVE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
+BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
+SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
 
 CLUSTER_IMAGE_BUCKET = "nashtech_vertex_ai_artifact"
 
