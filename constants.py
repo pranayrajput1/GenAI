@@ -34,4 +34,4 @@ TRIGGER_ID = "00c14313-1ad2-4200-a4e0-57adae910784"
 # PIPELINE_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:0.0.1"
 # SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1"
 
-pipeline = "86f32f92-c98f-4c7a-a912-fc2ec474248f"
+pipeline = "7c74cb60-8a30-44b3-a5cf-3637962ce85a"
