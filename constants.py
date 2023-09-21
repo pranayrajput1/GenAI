@@ -35,3 +35,7 @@ TRIGGER_ID = "00c14313-1ad2-4200-a4e0-57adae910784"
 # SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1"
 
 pipeline = "7c74cb60-8a30-44b3-a5cf-3637962ce85a"
+
+' gcloud builds triggers create github --name="clustering-pipeline" --service-account="projects/nashtech-ai-dev-389315/serviceAccounts/nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com" --repo-owner="pranayrajput1" --repo-name="GenAI" --branch-pattern="clustering-pipeline" --build-config="cloudbuild.yaml" '
+
+' gcloud builds triggers create manual --name=clustering-pipeline --build-config=cloudbuild.yaml --repo="https://github.com/pranayrajput1/GenAI.git" --repo-type=GITHUB --branch="clustering-pipeline" –service-account=”nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com” '
