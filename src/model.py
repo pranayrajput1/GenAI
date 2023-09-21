@@ -30,6 +30,8 @@ def fit_db_scan_model(dataset_path: str,
     logging.info(f"Reading process data from: {dataset_path}")
     data_frame = pd.read_parquet(dataset_path)
 
+    logging.info(f"Dataset Features: {data_frame.columns} in model training")
+
     logging.info('Task: performing preprocessing of data for model training')
     household_train, household_test = preprocessing.processing_data(data_frame)
 

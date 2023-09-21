@@ -6,8 +6,6 @@ PROJECT_ID = "nashtech-ai-dev-389315"
 REGION = "us-central1"
 SERVICE_ACCOUNT_ML = "nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com"
 
-DATASET_BUCKET = 'gs://nashtech_vertex_ai_artifact/household_power_consumption.csv'
-
 MODEL_DISPLAY_NAME = "db_scan_model"
 
 PIPELINE_NAME = "clustering-kubeflow"
@@ -36,6 +34,6 @@ TRIGGER_ID = "00c14313-1ad2-4200-a4e0-57adae910784"
 
 pipeline = "7c74cb60-8a30-44b3-a5cf-3637962ce85a"
 
-' gcloud builds triggers create github --name="clustering-pipeline" --service-account="projects/nashtech-ai-dev-389315/serviceAccounts/nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com" --repo-owner="pranayrajput1" --repo-name="GenAI" --branch-pattern="clustering-pipeline" --build-config="cloudbuild.yaml" '
+' gcloud builds triggers create github --name="clustering-pipeline" --service-account="projects/nashtech-ai-dev-389315/serviceAccounts/nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com" --repo-owner="pranayrajput1" --repo-name="GenAI" --branch-pattern="clustering-pipeline" --build-config="cloudbuild.yaml" --require-approval '
 
-' gcloud builds triggers create manual --name=clustering-pipeline --build-config=cloudbuild.yaml --repo="https://github.com/pranayrajput1/GenAI.git" --repo-type=GITHUB --branch="clustering-pipeline" –service-account=”nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com” '
+' gcloud builds triggers create manual --name="serve-trigger" --build-config="serving_container/serve_model_build.yaml" --repo="https://github.com/pranayrajput1/GenAI.git" --repo-type=GITHUB --branch="clustering-pipeline" –service-account=”nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com” '

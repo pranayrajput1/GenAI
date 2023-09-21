@@ -35,33 +35,34 @@ with open(trained_model_file, 'rb') as file:
 app = Flask(__name__)
 
 
-@app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
-def health_check():
-    """
-    Function to check health status of endpoint.
-    """
-    return {"status": "healthy"}, 200
+# @app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
+# def health_check():
+#     """
+#     Function to check health status of endpoint.
+#     """
+#     return {"status": "healthy"}, 200
 
 
-@app.route(os.environ['AIP_PREDICT_ROUTE'], methods=['POST'])
+# @app.route(os.environ['AIP_PREDICT_ROUTE'], methods=['POST'])
+@app.route('/predict', methods=['POST'])
 def predict_labels():
     """
     Function to take instance as input dictionary return result as output.
     """
     response = []
     try:
-        query = request.json
-        instances = query.get("instances", [])
-        if len(instances) == 0:
+        result = request.get_json(silent=True, force=True)
+        data = result['instances']
+        if len(data) == 0:
             return jsonify({"error": "No instances provided"}), 400
-
         else:
-            input_dataframe = handle_json(instances, SUBSET_PATH)
-            prediction = model.fit_predict(input_dataframe)
-            prediction = prediction.tolist()
-            output = prediction[-1]
-            result = "Outlier" if output < 0 else "Not Outlier"
-            response.append(result)
+            for item in data:
+                input_dataframe = handle_json([item], SUBSET_PATH)
+                prediction = model.fit_predict(input_dataframe)
+                prediction = prediction.tolist()
+                output = prediction[-1]
+                result = "Outlier" if output < 0 else "Not Outlier"
+                response.append(result)
 
         return jsonify({
             "predictions": response

@@ -20,10 +20,10 @@ def get_silhouette_score_and_cluster_image(
     """
     try:
 
-        logging.info(f"Creating batch data")
+        logging.info("Creating batch data")
         batches = preprocessing.create_batches(household_train, batch_size)
 
-        logging.info(f"Assigning labels from trained_model")
+        logging.info("Assigning labels from trained_model")
         labels = trained_model.labels_
 
         silhouette_scores = []

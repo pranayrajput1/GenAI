@@ -65,10 +65,10 @@ def evaluate_model(batch_size: int,
             trained_model, image_path)
 
         logging.info("Setting Average Silhouette Score")
-        avg_score.log_metric(f"average_silhouette_score:", average_silhouette_score)
+        avg_score.log_metric("Average_silhouette_score:", average_silhouette_score)
 
         try:
-            logging.info(f"Setting client connection using storage client API'")
+            logging.info("Setting client connection using storage client API'")
             client = storage.Client()
 
             logging.info(f"Getting bucket: {bucket_name} from GCS")

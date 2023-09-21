@@ -14,7 +14,9 @@ from components.dependencies import resolve_dependencies
         'fsspec'
     )
 )
-def process_data(dataset: dsl.Output[dsl.Dataset]):
+def process_data(
+        dataset: dsl.Output[dsl.Dataset]
+):
     """
     Function to load dataset from gcs bucket and save it
     in parquet file then pass the output path of dataset.
@@ -28,10 +30,10 @@ def process_data(dataset: dsl.Output[dsl.Dataset]):
     logger.addHandler(logging.StreamHandler())
     try:
         logging.info('Task: loading data from gcs bucket"')
-        house_hold_data = pd.read_csv('gs://nashtech_vertex_ai_artifact/household_power_consumption.csv', delimiter=";",
+        house_hold_data = pd.read_csv('gs://nashtech_vertex_ai_artifact/household_power_consumption.txt', delimiter=";",
                                       low_memory=False)
         house_hold_df = pd.DataFrame(house_hold_data)
-
+        logging.info(f"Dataset Features: {house_hold_data.columns}")
         logging.info(f'Task: saving data to parquet file at path: {dataset.uri}')
         house_hold_df.to_parquet(dataset.path)
 
