@@ -24,7 +24,8 @@ def pipeline(
 ):
     process_data_task = process_data().set_display_name("Process Data")
 
-    """Fit model changes trigger"""
+    """Making changes to trigger pipeline"""
+    """Fit model pipeline task"""
     fit_model_task = fit_model(BATCH_SIZE, process_data_task.output) \
         .after(process_data_task) \
         .set_display_name("Fit DB_Scan Model") \
