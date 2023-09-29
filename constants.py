@@ -39,4 +39,5 @@ pipeline = "7c74cb60-8a30-44b3-a5cf-3637962ce85a"
 
 ' gcloud builds triggers create github --name="clustering-pipeline" --service-account="projects/nashtech-ai-dev-389315/serviceAccounts/nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com" --repo-owner="pranayrajput1" --repo-name="GenAI" --branch-pattern="clustering-pipeline" --build-config="cloudbuild.yaml" --require-approval '
 
+
 ' gcloud builds triggers create manual --name="serve-trigger" --build-config="serving_container/serve_model_build.yaml" --repo="https://github.com/pranayrajput1/GenAI.git" --repo-type=GITHUB --branch="clustering-pipeline" –service-account=”nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com” '
