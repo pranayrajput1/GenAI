@@ -3,7 +3,6 @@ import os
 from flask import Flask, request, jsonify
 from serving_container.utils.constants import SUBSET_PATH
 from serving_container.utils.input_handler import handle_json, download_model_files_from_bucket
-import simplejson
 from google.cloud import storage
 import logging
 
@@ -35,16 +34,15 @@ with open(trained_model_file, 'rb') as file:
 app = Flask(__name__)
 
 
-# @app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
-# def health_check():
-#     """
-#     Function to check health status of endpoint.
-#     """
-#     return {"status": "healthy"}, 200
+@app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
+def health_check():
+    """
+    Function to check health status of endpoint.
+    """
+    return {"status": "healthy"}, 200
 
 
-# @app.route(os.environ['AIP_PREDICT_ROUTE'], methods=['POST'])
-@app.route('/predict', methods=['POST'])
+@app.route(os.environ['AIP_PREDICT_ROUTE'], methods=['POST'])
 def predict_labels():
     """
     Function to take instance as input dictionary return result as output.

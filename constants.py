@@ -29,6 +29,9 @@ BATCH_SIZE = 10000
 
 TRIGGER_ID = "00c14313-1ad2-4200-a4e0-57adae910784"
 
+dataset_bucket = "nashtech_vertex_ai_artifact"
+model_details_file_name = "model_details.json"
+
 # PIPELINE_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:0.0.1"
 # SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1"
 

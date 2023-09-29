@@ -17,6 +17,8 @@ def serve_model_component(
         serving_image_uri: str,
         model_display_name: str,
         service_account: str,
+        save_model_details_bucket: str,
+        model_details_file_name: str,
         vertex_endpoint: Output[Artifact],
         vertex_model: Output[Model],
         machine_type: str = 'e2-standard-2',
@@ -34,6 +36,9 @@ def serve_model_component(
     @vertex_model: Model located at model registry
     """
     from google.cloud import aiplatform
+    from google.cloud import storage
+    import json
+    import os
     import logging
 
     logger = logging.getLogger('tipper')
@@ -67,6 +72,34 @@ def serve_model_component(
         vertex_model.uri = model.resource_name
 
         logging.info("Task: Uploaded Model to an Endpoint Successfully")
+
+        logging.info("Task: Extracting model id and endpoint id")
+        deployed_display_name = f"{model_display_name}_endpoint"
+        deployed_model_id = model.resource_name.split("/")[-1]
+        endpoint_id = endpoint.resource_name.split("/")[-1]
+
+        logging.info("Task: Appending ID's to the dictionary")
+        model_details = {
+            "deployed_display_name": deployed_display_name,
+            "endpoint_id": endpoint_id,
+            "deployed_model_id": deployed_model_id
+        }
+
+        logging.info(f"Task: Dumping model details to a json file as: {model_details_file_name}")
+        with open(model_details_file_name, "w") as file:
+            json.dump(model_details, file)
+
+        logging.info("Task: Making client connection to save model details to bucket")
+        client = storage.Client()
+        bucket = client.get_bucket(save_model_details_bucket)
+
+        blob = bucket.blob(model_details_file_name)
+
+        logging.info(f"Task: Uploading model details to GCS Bucket: {save_model_details_bucket}")
+        blob.upload_from_filename(model_details_file_name)
+
+        logging.info("Task: Removing model details files from local environment")
+        os.remove(model_details_file_name)
 
     except Exception as e:
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")
