@@ -1,49 +1,39 @@
+import pandas as pd
 from sklearn.cluster import DBSCAN
 from google.cloud import storage
 import joblib
 import pickle
-import pandas as pd
 import os
 import logging
 from kfp.v2 import dsl
-from utils import preprocessing
-
 
 logger = logging.getLogger('tipper')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
-def fit_db_scan_model(dataset_path: str,
-                      batch_size: int,
-                      model_artifact_path: dsl.Output[dsl.Model],
-                      model_name: str
-                      ):
+def fit_db_scan_model(
+        model_name: str,
+        train_dataset: str,
+        model_artifact_path: dsl.Output[dsl.Model],
+):
     """
-    Function to get dataset path and call helper function used to process data,
+    Function to get dataset path,
     then fit model and save to artifact and giver artifact path as output.
     @dataset_path: dataset parquet file path
     @batch_size: batch size used to create batches of data.
     @model_artifact_path: model path saved at artifact registry and given path as output.
     @model_name: model name used to save trained model.
     """
-    logging.info(f"Reading process data from: {dataset_path}")
-    data_frame = pd.read_parquet(dataset_path)
-
-    logging.info(f"Dataset Features: {data_frame.columns} in model training")
-
-    logging.info('Task: performing preprocessing of data for model training')
-    household_train, household_test = preprocessing.processing_data(data_frame)
-
-    logging.info('Task: creating training batches for model fitting')
-    train_batches = preprocessing.create_batches(household_train, batch_size)
 
     dbscan = DBSCAN(eps=6.5, min_samples=1000, leaf_size=30, p=2)
     model = dbscan
 
+    logging.info(f"Reading processed train data from: {train_dataset}")
+    train_data_batch = pd.read_parquet(train_dataset)
+
     logging.info("Fitting model")
-    initial_data = train_batches[0]
-    model = model.fit(initial_data)
+    model = model.fit(train_data_batch)
 
     logging.info(f"Writing Model to pickle file to: {model_artifact_path}")
 

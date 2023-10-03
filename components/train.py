@@ -19,10 +19,9 @@ from constants import BASE_IMAGE
     )
 )
 def fit_model(
-        batch_size: int,
+        model_name: str,
         dataset_path: dsl.Input[dsl.Dataset],
         model_artifact_path: dsl.Output[dsl.Model],
-        model_name: str = 'db_scan',
 ):
     """
     Function to train model using household dataset,
@@ -41,7 +40,7 @@ def fit_model(
 
     try:
         logging.info("fitting db scan model on processed data")
-        model.fit_db_scan_model(dataset_path.path, batch_size, model_artifact_path.path, model_name)
+        model.fit_db_scan_model(model_name, dataset_path.path, model_artifact_path.path)
 
     except Exception as e:
         logging.error("Failed to Save Model to Bucket")
