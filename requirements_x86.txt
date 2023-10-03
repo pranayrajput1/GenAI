@@ -30,3 +30,4 @@ pyarrow==9.0.0
 fsspec==2023.3.0
 google==3.0.0
 
+urllib3==1.26.15

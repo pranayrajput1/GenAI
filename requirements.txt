@@ -18,16 +18,16 @@ pyarrow==9.0.0
 matplotlib==3.7.1
 
 
+# Kubeflow SDK
+kfp[all]==1.8.19
 google-cloud-aiplatform==1.26.0
 google-cloud-storage==2.9.0
 google-cloud-build==3.16.0
 
-# Kubeflow SDK
 protobuf==3.19.6
-kfp[all]==1.8.19
-
 
 pyarrow==9.0.0
 fsspec==2023.3.0
 google==3.0.0
 
+urllib3==1.26.15

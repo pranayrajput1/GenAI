@@ -38,26 +38,28 @@ def pipeline(
         .set_memory_limit("16G")
 
     """Evaluate model component"""
-    # model_evaluation_task = evaluate_model(BATCH_SIZE, CLUSTER_IMAGE_BUCKET,
-    #                                        process_data_task.output, fit_model_task.output) \
-    #     .set_display_name("Model_Validation")
+    model_evaluation_task = evaluate_model(BATCH_SIZE,
+                                           CLUSTER_IMAGE_BUCKET,
+                                           fetch_data_task.output,
+                                           fit_model_task.output) \
+        .set_display_name("Model_Validation")
 
     """Upload model Component"""
-    # upload_model_task = upload_container(project_id, TRIGGER_ID) \
-    #     .after(model_evaluation_task) \
-    #     .set_display_name("Model_Upload")
+    upload_model_task = upload_container(project_id, TRIGGER_ID) \
+        .after(model_evaluation_task) \
+        .set_display_name("Model_Upload")
 
-    # serve_model_task = serve_model_component(project_id,
-    #                                          REGION,
-    #                                          STAGING_BUCKET,
-    #                                          SERVING_IMAGE,
-    #                                          MODEL_DISPLAY_NAME,
-    #                                          SERVICE_ACCOUNT_ML,
-    #                                          save_model_details_bucket=dataset_bucket,
-    #                                          model_details_file_name=model_details_file_name
-    #                                          ) \
-    #     .after(upload_model_task) \
-    #     .set_display_name("Serve_Model")
+    serve_model_task = serve_model_component(project_id,
+                                             REGION,
+                                             STAGING_BUCKET,
+                                             SERVING_IMAGE,
+                                             MODEL_DISPLAY_NAME,
+                                             SERVICE_ACCOUNT_ML,
+                                             save_model_details_bucket=dataset_bucket,
+                                             model_details_file_name=model_details_file_name
+                                             ) \
+        .after(upload_model_task) \
+        .set_display_name("Serve_Model")
 
 
 def compile_pipeline(pipeline_template_name='./dbscan_pipeline.json'):
