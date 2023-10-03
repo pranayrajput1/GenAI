@@ -39,7 +39,7 @@ def upload_container(
 
     try:
         logging.info("Task: Setting Validated Model Metric")
-        model_metrics = get_validated_model(model_one_score, model_two_score)
+        model_metrics = get_validated_model(model_one_score.metadata.get("score"), model_two_score.metadata.get("score"))
         validated_model.log_metric("Validated Model:", model_metrics)
 
         logging.info(f"Task: Creating model name: {model_metrics} dictionary")
