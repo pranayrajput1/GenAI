@@ -9,7 +9,7 @@ def get_silhouette_score_and_cluster_image(
         household_train,
         batch_size: int,
         trained_model,
-        image_path
+        image_path: str
 ):
     """
     Function to calculate average silhouette score and save create cluster image

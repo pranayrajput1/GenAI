@@ -17,14 +17,15 @@ from constants import BASE_IMAGE
         'scikit-learn'
     )
 )
-def evaluate_model(batch_size: int,
-                   bucket_name: str,
-                   dataset_path: dsl.Input[dsl.Dataset],
-                   model_path: dsl.Input[dsl.Model],
-                   avg_score: dsl.Output[dsl.Metrics],
-                   cluster_image: dsl.Output[dsl.Artifact],
-                   image_path: str = "cluster_image.png"
-                   ):
+def evaluate_model(
+        batch_size: int,
+        model_name: str,
+        bucket_name: str,
+        dataset_path: dsl.Input[dsl.Dataset],
+        model_path: dsl.Input[dsl.Model],
+        avg_score: dsl.Output[dsl.Metrics],
+        cluster_image: dsl.Output[dsl.Artifact]
+):
     """
     Function to evaluate the performance of model,
     give average silhouette score as output,
@@ -48,6 +49,8 @@ def evaluate_model(batch_size: int,
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler())
 
+    image_path = f"{model_name}_cluster_image.png"
+
     try:
         logging.info(f"Reading model from: {model_path.path}")
         file_name = model_path.path + ".pkl"
@@ -61,8 +64,10 @@ def evaluate_model(batch_size: int,
 
         logging.info("calculating average silhouette_scores")
         average_silhouette_score = silhouette_score.get_silhouette_score_and_cluster_image(
-            household_train, batch_size,
-            trained_model, image_path)
+            household_train,
+            batch_size,
+            trained_model,
+            image_path)
 
         logging.info("Setting Average Silhouette Score")
         avg_score.log_metric("Average_silhouette_score:", average_silhouette_score)
@@ -73,7 +78,7 @@ def evaluate_model(batch_size: int,
 
             logging.info(f"Getting bucket: {bucket_name} from GCS")
             bucket = client.get_bucket(bucket_name)
-            blob = bucket.blob(f"{bucket_name}")
+            blob = bucket.blob(image_path)
 
             logging.info(f"Uploading Image to Bucket: 'gs://{bucket_name}/'")
             with open(image_path, 'rb') as file:

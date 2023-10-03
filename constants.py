@@ -32,7 +32,9 @@ TRIGGER_ID = "00c14313-1ad2-4200-a4e0-57adae910784"
 dataset_bucket = "nashtech_vertex_ai_artifact"
 dataset_name = "household_power_consumption.txt"
 
-fit_model_name = "db_scan"
+fit_db_model_name = "db_scan"
+fit_k_means_model_name = "k_means"
+
 
 model_details_file_name = "model_details.json"
 validated_file_name = "validated_model.json"

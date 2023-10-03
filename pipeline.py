@@ -10,7 +10,8 @@ from components.train import fit_model
 from components.upload_model import upload_container
 from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE, CLUSTER_IMAGE_BUCKET, \
                        TRIGGER_ID, REGION, STAGING_BUCKET, SERVING_IMAGE, MODEL_DISPLAY_NAME, SERVICE_ACCOUNT_ML,
-                       dataset_bucket, dataset_name, fit_model_name, model_details_file_name, validated_file_name)
+                       dataset_bucket, dataset_name, model_details_file_name, validated_file_name,
+                       fit_db_model_name, fit_k_means_model_name)
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ def pipeline(
         .after(fetch_data_task)
 
     """Fit DB-Scan model pipeline task"""
-    fit_db_scan_model = fit_model(fit_model_name, process_data_task.output) \
+    fit_db_scan_model = fit_model(fit_db_model_name, process_data_task.output) \
         .after(process_data_task) \
         .set_display_name("Fit DB-Scan Model") \
         .set_cpu_request("4") \
@@ -39,6 +40,7 @@ def pipeline(
 
     """Evaluate model component"""
     db_scan_evaluation = evaluate_model(BATCH_SIZE,
+                                        fit_db_model_name,
                                         CLUSTER_IMAGE_BUCKET,
                                         fetch_data_task.output,
                                         fit_db_scan_model.output) \
@@ -46,7 +48,7 @@ def pipeline(
         .set_display_name("DB-Scan Score")
 
     """Fit K-Means model pipeline task"""
-    fit_k_means_model = fit_model(fit_model_name, process_data_task.output) \
+    fit_k_means_model = fit_model(fit_k_means_model_name, process_data_task.output) \
         .after(process_data_task) \
         .set_display_name("Fit K-Means Model") \
         .set_cpu_request("4") \
@@ -54,9 +56,10 @@ def pipeline(
 
     """Evaluate model component"""
     k_means_evaluation = evaluate_model(BATCH_SIZE,
+                                        fit_k_means_model_name,
                                         CLUSTER_IMAGE_BUCKET,
                                         fetch_data_task.output,
-                                        fit_db_scan_model.output) \
+                                        fit_k_means_model.output) \
         .after(fit_k_means_model) \
         .set_display_name("K-Means Score")
 

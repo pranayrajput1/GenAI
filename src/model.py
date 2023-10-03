@@ -43,7 +43,7 @@ def get_model(model_type):
     return model_mapping.get(model_type, None)
 
 
-def fit_db_scan_model(
+def fit_model(
         model_name: str,
         train_dataset: str,
         model_artifact_path: dsl.Output[dsl.Model],

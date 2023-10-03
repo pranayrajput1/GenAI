@@ -40,7 +40,7 @@ def fit_model(
 
     try:
         logging.info("fitting db scan model on processed data")
-        model.fit_db_scan_model(model_name, dataset_path.path, model_artifact_path.path)
+        model.fit_model(model_name, dataset_path.path, model_artifact_path.path)
 
     except Exception as e:
         logging.error("Failed to Save Model to Bucket")
