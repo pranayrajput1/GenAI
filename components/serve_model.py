@@ -36,9 +36,7 @@ def serve_model_component(
     @vertex_model: Model located at model registry
     """
     from google.cloud import aiplatform
-    from google.cloud import storage
-    import json
-    import os
+    from src.model import save_model_details
     import logging
 
     logger = logging.getLogger('tipper')
@@ -85,21 +83,8 @@ def serve_model_component(
             "deployed_model_id": deployed_model_id
         }
 
-        logging.info(f"Task: Dumping model details to a json file as: {model_details_file_name}")
-        with open(model_details_file_name, "w") as file:
-            json.dump(model_details, file)
-
-        logging.info("Task: Making client connection to save model details to bucket")
-        client = storage.Client()
-        bucket = client.get_bucket(save_model_details_bucket)
-
-        blob = bucket.blob(model_details_file_name)
-
-        logging.info(f"Task: Uploading model details to GCS Bucket: {save_model_details_bucket}")
-        blob.upload_from_filename(model_details_file_name)
-
-        logging.info("Task: Removing model details files from local environment")
-        os.remove(model_details_file_name)
+        logging.info("Saving Deployed Model Details Over GCS Bucket")
+        save_model_details(model_details, model_details_file_name, save_model_details_bucket)
 
     except Exception as e:
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")

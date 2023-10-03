@@ -6,24 +6,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 
-def download_model_files_from_bucket(bucket_name, destination_folder):
-    client = storage.Client()
-
-    '''Get the desired bucket'''
-    bucket = client.get_bucket(bucket_name)
-
-    '''List all files in the bucket'''
-    blobs = bucket.list_blobs()
-
-    for blob in blobs:
-        '''Construct the local file path'''
-        local_path = f"{destination_folder}/{blob.name}"
-
-        '''Download the file'''
-        blob.download_to_filename(local_path)
-        logging.info(f"Downloaded: {blob.name} to {local_path}")
-
-
 def handle_file(file):
     """
     function to handle input of file.
@@ -60,3 +42,13 @@ def scaling(data_frame):
     scaled_data = scale.fit_transform(data_frame)
     scaled_dataframe = pd.DataFrame(scaled_data)
     return scaled_dataframe
+
+
+def gcs_file_download(bucket_name, file_name):
+    client = storage.Client()
+
+    bucket = client.get_bucket(bucket_name)
+    blob = bucket.blob(file_name)
+    blob.download_to_filename(file_name)
+
+    logging.info(f"File {file_name} downloaded")

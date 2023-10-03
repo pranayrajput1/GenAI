@@ -52,8 +52,8 @@ def evaluate_model(batch_size: int,
         logging.info(f"Reading model from: {model_path.path}")
         file_name = model_path.path + ".pkl"
 
-        with open(file_name, 'rb') as file:
-            trained_model = pickle.load(file)
+        with open(file_name, 'rb') as model_file:
+            trained_model = pickle.load(model_file)
 
         logging.info(f"Reading process data from: {dataset_path.path}")
         data_frame = pd.read_parquet(dataset_path.path)
@@ -80,7 +80,7 @@ def evaluate_model(batch_size: int,
                 blob.upload_from_file(file, content_type='image/png')
 
             logging.info(f"Uploaded Image to Bucket: 'gs://{bucket_name}/' successfully'")
-            image_url = f"https://storage.cloud.google.com/{bucket_name}/"
+            image_url = f"https://storage.cloud.google.com/{bucket_name}/{image_path}"
             cluster_image.uri = image_url
 
         except Exception as e:

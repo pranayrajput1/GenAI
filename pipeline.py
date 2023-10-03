@@ -10,7 +10,7 @@ from components.train import fit_model
 from components.upload_model import upload_container
 from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE, CLUSTER_IMAGE_BUCKET, \
                        TRIGGER_ID, REGION, STAGING_BUCKET, SERVING_IMAGE, MODEL_DISPLAY_NAME, SERVICE_ACCOUNT_ML,
-                       dataset_bucket, dataset_name, fit_model_name, model_details_file_name)
+                       dataset_bucket, dataset_name, fit_model_name, model_details_file_name, validated_file_name)
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -30,34 +30,56 @@ def pipeline(
     process_data_task = pre_process_data(fetch_data_task.output, BATCH_SIZE).set_display_name("Pre-Process Data") \
         .after(fetch_data_task)
 
-    """Fit model pipeline task"""
-    fit_model_task = fit_model(fit_model_name, process_data_task.output) \
+    """Fit DB-Scan model pipeline task"""
+    fit_db_scan_model = fit_model(fit_model_name, process_data_task.output) \
         .after(process_data_task) \
-        .set_display_name("Fit DB_Scan Model") \
+        .set_display_name("Fit DB-Scan Model") \
         .set_cpu_request("4") \
         .set_memory_limit("16G")
 
     """Evaluate model component"""
-    model_evaluation_task = evaluate_model(BATCH_SIZE,
-                                           CLUSTER_IMAGE_BUCKET,
-                                           fetch_data_task.output,
-                                           fit_model_task.output) \
-        .set_display_name("Model_Validation")
+    db_scan_evaluation = evaluate_model(BATCH_SIZE,
+                                        CLUSTER_IMAGE_BUCKET,
+                                        fetch_data_task.output,
+                                        fit_db_scan_model.output) \
+        .after(fit_db_scan_model) \
+        .set_display_name("DB-Scan Score")
 
-    """Upload model Component"""
-    upload_model_task = upload_container(project_id, TRIGGER_ID) \
-        .after(model_evaluation_task) \
-        .set_display_name("Model_Upload")
+    """Fit K-Means model pipeline task"""
+    fit_k_means_model = fit_model(fit_model_name, process_data_task.output) \
+        .after(process_data_task) \
+        .set_display_name("Fit K-Means Model") \
+        .set_cpu_request("4") \
+        .set_memory_limit("16G")
 
-    serve_model_task = serve_model_component(project_id,
-                                             REGION,
-                                             STAGING_BUCKET,
-                                             SERVING_IMAGE,
-                                             MODEL_DISPLAY_NAME,
-                                             SERVICE_ACCOUNT_ML,
-                                             save_model_details_bucket=dataset_bucket,
-                                             model_details_file_name=model_details_file_name
-                                             ) \
+    """Evaluate model component"""
+    k_means_evaluation = evaluate_model(BATCH_SIZE,
+                                        CLUSTER_IMAGE_BUCKET,
+                                        fetch_data_task.output,
+                                        fit_db_scan_model.output) \
+        .after(fit_k_means_model) \
+        .set_display_name("K-Means Score")
+
+    """Model Validation & Upload Model Component"""
+    upload_model_task = upload_container(project_id,
+                                         TRIGGER_ID,
+                                         dataset_bucket,
+                                         validated_file_name,
+                                         db_scan_evaluation.outputs["avg_score"],
+                                         k_means_evaluation.outputs["avg_score"]) \
+        .after(db_scan_evaluation) \
+        .after(k_means_evaluation) \
+        .set_display_name("Model_Validation_&_Upload")
+
+    serve_model_component(project_id,
+                          REGION,
+                          STAGING_BUCKET,
+                          SERVING_IMAGE,
+                          MODEL_DISPLAY_NAME,
+                          SERVICE_ACCOUNT_ML,
+                          save_model_details_bucket=dataset_bucket,
+                          model_details_file_name=model_details_file_name
+                          ) \
         .after(upload_model_task) \
         .set_display_name("Serve_Model")
 

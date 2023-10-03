@@ -35,13 +35,9 @@ dataset_name = "household_power_consumption.txt"
 fit_model_name = "db_scan"
 
 model_details_file_name = "model_details.json"
+validated_file_name = "validated_model.json"
 
 # PIPELINE_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:0.0.1"
 # SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1"
 
 pipeline = "7c74cb60-8a30-44b3-a5cf-3637962ce85a"
-
-' gcloud builds triggers create github --name="clustering-pipeline" --service-account="projects/nashtech-ai-dev-389315/serviceAccounts/nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com" --repo-owner="pranayrajput1" --repo-name="GenAI" --branch-pattern="clustering-pipeline" --build-config="cloudbuild.yaml" --require-approval '
-
-
-' gcloud builds triggers create manual --name="serve-trigger" --build-config="serving_container/serve_model_build.yaml" --repo="https://github.com/pranayrajput1/GenAI.git" --repo-type=GITHUB --branch="clustering-pipeline" –service-account=”nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com” '

@@ -1,31 +1,27 @@
 import joblib
+import json
 import os
 from flask import Flask, request, jsonify
-from serving_container.utils.constants import SUBSET_PATH
-from serving_container.utils.input_handler import handle_json, download_model_files_from_bucket
-from google.cloud import storage
+from serving_container.utils.constants import SUBSET_PATH, MODEL_DETAILS_BUCKET, MODEl_DETAILS_FILE_NAME, \
+    SAVED_MODEL_BUCKET
+from serving_container.utils.input_handler import handle_json, gcs_file_download
 import logging
 
 logging.basicConfig(level=logging.INFO)
 
-"""Saved model gcs bucket"""
-bucket_name = "dbscan-model"
+logging.info(f"Task: Downloading {MODEl_DETAILS_FILE_NAME} from: {MODEL_DETAILS_BUCKET}")
+gcs_file_download(MODEL_DETAILS_BUCKET, MODEl_DETAILS_FILE_NAME)
 
-logging.info("Task: Making Directory: trained_model if not exist for saving trained model from gcs bucket")
-model_path = "downloaded_model"
-os.makedirs(model_path, exist_ok=True)
+with open(MODEl_DETAILS_FILE_NAME, 'rb') as model_file_name:
+    model_detail = json.load(model_file_name)
 
-file_name = "db_scan.joblib"
+model_name = model_detail["validated_model"]
 
-logging.info(f"Task: Downloading model files from GCS Bucket: {bucket_name}")
-download_model_files_from_bucket(bucket_name, model_path)
-logging.info("Task: Model Files Downloaded Successfully")
+logging.info(f"Task: Downloading {model_name}.joblib from: {SAVED_MODEL_BUCKET}")
+gcs_file_download(SAVED_MODEL_BUCKET, f'{model_name}.joblib')
 
 """Defining trained model path"""
-trained_model_file = f"{model_path}/{file_name}"
-
-storage_client = storage.Client()
-bucket = storage_client.get_bucket(bucket_name)
+trained_model_file = f"./{model_name}.joblib"
 
 """Reading trained model saved as joblib file"""
 with open(trained_model_file, 'rb') as file:
