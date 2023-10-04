@@ -47,34 +47,30 @@ def evaluate_model(
         """Evaluating Db-Scan Model Performance"""
         logging.info(f"Task: Evaluating Model Performance of {models_list[0]} model")
         db_scan_image = f"{models_list[0]}_cluster_image.png"
-        db_scan_silhouette_score, db_scan_image = evaluation_score(batch_size,
-                                                                   bucket_name,
-                                                                   dataset_path,
-                                                                   db_scan_model,
-                                                                   db_scan_image)
+        db_scan_silhouette_score = evaluation_score(batch_size,
+                                                    bucket_name,
+                                                    dataset_path,
+                                                    db_scan_model,
+                                                    db_scan_image,
+                                                    db_scan_cluster_image.path)
         logging.info(f"Task: db_scan_silhouette_score: {db_scan_silhouette_score}")
 
         logging.info(f"Setting Average Silhouette Score: {db_scan_silhouette_score}")
         db_scan_avg_score.log_metric("score", db_scan_silhouette_score)
 
-        logging.info("Task: Setting db_scan cluster image")
-        db_scan_cluster_image.uri = db_scan_image
-
         """Evaluating K-Means Model Performance"""
         logging.info(f"Task: Evaluating Model Performance of {models_list[1]} model")
         k_means_image = f"{models_list[1]}_cluster_image.png"
-        k_means_silhouette_score, k_means_image = evaluation_score(batch_size,
-                                                                   bucket_name,
-                                                                   dataset_path,
-                                                                   k_means_model,
-                                                                   k_means_image)
+        k_means_silhouette_score = evaluation_score(batch_size,
+                                                    bucket_name,
+                                                    dataset_path,
+                                                    k_means_model,
+                                                    k_means_image,
+                                                    k_means_cluster_image.path)
         logging.info(f"Task: k_means_silhouette_score: {k_means_silhouette_score}")
 
         logging.info(f"Setting Average Silhouette Score: {k_means_silhouette_score}")
         k_means_avg_score.log_metric("score", k_means_silhouette_score)
-
-        logging.info("Task: Setting k_means cluster image")
-        k_means_cluster_image.uri = k_means_image
 
         """Comparing Both Model Scores"""
         logging.info("Task: Setting Validated Model Metric")
@@ -93,4 +89,3 @@ def evaluate_model(
     except Exception as e:
         logging.info("Failed To Execute Model validation")
         raise e
-

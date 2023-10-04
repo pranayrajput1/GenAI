@@ -1,6 +1,7 @@
 import joblib
 import json
 import os
+import pandas as pd
 from flask import Flask, request, jsonify
 from serving_container.utils.constants import SUBSET_PATH, MODEL_DETAILS_BUCKET, MODEl_DETAILS_FILE_NAME, \
     SAVED_MODEL_BUCKET
@@ -30,7 +31,8 @@ with open(trained_model_file, 'rb') as file:
 app = Flask(__name__)
 
 
-@app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
+# @app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
+@app.route('/ping', methods=['GET'])
 def health_check():
     """
     Function to check health status of endpoint.
@@ -38,7 +40,8 @@ def health_check():
     return {"status": "healthy"}, 200
 
 
-@app.route(os.environ['AIP_PREDICT_ROUTE'], methods=['POST'])
+# @app.route(os.environ['AIP_PREDICT_ROUTE'], methods=['POST'])
+@app.route('/predict', methods=['POST'])
 def predict_labels():
     """
     Function to take instance as input dictionary return result as output.

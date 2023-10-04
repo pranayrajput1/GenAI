@@ -22,7 +22,7 @@ SERVING_IMAGE_TAG = "0.0.1"
 BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
 SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
 
-CLUSTER_IMAGE_BUCKET = "nashtech_vertex_ai_artifact"
+cluster_image_bucket = "nashtech_vertex_ai_artifact"
 
 STAGING_BUCKET = "gs://dbscan-model/"
 BATCH_SIZE = 10000
@@ -38,6 +38,10 @@ fit_k_means_model_name = "k_means"
 
 model_details_file_name = "model_details.json"
 validated_file_name = "validated_model.json"
+
+experiment_pipeline = "experiment_pipeline.json"
+
+models_list = ["db_scan", "k_means"]
 
 # PIPELINE_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:0.0.1"
 # SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1"

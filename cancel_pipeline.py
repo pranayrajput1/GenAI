@@ -8,7 +8,6 @@ def cancel_custom_job_sample(
         custom_job_id: str,
         location: str = "us-central1",
 ):
-
     pipeline_client = aiplatform.gapic.PipelineServiceClient(
         client_options={"api_endpoint": f"{location}-aiplatform.googleapis.com"})
 
@@ -17,4 +16,18 @@ def cancel_custom_job_sample(
     pipeline_client.cancel_pipeline_job(name=pipeline_job_name)
 
 
-cancel_custom_job_sample(PROJECT_ID, 'clustering-kubeflow-20231003172032')
+def delete_custom_job_sample(
+    project: str,
+    custom_job_id: str,
+    location: str = "us-central1"
+):
+    pipeline_client = aiplatform.gapic.PipelineServiceClient(
+        client_options={"api_endpoint": f"{location}-aiplatform.googleapis.com"})
+
+    pipeline_job_name = f"projects/{project}/locations/{location}/pipelineJobs/{custom_job_id}"
+
+    pipeline_client.delete_pipeline_job(name=pipeline_job_name)
+
+
+# cancel_custom_job_sample(PROJECT_ID, 'clustering-kubeflow-20231003172032')
+delete_custom_job_sample(PROJECT_ID, "clustering-kubeflow-20231003180443")
