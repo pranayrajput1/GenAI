@@ -69,8 +69,8 @@ def evaluate_model(
             trained_model,
             image_path)
 
-        logging.info("Setting Average Silhouette Score")
-        avg_score.log_metric("score:", average_silhouette_score)
+        logging.info(f"Setting Average Silhouette Score: {average_silhouette_score}")
+        avg_score.log_metric("score", average_silhouette_score)
 
         try:
             logging.info("Setting client connection using storage client API'")
