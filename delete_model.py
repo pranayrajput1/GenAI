@@ -58,8 +58,9 @@ def delete_model_from_deployment(
     endpoint_id = data["endpoint_id"]
     deployed_model_id = data["deployed_model_id"]
 
-    print(f"Deployed Model Details: deployed_display_name: {deployed_display_name}, endpoint_id: {endpoint_id}, "
+    print(f"Model Details: deployed_display_name: {deployed_display_name}, endpoint_id: {endpoint_id}, "
           f"deployed_model_id: {deployed_model_id}")
+
     undeploy_model_from_endpoint(deployed_display_name)
     delete_endpoint_sample(project, endpoint_id)
     delete_model_sample(deployed_model_id, project, region)

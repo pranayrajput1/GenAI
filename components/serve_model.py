@@ -1,15 +1,16 @@
 from kfp.v2.components.component_decorator import component
 from kfp.v2.dsl import Artifact, Output, Model
 from components.dependencies import resolve_dependencies
-from constants import BASE_IMAGE
+from constants import (BASE_IMAGE, REGION, PROJECT_ID, STAGING_BUCKET, MODEL_DISPLAY_NAME, SERVING_IMAGE,
+                       SERVICE_ACCOUNT_ML, dataset_bucket)
 
 
-@component(
-    base_image=BASE_IMAGE,
-    packages_to_install=resolve_dependencies(
-        'google-cloud-aiplatform'
-    )
-)
+# @component(
+#     base_image=BASE_IMAGE,
+#     packages_to_install=resolve_dependencies(
+#         'google-cloud-aiplatform'
+#     )
+# )
 def serve_model_component(
         project_id: str,
         location: str,
@@ -19,8 +20,8 @@ def serve_model_component(
         service_account: str,
         save_model_details_bucket: str,
         model_details_file_name: str,
-        vertex_endpoint: Output[Artifact],
-        vertex_model: Output[Model],
+        # vertex_endpoint: Output[Artifact],
+        # vertex_model: Output[Model],
         machine_type: str = 'e2-standard-2',
 
 ):
@@ -66,8 +67,8 @@ def serve_model_component(
                                 service_account=service_account)
         logging.info(endpoint)
 
-        vertex_endpoint.uri = endpoint.resource_name
-        vertex_model.uri = model.resource_name
+        # vertex_endpoint.uri = endpoint.resource_name
+        # vertex_model.uri = model.resource_name
 
         logging.info("Task: Uploaded Model to an Endpoint Successfully")
 
@@ -90,3 +91,13 @@ def serve_model_component(
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")
         raise e
 
+
+serve_model_component(PROJECT_ID,
+                      REGION,
+                      STAGING_BUCKET,
+                      SERVING_IMAGE,
+                      MODEL_DISPLAY_NAME,
+                      SERVICE_ACCOUNT_ML,
+                      save_model_details_bucket=dataset_bucket,
+                      model_details_file_name="model_details.json"
+                      )

@@ -108,6 +108,7 @@ def evaluation_score(batch,
                      dataset_path,
                      model_path,
                      image_path):
+
     logging.info(f"Reading model from: {model_path.path}")
     file_name = model_path.path + ".pkl"
 
