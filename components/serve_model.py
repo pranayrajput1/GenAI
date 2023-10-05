@@ -96,7 +96,7 @@ serve_model_component(PROJECT_ID,
                       REGION,
                       STAGING_BUCKET,
                       SERVING_IMAGE,
-                      MODEL_DISPLAY_NAME,
+                      "test_cluster_model",
                       SERVICE_ACCOUNT_ML,
                       save_model_details_bucket=dataset_bucket,
                       model_details_file_name="model_details.json"

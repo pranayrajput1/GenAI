@@ -6,14 +6,17 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 
-def handle_file(file):
+def concat_df(subset_df, input_df):
+    combined_df = pd.concat([subset_df, input_df], ignore_index=True)
+    return combined_df
+
+
+def handle_file(input_file):
     """
     function to handle input of file.
     """
-    readfile = pd.read_csv(file)
-    input_df = pd.DataFrame(readfile)
-    scaled_df = scaling(input_df)
-    return scaled_df
+    input_dataframe = pd.read_csv(input_file)
+    return input_dataframe
 
 
 def handle_json(input_instance, subset_data):
@@ -23,13 +26,9 @@ def handle_json(input_instance, subset_data):
     subset_data = pd.read_csv(subset_data)
     subset_df = pd.DataFrame(subset_data)
 
-    input_dataframe = pd.DataFrame(input_instance,
-                                   columns=["Global_reactive_power", "Global_intensity"],
-                                   index=[0])
-
-    combined_df = pd.concat([subset_df, input_dataframe], ignore_index=True)
-    scaled_df = scaling(combined_df)
-    return scaled_df
+    input_dataframe = pd.DataFrame(input_instance, columns=["Global_reactive_power", "Global_intensity"])
+    combined_data = concat_df(subset_df, input_dataframe)
+    return combined_data
 
 
 def scaling(data_frame):
