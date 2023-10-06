@@ -43,6 +43,7 @@ def health_check():
 # @app.route('/predict', methods=['POST'])
 def predict_labels():
     try:
+        response_data = []
         result = request.get_json(silent=True, force=True)
         data = result['instances']
 
@@ -56,10 +57,24 @@ def predict_labels():
             input_dataframe['Prediction'] = ["Outlier" if output < 0 else "Not Outlier" for output in predictions]
             final_df = input_dataframe[-len(data):]
 
-            prediction_result = final_df["Prediction"].values.tolist()
-            return jsonify({
-                "predictions": prediction_result
-            }), 200
+            for _, row in final_df.iterrows():
+                request_data = {
+                    "Global_intensity": row["Global_intensity"],
+                    "Global_reactive_power": row["Global_reactive_power"]
+                }
+
+                prediction = row["Prediction"]
+
+                result_dict = {
+                    "request": request_data,
+                    "response": prediction
+                }
+
+                response_data.append(result_dict)
+
+        return jsonify({
+            "predictions": response_data
+        }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

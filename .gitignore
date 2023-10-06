@@ -141,3 +141,4 @@ Footer
 /hit_endpoint.py
 /dbscan_pipeline.json
 /experiment_pipeline.json
+/serving_container/validated_model.json
