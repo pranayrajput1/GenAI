@@ -78,7 +78,7 @@ def big_query_to_gcs(request):
             logging.info("Task: Read data from Big Query Completed Successfully")
 
         current_time = datetime.datetime.now()
-        uploaded_file = upload_to_bucket(file_name=f'{csv_file_name}_{current_time}', bucket_name=save_bucket)
+        uploaded_file = upload_to_bucket(file_name=csv_file_name, bucket_name=save_bucket)
 
         logging.info('Task: Initiating Upload Dataset to GCS Bucket')
         if uploaded_file:
