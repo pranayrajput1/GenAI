@@ -61,9 +61,9 @@ def delete_model_from_deployment(
     print(f"Model Details: deployed_display_name: {deployed_display_name}, endpoint_id: {endpoint_id}, "
           f"deployed_model_id: {deployed_model_id}")
 
-    undeploy_model_from_endpoint(deployed_display_name)
-    delete_endpoint_sample(project, endpoint_id)
-    delete_model_sample(deployed_model_id, project, region)
+    undeploy_model_from_endpoint("test_model_endpoint")
+    delete_endpoint_sample(project, "9195525805369720832")
+    delete_model_sample("8507394254102855680", project, region)
 
     logging.info("Task: Removing model details files from local environment")
     os.remove(model_details_file_name)
