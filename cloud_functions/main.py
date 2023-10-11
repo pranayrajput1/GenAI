@@ -15,9 +15,9 @@ logger.addHandler(logging.StreamHandler())
 
 def get_time():
     current_time = datetime.datetime.now()
-    formatted_time = current_time.strftime("%Y_%m_%d_%H:%M")
-    time = str(formatted_time)
-    return time
+    formatted_time = current_time.strftime("%Y-%m-%d %H:%M")
+    datetime_obj = pd.to_datetime(formatted_time)
+    return datetime_obj
 
 
 def normalize_requests_data(df, col: str = 'REQUEST'):
@@ -36,11 +36,14 @@ def get_big_query_data(
     query = f'''SELECT {schema_name} FROM `{project_id}.{dataset_id}.{table_id}` LIMIT {limit_count}'''
     logger.info(f'Task: Query: {query}')
 
-    logging.info('Task: Establishing BigQuery Client connection')
+    logger.info('Task: Establishing BigQuery Client connection')
     bg_client = bigquery.Client()
 
-    logging.info('Task: Reading data from bigquery')
+    logger.info('Task: Reading data from bigquery')
     df = bg_client.query(query).to_dataframe()
+
+    logger.info("Task: Closing BigQuery Client Connection")
+    bg_client.close()
 
     return df
 
@@ -54,7 +57,25 @@ def get_stats(dataframe):
     quartiles_intensity = np.percentile(global_intensity, [25, 50, 75])
     quartiles_reactive_power = np.percentile(global_reactive_power, [25, 50, 75])
 
+    """Precision and Recall"""
+    true_positive = ((dataframe['RESPONSE'] == 'Outlier') & dataframe['FEEDBACK']).sum()
+    true_negative = ((dataframe['RESPONSE'] != 'Outlier') & dataframe['FEEDBACK']).sum()
+    false_positive = ((dataframe['RESPONSE'] != 'Outlier') & dataframe['FEEDBACK']).sum()
+    false_negative = ((dataframe['RESPONSE'] == 'Outlier') & dataframe['FEEDBACK']).sum()
+
+    precision = true_positive / (true_positive + false_positive)
+    recall = true_positive / (true_positive + false_negative)
+
+    """Accuracy"""
+    accuracy = true_positive + true_negative
+    acc_score = accuracy / (true_positive + true_negative + false_positive + false_negative)
+
+    timestamp = get_time()
+
     generated_stats_dict = {
+        "accuracy": acc_score,
+        "precision": precision,
+        "recall": recall,
         "mean_reactive_power": dataframe['Global_reactive_power'].mean(),
         "std_reactive_power": dataframe['Global_reactive_power'].std(),
         "mean_intensity": dataframe['Global_intensity'].mean(),
@@ -66,14 +87,11 @@ def get_stats(dataframe):
         "skew_intensity": stats.skew(global_intensity),
         "skew_reactive_power": stats.skew(global_reactive_power),
         "kurtosis_intensity": stats.kurtosis(global_intensity),
-        "kurtosis_reactive_power": stats.kurtosis(global_reactive_power)
+        "kurtosis_reactive_power": stats.kurtosis(global_reactive_power),
+        "date_time": timestamp
     }
 
-    stats_df = pd.DataFrame(generated_stats_dict.items(), columns=["STATS", "SCORE"])
-
-    stats_df['STATS'] = stats_df['STATS'].astype(str)
-    stats_df['SCORE'] = stats_df['SCORE'].astype(str)
-
+    stats_df = pd.DataFrame([generated_stats_dict])
     return stats_df
 
 
@@ -82,13 +100,32 @@ def write_table_to_bigquery(dataframe, project_id, big_query_table_id):
         """Construct a BigQuery client object"""""
         client = bigquery.Client(project=project_id)
 
-        print("In Bigquery helper function", dataframe)
-        print("Type of data incoming ", type(dataframe))
+        logger.info(f"In Bigquery helper function: {dataframe}")
+        logger.info(f"Type of data incoming: {type(dataframe)}")
+
+        schema = [
+            bigquery.SchemaField("accuracy", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("precision", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("recall", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("mean_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("std_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("mean_intensity", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("std_intensity", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("f1_score", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("cnf_matrix", bigquery.enums.SqlTypeNames.STRING),
+            bigquery.SchemaField("iqr_intensity", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("iqr_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("skew_intensity", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("skew_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("kurtosis_intensity", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("kurtosis_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("date_time", bigquery.enums.SqlTypeNames.DATETIME),
+        ]
+
+        dataframe["cnf_matrix"] = dataframe["cnf_matrix"].astype(str)
+
         job_config = bigquery.LoadJobConfig(
-            schema=[
-                bigquery.SchemaField("STATS", bigquery.enums.SqlTypeNames.STRING),
-                bigquery.SchemaField("SCORE", bigquery.enums.SqlTypeNames.STRING),
-            ],
+            schema=schema,
             write_disposition="WRITE_TRUNCATE",
             create_disposition="CREATE_IF_NEEDED"
         )
@@ -97,7 +134,7 @@ def write_table_to_bigquery(dataframe, project_id, big_query_table_id):
         )  # Make an API request.
         job.result()  # Wait for the job to complete.
         table = client.get_table(big_query_table_id)  # Make an API request.
-        print(
+        logger.info(
             "Loaded {} rows and {} columns to {}".format(
                 table.num_rows, len(table.schema), big_query_table_id
             )
@@ -106,7 +143,7 @@ def write_table_to_bigquery(dataframe, project_id, big_query_table_id):
             table.num_rows, len(table.schema), big_query_table_id)
 
     except Exception as e:
-        print(f"Exception raised: {e}")
+        logger.error(f"Exception raised: {e}")
         return e
 
 
@@ -126,30 +163,33 @@ def generate_matrix(request):
     bigquery_table_id = f"{bigquery_dataset_id}.metric_table"
 
     try:
-        logging.info('Task: Initiating Read Data from Big Query')
+        logger.info('Task: Initiating Read Data from Big Query')
 
-        logging.info("Task: Reading REQUEST from Big Query Table")
+        logger.info("Task: Reading REQUEST from Big Query Table")
         bq_requests = get_big_query_data(request_schema, project, dataset, read_table, limit)
 
-        logging.info("Task: Normalizing requests data")
+        logger.info("Task: Normalizing requests data")
         normalized_request_df = normalize_requests_data(bq_requests)
 
-        logging.info("Task: Reading RESPONSE from Big Query Table")
+        logger.info("Task: Reading RESPONSE from Big Query Table")
         bq_response = get_big_query_data(response_schema, project, dataset, read_table, limit)
 
-        logging.info("Task: Reading FEEDBACK from Big Query Table")
+        logger.info("Task: Reading FEEDBACK from Big Query Table")
         bq_feedback = get_big_query_data(feedback_schema, project, dataset, read_table, limit)
 
         if not bq_feedback.empty and not bq_response.empty and not normalized_request_df.empty:
-            logging.info("Task: Read data from Big Query Completed Successfully")
+            logger.info("Task: Read data from Big Query Completed Successfully")
 
         concatenated_df = pd.concat([normalized_request_df, bq_response, bq_feedback], axis=1)
+        # concatenated_df.to_csv("feedback.csv", index=False)
 
-        logging.info("Task: Getting statistical measure of data")
+        logger.info("Task: Getting statistical measure of data")
         stats_df = get_stats(concatenated_df)
+        # stats_df.to_csv("data.csv", index=False)
 
-        logging.info("Task: Writing generated stats to big query table")
+        logger.info("Task: Writing generated stats to big query table")
         write_table_to_bigquery(stats_df, project, bigquery_table_id)
+        logger.info("Feedback Metric Uploaded to BigQuery Successfully")
 
         return make_response("Feedback metrics uploaded successfully.", 200)
 
