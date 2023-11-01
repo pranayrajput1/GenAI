@@ -27,7 +27,7 @@ cluster_image_bucket = "nashtech_vertex_ai_artifact"
 STAGING_BUCKET = "gs://dbscan-model/"
 BATCH_SIZE = 10000
 
-TRIGGER_ID = "00c14313-1ad2-4200-a4e0-57adae910784"
+TRIGGER_ID = "ed7cd677-7ee6-498d-8b46-94346087ca68"
 
 dataset_bucket = "nashtech_vertex_ai_artifact"
 dataset_name = "household_power_consumption.txt"
