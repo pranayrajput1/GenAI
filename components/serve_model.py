@@ -22,7 +22,7 @@ def serve_model_component(
         model_details_file_name: str,
         # vertex_endpoint: Output[Artifact],
         # vertex_model: Output[Model],
-        machine_type: str = 'e2-standard-2',
+        machine_type: str = 'a2-highgpu-2g',
 
 ):
     """
@@ -58,12 +58,18 @@ def serve_model_component(
 
         logging.info("Task: Uploaded Model to Model Registry Successfully")
 
+        # api_endpoint: str = f"{location}-aiplatform.googleapis.com"
+        # client_options = {"api_endpoint": api_endpoint}
+        # # Initialize client that will be used to create and send requests.
+        # # This client only needs to be created once, and can be reused for multiple requests.
+        # client = aiplatform.gapic.JobServiceClient(client_options=client_options)
+
         logging.info("Task: Deploying Model to an endpoint")
         endpoint = model.deploy(machine_type=machine_type,
                                 min_replica_count=1,
-                                max_replica_count=2,
-                                accelerator_type=None,
-                                accelerator_count=None,
+                                max_replica_count=1,
+                                accelerator_type='NVIDIA_TESLA_A100',
+                                accelerator_count=2,
                                 service_account=service_account)
         logging.info(endpoint)
 
@@ -93,10 +99,10 @@ def serve_model_component(
 
 
 serve_model_component(PROJECT_ID,
-                      REGION,
+                      "asia-east1",
                       STAGING_BUCKET,
                       SERVING_IMAGE,
-                      "test_model",
+                      "gpu_test",
                       SERVICE_ACCOUNT_ML,
                       save_model_details_bucket=dataset_bucket,
                       model_details_file_name="model_details.json"

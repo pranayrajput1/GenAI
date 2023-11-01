@@ -47,3 +47,6 @@ models_list = ["db_scan", "k_means"]
 # SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1"
 
 pipeline = "7c74cb60-8a30-44b3-a5cf-3637962ce85a"
+
+"https://www.hardware-corner.net/guides/computer-to-run-llama-ai-model/"
+"gcloud functions deploy metrics_generator --gen2 --runtime=python311 --region=us-central1 --source=. --entry-point=generate_matrix --trigger-http --service-account=nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com"

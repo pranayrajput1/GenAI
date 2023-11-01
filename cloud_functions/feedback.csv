@@ -1,0 +1,21 @@
+Global_reactive_power,Global_intensity,RESPONSE,FEEDBACK
+28.0,0.208,Outlier,True
+26.0,0.07,Outlier,True
+2.8,0.35,Outlier,True
+5.0,0.356,Not Outlier,False
+0.2,0.236,Not Outlier,True
+1.6,0.126,Outlier,True
+5.4,0.104,Not Outlier,True
+1.0,0.124,Not Outlier,True
+1.8,0.142,Not Outlier,True
+1.0,0.0,Not Outlier,True
+26.2,0.236,Outlier,False
+28.0,0.208,Outlier,False
+26.0,0.07,Not Outlier,False
+5.4,0.104,Not Outlier,False
+2.8,0.35,Not Outlier,True
+31.0,0.356,Not Outlier,True
+1.6,0.126,Not Outlier,True
+1.0,0.124,Not Outlier,True
+1.8,0.142,Not Outlier,True
+1.0,0.0,Not Outlier,True

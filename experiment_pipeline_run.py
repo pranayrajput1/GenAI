@@ -6,12 +6,12 @@ from constants import PIPELINE_NAME, PROJECT_ID, REGION, SERVICE_ACCOUNT_ML
 
 def run_pipeline_job(
         sync: bool = False, *,
-        pipeline_template_name: str = 'gs://nashtech_vertex_ai_artifact/dbscan_pipeline.json',
+        pipeline_template_name: str = 'gs://nashtech_vertex_ai_artifact/experiment_pipeline.json',
         cleanup_compiled_pipeline: bool = False,
         enable_caching: bool = False,
 ) -> aiplatform.PipelineJob:
     job_id = f'{PIPELINE_NAME}-{datetime.now().strftime("%Y%m%d%H%M%S")}'
-    experiment_name = f'{PIPELINE_NAME}-kubeflow'
+    experiment_name = f'{PIPELINE_NAME}-experiments'
 
     params = dict(
         project_id=PROJECT_ID,

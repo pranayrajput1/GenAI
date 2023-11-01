@@ -48,7 +48,26 @@ def get_big_query_data(
     return df
 
 
+def get_precision_recall_accuracy(dataframe):
+    """Precision and Recall"""
+    true_positive = ((dataframe['RESPONSE'] == 'Outlier') & (dataframe['FEEDBACK'] == True)).sum()
+    true_negative = ((dataframe['RESPONSE'] != 'Outlier') & (dataframe['FEEDBACK'] == True)).sum()
+    false_positive = ((dataframe['RESPONSE'] == 'Outlier') & (dataframe['FEEDBACK'] == False)).sum()
+    false_negative = ((dataframe['RESPONSE'] != 'Outlier') & (dataframe['FEEDBACK'] == False)).sum()
+
+    precision = true_positive / (true_positive + false_positive)
+    recall = true_positive / (true_positive + false_negative)
+
+    """Accuracy"""
+    accuracy = (true_positive + true_negative) / (true_positive + true_negative + false_positive + false_negative)
+
+    return precision, recall, accuracy
+
+
 def get_stats(dataframe):
+    logger.info('Task: Getting precision, recall and accuracy')
+    precision, recall, acc_score = get_precision_recall_accuracy(dataframe)
+
     dataframe['FEEDBACK'] = dataframe['FEEDBACK'].apply(lambda x: 'Outlier' if x else 'Not Outlier')
 
     global_intensity = np.array(dataframe['Global_intensity'])
@@ -57,34 +76,21 @@ def get_stats(dataframe):
     quartiles_intensity = np.percentile(global_intensity, [25, 50, 75])
     quartiles_reactive_power = np.percentile(global_reactive_power, [25, 50, 75])
 
-    """Precision and Recall"""
-    true_positive = ((dataframe['RESPONSE'] == 'Outlier') & dataframe['FEEDBACK']).sum()
-    true_negative = ((dataframe['RESPONSE'] != 'Outlier') & dataframe['FEEDBACK']).sum()
-    false_positive = ((dataframe['RESPONSE'] != 'Outlier') & dataframe['FEEDBACK']).sum()
-    false_negative = ((dataframe['RESPONSE'] == 'Outlier') & dataframe['FEEDBACK']).sum()
-
-    precision = true_positive / (true_positive + false_positive)
-    recall = true_positive / (true_positive + false_negative)
-
-    """Accuracy"""
-    accuracy = true_positive + true_negative
-    acc_score = accuracy / (true_positive + true_negative + false_positive + false_negative)
-
     timestamp = get_time()
 
     generated_stats_dict = {
-        "accuracy": acc_score,
-        "precision": precision,
-        "recall": recall,
-        "mean_reactive_power": dataframe['Global_reactive_power'].mean(),
-        "std_reactive_power": dataframe['Global_reactive_power'].std(),
-        "mean_intensity": dataframe['Global_intensity'].mean(),
-        "std_intensity": dataframe['Global_intensity'].std(),
-        "f1_score": f1_score(dataframe["RESPONSE"], dataframe["FEEDBACK"], average='weighted'),
-        "cnf_matrix": confusion_matrix(dataframe["RESPONSE"], dataframe["FEEDBACK"]),
-        "iqr_intensity": quartiles_intensity[2] - quartiles_intensity[0],
-        "iqr_reactive_power": quartiles_reactive_power[2] - quartiles_reactive_power[0],
-        "skew_intensity": stats.skew(global_intensity),
+        "ACCURACY": acc_score,
+        "PRECISION": precision,
+        "RECALL": recall,
+        "MEAN_REACTIVE_POWER": dataframe['Global_reactive_power'].mean(),
+        "STD_REACTIVE_POWER": dataframe['Global_reactive_power'].std(),
+        "MEAN_INTENSITY": dataframe['Global_intensity'].mean(),
+        "STD_INTENSITY": dataframe['Global_intensity'].std(),
+        "F1_SCORE": f1_score(dataframe["RESPONSE"], dataframe["FEEDBACK"], average='weighted'),
+        "CNF_MATRIX": confusion_matrix(dataframe["RESPONSE"], dataframe["FEEDBACK"]),
+        "IQR_INTENSITY": quartiles_intensity[2] - quartiles_intensity[0],
+        "IQR_REACTIVE_POWER": quartiles_reactive_power[2] - quartiles_reactive_power[0],
+        "SKEW_INTENSITY": stats.skew(global_intensity),
         "skew_reactive_power": stats.skew(global_reactive_power),
         "kurtosis_intensity": stats.kurtosis(global_intensity),
         "kurtosis_reactive_power": stats.kurtosis(global_reactive_power),
@@ -104,18 +110,18 @@ def write_table_to_bigquery(dataframe, project_id, big_query_table_id):
         logger.info(f"Type of data incoming: {type(dataframe)}")
 
         schema = [
-            bigquery.SchemaField("accuracy", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("precision", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("recall", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("mean_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("std_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("mean_intensity", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("std_intensity", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("f1_score", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("cnf_matrix", bigquery.enums.SqlTypeNames.STRING),
-            bigquery.SchemaField("iqr_intensity", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("iqr_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("skew_intensity", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("ACCURACY", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("PRECISION", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("RECALL", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("MEAN_REACTIVE_POWER", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("STD_REACTIVE_POWER", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("MEAN_INTENSITY", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("STD_INTENSITY", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("F1_SCORE", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("CNF_MATRIX", bigquery.enums.SqlTypeNames.STRING),
+            bigquery.SchemaField("IQR_INTENSITY", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("IQR_REACTIVE_POWER", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("SKEW_INTENSITY", bigquery.enums.SqlTypeNames.FLOAT),
             bigquery.SchemaField("skew_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
             bigquery.SchemaField("kurtosis_intensity", bigquery.enums.SqlTypeNames.FLOAT),
             bigquery.SchemaField("kurtosis_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
@@ -126,7 +132,7 @@ def write_table_to_bigquery(dataframe, project_id, big_query_table_id):
 
         job_config = bigquery.LoadJobConfig(
             schema=schema,
-            write_disposition="WRITE_TRUNCATE",
+            # write_disposition="WRITE_TRUNCATE",
             create_disposition="CREATE_IF_NEEDED"
         )
         job = client.load_table_from_dataframe(
@@ -181,11 +187,11 @@ def generate_matrix(request):
             logger.info("Task: Read data from Big Query Completed Successfully")
 
         concatenated_df = pd.concat([normalized_request_df, bq_response, bq_feedback], axis=1)
-        # concatenated_df.to_csv("feedback.csv", index=False)
+        concatenated_df.to_csv("feedback.csv", index=False)
 
         logger.info("Task: Getting statistical measure of data")
         stats_df = get_stats(concatenated_df)
-        # stats_df.to_csv("data.csv", index=False)
+        stats_df.to_csv("data.csv", index=False)
 
         logger.info("Task: Writing generated stats to big query table")
         write_table_to_bigquery(stats_df, project, bigquery_table_id)
