@@ -1,12 +1,12 @@
 from google.cloud import aiplatform
 from datetime import datetime
 import os
-from constants import PIPELINE_NAME, PROJECT_ID, REGION, SERVICE_ACCOUNT_ML
+from constants import PIPELINE_NAME, PROJECT_ID, REGION, SERVICE_ACCOUNT_ML, experiment_pipeline, dataset_bucket
 
 
 def run_pipeline_job(
         sync: bool = False, *,
-        pipeline_template_name: str = 'gs://nashtech_vertex_ai_artifact/experiment_pipeline.json',
+        pipeline_template_name: str = f'gs://{dataset_bucket}/{experiment_pipeline}',
         cleanup_compiled_pipeline: bool = False,
         enable_caching: bool = False,
 ) -> aiplatform.PipelineJob:

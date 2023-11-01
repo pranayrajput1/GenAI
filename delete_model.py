@@ -61,8 +61,8 @@ def delete_model_from_deployment(
     print(f"Model Details: deployed_display_name: {deployed_display_name}, endpoint_id: {endpoint_id}, "
           f"deployed_model_id: {deployed_model_id}")
 
-    undeploy_model_from_endpoint("gpu_test_endpoint")
-    delete_endpoint_sample(project, region, "3089073520190160896")
+    # undeploy_model_from_endpoint("test-endpoint_endpoint")
+    delete_endpoint_sample(project, region, "8535502169355321344")
     # delete_model_sample("8507394254102855680", project, region)
 
     logging.info("Task: Removing model details files from local environment")
@@ -72,6 +72,6 @@ def delete_model_from_deployment(
 
 
 delete_model_from_deployment(PROJECT_ID,
-                             "asia-east1",
+                             "us-central1",
                              model_details_bucket="nashtech_vertex_ai_artifact",
                              model_details_file_name="model_details.json")

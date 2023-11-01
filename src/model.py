@@ -38,7 +38,7 @@ def upload_model(project, trigger):
 def get_model(model_type):
     model_mapping = {
         "db_scan": DBSCAN(eps=6.5, min_samples=1000, leaf_size=30, p=2),
-        "k_means": KMeans(n_clusters=1)
+        "k_means": KMeans(n_clusters=3)
     }
 
     return model_mapping.get(model_type, None)

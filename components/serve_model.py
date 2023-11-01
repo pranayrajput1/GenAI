@@ -1,16 +1,15 @@
 from kfp.v2.components.component_decorator import component
 from kfp.v2.dsl import Artifact, Output, Model
 from components.dependencies import resolve_dependencies
-from constants import (BASE_IMAGE, REGION, PROJECT_ID, STAGING_BUCKET, MODEL_DISPLAY_NAME, SERVING_IMAGE,
-                       SERVICE_ACCOUNT_ML, dataset_bucket)
+from constants import BASE_IMAGE
 
 
-# @component(
-#     base_image=BASE_IMAGE,
-#     packages_to_install=resolve_dependencies(
-#         'google-cloud-aiplatform'
-#     )
-# )
+@component(
+    base_image=BASE_IMAGE,
+    packages_to_install=resolve_dependencies(
+        'google-cloud-aiplatform'
+    )
+)
 def serve_model_component(
         project_id: str,
         location: str,
@@ -20,9 +19,9 @@ def serve_model_component(
         service_account: str,
         save_model_details_bucket: str,
         model_details_file_name: str,
-        # vertex_endpoint: Output[Artifact],
-        # vertex_model: Output[Model],
-        machine_type: str = 'a2-highgpu-2g',
+        vertex_endpoint: Output[Artifact],
+        vertex_model: Output[Model],
+        machine_type: str = 'e2-standard-2',
 
 ):
     """
@@ -58,23 +57,17 @@ def serve_model_component(
 
         logging.info("Task: Uploaded Model to Model Registry Successfully")
 
-        # api_endpoint: str = f"{location}-aiplatform.googleapis.com"
-        # client_options = {"api_endpoint": api_endpoint}
-        # # Initialize client that will be used to create and send requests.
-        # # This client only needs to be created once, and can be reused for multiple requests.
-        # client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-
         logging.info("Task: Deploying Model to an endpoint")
         endpoint = model.deploy(machine_type=machine_type,
                                 min_replica_count=1,
                                 max_replica_count=1,
-                                accelerator_type='NVIDIA_TESLA_A100',
-                                accelerator_count=2,
+                                accelerator_type=None,
+                                accelerator_count=None,
                                 service_account=service_account)
         logging.info(endpoint)
 
-        # vertex_endpoint.uri = endpoint.resource_name
-        # vertex_model.uri = model.resource_name
+        vertex_endpoint.uri = endpoint.resource_name
+        vertex_model.uri = model.resource_name
 
         logging.info("Task: Uploaded Model to an Endpoint Successfully")
 
@@ -96,14 +89,3 @@ def serve_model_component(
     except Exception as e:
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")
         raise e
-
-
-serve_model_component(PROJECT_ID,
-                      "asia-east1",
-                      STAGING_BUCKET,
-                      SERVING_IMAGE,
-                      "gpu_test",
-                      SERVICE_ACCOUNT_ML,
-                      save_model_details_bucket=dataset_bucket,
-                      model_details_file_name="model_details.json"
-                      )
