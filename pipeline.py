@@ -43,7 +43,7 @@ def pipeline(
                                       dataset_path=fetch_data_task.output,
                                       trained_model=train_model.output) \
         .after(train_model) \
-        .set_display_name("Evaluate Model")
+        .set_display_name("Evaluate Model Performance")
 
     """Upload Model Component"""
     upload_model_task = upload_container(project_id,
