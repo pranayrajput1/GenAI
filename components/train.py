@@ -39,7 +39,7 @@ def fit_model(
     logger.addHandler(logging.StreamHandler())
 
     try:
-        logging.info("fitting db scan model on processed data")
+        logging.info("fitting model on processed data")
         model.fit_model(model_name, dataset_path.path, model_artifact_path.path)
 
     except Exception as e:

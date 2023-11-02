@@ -187,11 +187,11 @@ def generate_matrix(request):
             logger.info("Task: Read data from Big Query Completed Successfully")
 
         concatenated_df = pd.concat([normalized_request_df, bq_response, bq_feedback], axis=1)
-        concatenated_df.to_csv("feedback.csv", index=False)
+        # concatenated_df.to_csv("feedback.csv", index=False)
 
         logger.info("Task: Getting statistical measure of data")
         stats_df = get_stats(concatenated_df)
-        stats_df.to_csv("data.csv", index=False)
+        # stats_df.to_csv("data.csv", index=False)
 
         logger.info("Task: Writing generated stats to big query table")
         write_table_to_bigquery(stats_df, project, bigquery_table_id)

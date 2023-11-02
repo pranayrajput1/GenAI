@@ -1,7 +1,6 @@
 from kfp.v2.components.component_decorator import component
 from components.dependencies import resolve_dependencies
 from constants import BASE_IMAGE
-from kfp.v2 import dsl
 
 
 @component(
@@ -40,5 +39,3 @@ def upload_container(
     except Exception as e:
         logging.error("Failed to create serving container and push task: upload_container()")
         raise e
-
-

@@ -2,10 +2,10 @@ import logging
 from google.cloud import aiplatform
 from kfp.v2 import compiler
 import kfp
-from components.evaluate_model import evaluate_model
-from components.fetch_data import fetch_dataset
-from components.process_data import pre_process_data
-from components.train import fit_model
+from experiments_components.experiment_evaluate_model import evaluate_model
+from experiments_components.experiment_fetch_data import fetch_dataset
+from experiments_components.experiment_process_data import pre_process_data
+from experiments_components.experiment_train import fit_model
 from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE, cluster_image_bucket,
                        dataset_bucket, dataset_name, validated_file_name, fit_db_model_name, fit_k_means_model_name,
                        experiment_pipeline)
