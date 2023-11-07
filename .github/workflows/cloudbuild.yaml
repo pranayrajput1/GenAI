@@ -6,9 +6,6 @@ on:
       - clustering-pipeline
 
 steps:
-  - name: 'Checkout code'
-    uses: actions/checkout@v2
-
   - name: 'Get latest commit information'
     id: 'latest commit'
     run: |
