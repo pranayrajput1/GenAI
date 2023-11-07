@@ -5,24 +5,14 @@ steps:
     entrypoint: pip
     args: ["install", "-r", "requirements.txt", "--user"]
 
-  - name: 'ubuntu'
-    entrypoint: 'bash'
-    args:
-      - -c
-      - |
-        apt-get update
-        apt-get install -y git
-        GIT_LOG_OUTPUT=$(git log -1 --pretty=format:"%s")
-
-
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-$SHORT_SHA-$TAG_NAME:0.0.1', '.' ]
+    args: ['build', '--no-cache', '-t', '${_IMAGE_NAME}', '.' ]
     id: 'build'
 
 #  # Push the container image to Container Registry
 #  - name: 'gcr.io/cloud-builders/docker'
-#    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-$SHORT_SHA-$TAG_NAME:0.0.1' ]
+#    args: [ 'push', '${_IMAGE_NAME}' ]
 #    id: 'push'
 #    waitFor: ['build']
 
@@ -47,7 +37,9 @@ steps:
 #    waitFor: ['upload']
 
 substitutions:
-  TAG_NAME: $GIT_LOG_OUTPUT
+  TAG_NAME: "0.0.1"
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-$SHORT_SHA:$TAG_NAME'
+
 
 options:
   dynamicSubstitutions: true
