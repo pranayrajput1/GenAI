@@ -1,13 +1,17 @@
 steps:
 
   # Install dependencies
-  - name: 'python:3.8'
-    entrypoint: pip
-    args: ["install", "-r", "requirements.txt", "--user"]
+#  - name: 'python:3.8'
+#    entrypoint: pip
+#    args: ["install", "-r", "requirements.txt", "--user"]
 
   - name: 'ubuntu'
     entrypoint: 'bash'
-    args: ['-c', 'git_log_output=$(git log -1 --pretty=format:"%s")', 'echo "::set-output name=git_log::$git_log_output"']
+    args:
+    - -c
+    - |
+      git_log_output=$(git log -1 --pretty=format:"%s")
+      echo "::set-output name=git_log::$git_log_output"
 
 
   # Build the container image
