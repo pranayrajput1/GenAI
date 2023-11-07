@@ -5,23 +5,13 @@ steps:
     entrypoint: pip
     args: ["install", "-r", "requirements.txt", "--user"]
 
-  - name: 'ubuntu'
-    entrypoint: 'bash'
-    args:
-    - -c
-    - |
-      apt-get update
-      apt-get install -y git
-      git_log_output=$(git log -1 --pretty=format:"%s")
-    env:
-    - 'COMMIT_MESSAGE=$git_log_output'
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - -c
       - |
-        build --no-cache -t us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${_COMMIT_MSG}:0.0.1 .
+        build --no-cache -t us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-$COMMIT_SHA:0.0.1 .
     id: 'build'
 
   # Push the container image to Container Registry
@@ -30,7 +20,7 @@ steps:
       - -c
       - |  
         push
-        us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${_COMMIT_MSG}:0.0.1
+        us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-$COMMIT_SHA:0.0.1
     id: 'push'
     waitFor: ['build']
 
