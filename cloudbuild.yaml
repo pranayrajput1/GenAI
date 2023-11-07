@@ -1,9 +1,3 @@
-jobs:
-  my_job:
-    script:
-      - git_commit_output=$(git log -1 --pretty=format:"%s")
-      - echo "$git_commit_output"
-
 steps:
 
   # Install dependencies
@@ -11,14 +5,19 @@ steps:
     entrypoint: pip
     args: ["install", "-r", "requirements.txt", "--user"]
 
+  - name: 'ubuntu'
+    entrypoint: 'bash'
+    args: ['git_log_output=$(git log -1 --pretty=format:"%s")', 'echo "::set-output name=git_log::$git_log_output"']
+
+
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-',git_commit_output,':','0.0.1', '.' ]
+    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${{ steps.git_command_step.outputs.git_log }}:0.0.1', '.' ]
     id: 'build'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${commit_message}:${image_tag}' ]
+    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${{ steps.git_command_step.outputs.git_log }}:0.0.1' ]
     id: 'push'
     waitFor: ['build']
 
