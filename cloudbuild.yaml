@@ -38,7 +38,7 @@ steps:
 
 substitutions:
   TAG_NAME: "0.0.1"
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-$SHORT_SHA:$TAG_NAME'
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${SHORT_SHA}:${TAG_NAME}'
 
 
 options:
