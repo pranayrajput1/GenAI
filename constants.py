@@ -47,7 +47,4 @@ models_list = ["db_scan", "k_means"]
 # SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1"
 
 
-version_data_config = {
-    'MY_COMMIT': 'test-commit',
-    'IMAGE_TAG': '0.0.1'
-}
+

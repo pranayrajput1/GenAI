@@ -1,4 +1,7 @@
-from constants import version_data_config
+version_data_config = {
+    'commit_message': 'test-commit',
+    'image_tag': '0.0.1'
+}
 
 with open('cloudbuild.yaml', 'r') as template_file:
     template = template_file.read()
@@ -34,3 +37,14 @@ with open('cloudbuild.yaml', 'w') as config_file:
 #         print('No commits found in the repository.')
 # else:
 #     print(f'Failed to fetch the latest commit. Status code: {response.status_code}')
+
+  # - name: 'ubuntu'
+  #   entrypoint: 'bash'
+  #   args:
+  #   - -c
+  #   - |
+  #     apt-get update
+  #     apt-get install -y git
+  #     git_log_output=$(git log -1 --pretty=format:"%s")
+  #   env:
+  #   - 'COMMIT_MESSAGE=$git_log_output'
