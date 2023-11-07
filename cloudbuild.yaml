@@ -1,6 +1,6 @@
-yaml_config:
-  commit_message: '${MY_COMMIT}'
-  image_tag: '${IMAGE_TAG}'
+env:
+  - commit_message = "${MY_COMMIT}"
+  - image_tag = "${IMAGE_TAG}"
 
 steps:
 
@@ -15,12 +15,12 @@ steps:
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-{{commit_message}}:{{image_tag}}', '.' ]
+    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-$commit_message:$image_tag', '.' ]
     id: 'build'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-{{commit_message}}:{{image_tag}}' ]
+    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-$commit_message:$image_tag' ]
     id: 'push'
     waitFor: ['build']
 
