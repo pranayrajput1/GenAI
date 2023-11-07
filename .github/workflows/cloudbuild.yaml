@@ -8,15 +8,12 @@ on:
 steps:
   - name: 'Get latest commit information'
     id: 'latest commit'
-    run: |
-      latest_commit_message=$(git log -1 --pretty=%B)
-      echo "::set-output name=commit_message::$latest_commit_message"
+    args: ['latest_commit_message=$(git log -1 --pretty=%B)', 'echo "::set-output name=commit_message::$latest_commit_message"']
 
   # Install dependencies
   - name: 'python:3.8'
     entrypoint: pip
     args: ["install", "-r", "requirements.txt", "--user"]
-
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
