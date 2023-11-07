@@ -11,6 +11,7 @@ steps:
     entrypoint: pip
     args: ["install", "-r", "requirements.txt", "--user"]
 
+
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
     args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${{steps.latest_commit.outputs.commit_message}}:0.0.1', '.' ]
