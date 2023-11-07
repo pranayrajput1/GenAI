@@ -16,6 +16,13 @@ steps:
     id: 'push'
     waitFor: ['build']
 
+  # Write a specific log entry
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args: [ '-c', 'echo "Cloud build has been executed successfully"' ]
+    id: 'write-log'
+    waitFor: ['push']
+
 options:
   logging: CLOUD_LOGGING_ONLY
 

@@ -24,7 +24,7 @@ def upload_model(project, trigger):
     logging.info("Making Client Connection: ")
     cloud_build_client = cloudbuild_v1.CloudBuildClient()
 
-    logging.info("Triggering Cloud Build For DB Scan Serving Container")
+    logging.info("Triggering Cloud Build For Serving Container")
     response = cloud_build_client.run_build_trigger(project_id=project, trigger_id=trigger)
 
     if response.result():
