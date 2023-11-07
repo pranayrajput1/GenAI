@@ -10,6 +10,8 @@ steps:
     args:
     - -c
     - |
+      apt-get update
+      apt-get install -y git
       git_log_output=$(git log -1 --pretty=format:"%s")
       echo "::set-output name=git_log::$git_log_output"
 
