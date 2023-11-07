@@ -1,5 +1,4 @@
 steps:
-
   - name: 'python:3.8'
     entrypoint: 'python'
     args: [ 'yaml_configurations.py' ]
@@ -11,18 +10,12 @@ steps:
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        commit_message="${MY_COMMIT}"
-        image_tag="${IMAGE_TAG}"
-        docker build --no-cache -t "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:$commit_message:$image_tag" .
+    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${MY_COMMIT}:${IMAGE_TAG}', '.' ]
     id: 'build'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-$commit_message:$image_tag' ]
+    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${MY_COMMIT}:${IMAGE_TAG}' ]
     id: 'push'
     waitFor: ['build']
 
