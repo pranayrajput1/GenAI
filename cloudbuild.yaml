@@ -1,5 +1,6 @@
-commit_message: '${MY_COMMIT}'
-image_tag: '${IMAGE_TAG}'
+yaml_config:
+  commit_message: '${MY_COMMIT}'
+  image_tag: '${IMAGE_TAG}'
 
 steps:
 
