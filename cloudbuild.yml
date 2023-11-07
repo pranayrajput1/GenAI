@@ -1,12 +1,10 @@
 steps:
-  - name: Checkout code
-    uses: actions/checkout@v2
+  - name: 'Checkout code'
+    args: ['actions/checkout@v2']
 
-  - name: Get latest commit information
-    id: latest commit
-    run: |
-      latest_commit_message=$(git log -1 --pretty=%B)
-      echo "::set-output name=commit_message::$latest_commit_message"
+  - name: 'Get latest commit information'
+    id: 'latest commit'
+    run: 'latest_commit_message=$(git log -1 --pretty=%B)', 'echo "::set-output name=commit_message::$latest_commit_message"'
 
   # Install dependencies
   - name: 'python:3.8'
