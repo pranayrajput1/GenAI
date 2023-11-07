@@ -13,17 +13,24 @@ steps:
       apt-get update
       apt-get install -y git
       git_log_output=$(git log -1 --pretty=format:"%s")
-      echo "::set-output name=git_log::$git_log_output"
-
+    env:
+    - 'COMMIT_MESSAGE=$git_log_output'
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-{{ steps.git_command.outputs.git_log | replace(" ", "-") | lower }}:0.0.1', '.' ]
+    args:
+      - -c
+      - |
+        build --no-cache -t us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${_COMMIT_MSG}:0.0.1 .
     id: 'build'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-{{ steps.git_command.outputs.git_log | replace(" ", "-") | lower }}:0.0.1' ]
+    args:
+      - -c
+      - |  
+        push
+        us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${_COMMIT_MSG}:0.0.1
     id: 'push'
     waitFor: ['build']
 
@@ -46,6 +53,9 @@ steps:
 #    args: ['pipeline_run.py']
 #    id: 'run_pipeline'
 #    waitFor: ['upload']
-    
+
+substitutions:
+  _COMMIT_MSG: "my-commit-msg"
+
 options:
   logging: CLOUD_LOGGING_ONLY
