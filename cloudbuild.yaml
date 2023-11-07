@@ -18,12 +18,12 @@ steps:
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${{ steps.git_command_step.outputs.git_log }}:0.0.1', '.' ]
+    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-{{ steps.git_command.outputs.git_log | replace(" ", "-") | lower }}:0.0.1', '.' ]
     id: 'build'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${{ steps.git_command_step.outputs.git_log }}:0.0.1' ]
+    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-{{ steps.git_command.outputs.git_log | replace(" ", "-") | lower }}:0.0.1' ]
     id: 'push'
     waitFor: ['build']
 
