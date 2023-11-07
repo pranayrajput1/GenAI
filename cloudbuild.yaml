@@ -11,7 +11,7 @@ steps:
     args:
       - '-c'
       - |
-        echo '{"image_tag": ${TAG_NAME}, "commit_tag": ${SHORT_SHA}}' > pipeline_image_configuration.json
+        echo '{"image_tag": '${TAG_NAME}', "commit_tag": '${SHORT_SHA}'}' > pipeline_image_configuration.json
   - name: 'gcr.io/cloud-builders/gsutil'
     args: [ 'cp', 'pipeline_image_configuration.json', 'gs://clustering-pipeline-artifact' ]
 
