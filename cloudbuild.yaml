@@ -1,7 +1,10 @@
+jobs:
+  my_job:
+    script:
+      - git_commit_output=$(git log -1 --pretty=format:"%s")
+      - echo "$git_commit_output"
+
 steps:
-  - name: 'python:3.8'
-    entrypoint: 'python'
-    args: [ 'yaml_configurations.py' ]
 
   # Install dependencies
   - name: 'python:3.8'
@@ -10,7 +13,7 @@ steps:
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${commit_message}:${image_tag}', '.' ]
+    args: [ 'build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-',git_commit_output,':','0.0.1', '.' ]
     id: 'build'
 
   # Push the container image to Container Registry
@@ -20,24 +23,24 @@ steps:
     waitFor: ['build']
 
   # Compile pipeline
-  - name: 'python:3.8'
-    entrypoint: 'python'
-    args: ['pipeline.py']
-    id: 'compile'
-    waitFor: ['push']
+#  - name: 'python:3.8'
+#    entrypoint: 'python'
+#    args: ['pipeline.py']
+#    id: 'compile'
+#    waitFor: ['push']
 
   # Upload compiled pipeline to GCS.
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', 'dbscan_pipeline.json', 'gs://nashtech_vertex_ai_artifact']
-    id:  'upload'
-    waitFor: ['compile']
+#  - name: 'gcr.io/cloud-builders/gsutil'
+#    args: ['cp', 'dbscan_pipeline.json', 'gs://nashtech_vertex_ai_artifact']
+#    id:  'upload'
+#    waitFor: ['compile']
 
   # Trigger and create the pipeline
-  - name: 'python:3.8'
-    entrypoint: 'python'
-    args: ['pipeline_run.py']
-    id: 'run_pipeline'
-    waitFor: ['upload']
+#  - name: 'python:3.8'
+#    entrypoint: 'python'
+#    args: ['pipeline_run.py']
+#    id: 'run_pipeline'
+#    waitFor: ['upload']
     
 options:
   logging: CLOUD_LOGGING_ONLY
