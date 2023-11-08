@@ -8,6 +8,7 @@ steps:
   # Download the configuration file from gcs
   - name: 'gcr.io/cloud-builders/gsutil'
     args: [ 'cp', 'gs://clustering-pipeline-artifact/pipeline_image_configuration.json', 'serving_container/pipeline_image_configuration.json' ]
+    id: 'tag_file'
 
   # Extract the image tag from json file
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -18,7 +19,9 @@ steps:
         apt-get update
         apt-get install -y jq
         TAG_NAME=$(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)
+        _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}:${TAG_NAME}'
     id: 'extract_tag'
+    waitFor: ['tag_file']
 
   # Build the serving container image
   - name: 'gcr.io/cloud-builders/docker'
@@ -31,16 +34,6 @@ steps:
     args: [ 'push', '${_IMAGE_NAME}' ]
     id: 'push'
     waitFor: ['build']
-
-  # Write a specific log entry
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args: [ '-c', 'echo "Cloud build has been executed successfully"' ]
-    id: 'write-log'
-    waitFor: ['push']
-
-substitutions:
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}:${TAG_NAME}'
 
 options:
   logging: CLOUD_LOGGING_ONLY
