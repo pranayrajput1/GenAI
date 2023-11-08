@@ -25,19 +25,19 @@ steps:
 
   # Build the serving container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '.', '-t', '${_IMAGE_NAME}', '-f', 'serving_container/Dockerfile' ]
+    args: [ 'build', '.', '-t', '${_IMAGE_NAME}',':',${TAG_NAME}, '-f', 'serving_container/Dockerfile' ]
     id: 'build'
     waitFor: ['extract_tag']
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', '${_IMAGE_NAME}' ]
+    args: [ 'push', '${_IMAGE_NAME}',':',${TAG_NAME}]
     id: 'push'
     waitFor: ['build']
 
 
 substitutions:
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}:'TAG_NAME
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}'
 
 
 options:
