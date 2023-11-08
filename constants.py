@@ -1,8 +1,13 @@
+import logging
 from pathlib import Path
-
 from src.data import process_pipeline_image_details
 
 path = Path(__file__).resolve().parent
+
+logger = logging.getLogger('tipper')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
+
 
 PROJECT_ID = "nashtech-ai-dev-389315"
 REGION = "us-central1"
@@ -26,7 +31,10 @@ PIPELINE_IMAGE_TAG_KEY = "pipeline_image_tag"
 IMAGE_TAG = process_pipeline_image_details(PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE, PIPELINE_IMAGE_TAG_KEY)
 
 BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
+logger.info(f"Base Image URI: {BASE_IMAGE}")
+
 SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
+logger.info(f"Serve Image URI: {BASE_IMAGE}")
 
 STAGING_BUCKET = "gs://dbscan-model/"
 BATCH_SIZE = 10000

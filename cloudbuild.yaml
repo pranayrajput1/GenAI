@@ -16,12 +16,32 @@ steps:
     id: 'push'
     waitFor: ['build']
 
+  #  Upload  details
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo '{"pipeline_commit": "${SHORT_SHA}", 
+        "pipeline_image_tag": "${SHORT_SHA}-${TAG_NAME}", 
+        "pipeline_branch": "${BRANCH_NAME}", 
+        "pipeline_trigger_name": "${TRIGGER_NAME}",
+        "pipeline_build_config": ${TRIGGER_BUILD_CONFIG_PATH} }' > pipeline_configuration.json
+    id: 'save_details'
+    waitFor: [ 'push' ]
+
+  # Upload details to GCs Bucket
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: [ 'cp', 'pipeline_configuration.json', 'gs://clustering-pipeline-artifact' ]
+    id: 'upload_details'
+    waitFor: [ 'save_details' ]
+
   # Compile pipeline
   - name: 'python:3.8'
     entrypoint: 'python'
     args: ['pipeline.py']
     id: 'compile'
-    waitFor: ['push']
+    waitFor: ['upload_details']
 
   # Upload compiled pipeline to GCS.
   - name: 'gcr.io/cloud-builders/gsutil'
@@ -36,23 +56,7 @@ steps:
     id: 'run_pipeline'
     waitFor: ['upload']
 
-#   Upload Tag details
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        echo '{"pipeline_commit": "${SHORT_SHA}", 
-        "pipeline_image_tag": "${TAG_NAME}", 
-        "pipeline_branch": "${BRANCH_NAME}", 
-        "pipeline_trigger_name": "${TRIGGER_NAME}",
-        "pipeline_build_config": ${TRIGGER_BUILD_CONFIG_PATH} }' > pipeline_configuration.json
-    id: 'save_details'
-    waitFor: ['run_pipeline']
 
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: [ 'cp', 'pipeline_configuration.json', 'gs://clustering-pipeline-artifact' ]
-    waitFor: ['save_details']
 
 substitutions:
   TAG_NAME: 'latest'
