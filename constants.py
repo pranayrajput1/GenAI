@@ -28,7 +28,8 @@ PIPELINE_DETAILS_BUCKET = "clustering-pipeline-artifact"
 PIPELINE_DETAILS_FILE = "pipeline_configuration.json"
 PIPELINE_IMAGE_TAG_KEY = "pipeline_image_tag"
 
-IMAGE_TAG = process_pipeline_image_details(PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE, PIPELINE_IMAGE_TAG_KEY)
+IMAGE_TAG = process_pipeline_image_details(PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE,
+                                           PIPELINE_IMAGE_TAG_KEY, new_entry=None)
 
 BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 logger.info(f"Base Image URI: {BASE_IMAGE}")

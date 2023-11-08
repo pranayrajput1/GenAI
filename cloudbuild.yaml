@@ -26,7 +26,7 @@ steps:
         "pipeline_image_tag": "${SHORT_SHA}-${TAG_NAME}", 
         "pipeline_branch": "${BRANCH_NAME}", 
         "pipeline_trigger_name": "${TRIGGER_NAME}",
-        "pipeline_build_config": ${TRIGGER_BUILD_CONFIG_PATH} }' > pipeline_configuration.json
+        "pipeline_build_config": "${TRIGGER_BUILD_CONFIG_PATH}" }' > pipeline_configuration.json
     id: 'save_details'
     waitFor: [ 'push' ]
 

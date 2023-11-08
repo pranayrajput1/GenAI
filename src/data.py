@@ -30,9 +30,8 @@ def dataset_processing(
     return initial_data
 
 
-def process_pipeline_image_details(bucket_name: str, file_name: str, key: None, new_entry=None):
+def process_pipeline_image_details(bucket_name: str, file_name: str, key=None, new_entry=None):
     try:
-
         logging.info("Making GCS Connection")
         client = storage.Client()
         bucket = client.get_bucket(bucket_name)
