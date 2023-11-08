@@ -30,7 +30,7 @@ steps:
     args:
       - '-c'
       - |
-        docker build -t "${_IMAGE_NAME}:${_IMAGE_TAG}" -f serving_container/Dockerfile .
+        docker build -t "${_IMAGE_NAME}:IMAGE_TAG" -f serving_container/Dockerfile .
     env:
       - 'IMAGE_TAG=$(_IMAGE_TAG)'
 
@@ -43,7 +43,7 @@ steps:
 
 
 substitutions:
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}:'
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}'
 
 
 options:
