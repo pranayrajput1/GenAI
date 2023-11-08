@@ -18,8 +18,7 @@ steps:
       - |
         apt-get update
         apt-get install -y jq
-        TAG_NAME=$(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)
-        _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}:${TAG_NAME}'
+        export TAG_NAME=$(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)
     id: 'extract_tag'
     waitFor: ['tag_file']
 
@@ -34,6 +33,11 @@ steps:
     args: [ 'push', '${_IMAGE_NAME}' ]
     id: 'push'
     waitFor: ['build']
+
+
+substitution:
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}:${TAG_NAME}'
+
 
 options:
   logging: CLOUD_LOGGING_ONLY
