@@ -18,10 +18,10 @@ steps:
       - |
         apt-get update
         apt-get install -y jq
-        image_tag_version = $(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)
+        TAG_NAME = $(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)
         echo image_tag_version
     env:
-      - 'IMAGE_TAG=image_tag_version'
+      - '_IMAGE_TAG=$TAG_NAME'
     id: 'extract_tag'
     waitFor: ['tag_file']
 
@@ -31,7 +31,7 @@ steps:
       - 'build'
       - '.'
       - '-t'
-      - '${_IMAGE_NAME}:$IMAGE_TAG'
+      - '${_IMAGE_NAME}:${_IMAGE_TAG}'
       - '-f'
       - 'serving_container/Dockerfile'
     id: 'build'
