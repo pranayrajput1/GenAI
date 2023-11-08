@@ -19,7 +19,7 @@ steps:
         apt-get update
         apt-get install -y jq
         TAG_NAME = $(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)
-        echo image_tag_version
+        echo ${TAG_NAME}
     env:
       - '_IMAGE_TAG=$TAG_NAME'
     id: 'extract_tag'
@@ -27,11 +27,13 @@ steps:
 
   # Build the serving container image
   - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
     args:
       - 'build'
       - '.'
       - '-t'
-      - '${_IMAGE_NAME}:${_IMAGE_TAG}'
+      - '${_IMAGE_NAME}'
+      - $(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)'
       - '-f'
       - 'serving_container/Dockerfile'
     id: 'build'
@@ -47,7 +49,7 @@ steps:
 
 
 substitutions:
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}'
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}:'
 
 
 options:
