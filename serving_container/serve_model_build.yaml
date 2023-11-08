@@ -1,9 +1,9 @@
 steps:
 
   # Install dependencies
-  - name: 'python:3.8'
-    entrypoint: pip
-    args: [ "install", "-r", "serving_container/requirements.txt", "--user" ]
+#  - name: 'python:3.8'
+#    entrypoint: pip
+#    args: [ "install", "-r", "serving_container/requirements.txt", "--user" ]
 
   # Download the configuration file from gcs
   - name: 'gcr.io/cloud-builders/gsutil'
@@ -18,21 +18,21 @@ steps:
       - |
         apt-get update
         apt-get install -y jq
-        echo "$(jq -r 'image_tag' serving_container/pipeline_image_configuration.json)"
+        echo "$(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)"
     id: 'extract_tag'
     waitFor: ['tag_file']
 
-  # Build the serving container image
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '.', '-t', '${_IMAGE_NAME}:${TAG_NAME}', '-f', 'serving_container/Dockerfile' ]
-    id: 'build'
-    waitFor: ['extract_tag']
-
-  # Push the container image to Container Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', '${_IMAGE_NAME}:${TAG_NAME}' ]
-    id: 'push'
-    waitFor: ['build']
+#  # Build the serving container image
+#  - name: 'gcr.io/cloud-builders/docker'
+#    args: [ 'build', '.', '-t', '${_IMAGE_NAME}:${TAG_NAME}', '-f', 'serving_container/Dockerfile' ]
+#    id: 'build'
+#    waitFor: ['extract_tag']
+#
+#  # Push the container image to Container Registry
+#  - name: 'gcr.io/cloud-builders/docker'
+#    args: [ 'push', '${_IMAGE_NAME}:${TAG_NAME}' ]
+#    id: 'push'
+#    waitFor: ['build']
 
 
 substitutions:
