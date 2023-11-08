@@ -1,6 +1,6 @@
 import logging
+import os
 import pandas as pd
-
 from utils import preprocessing
 from google.cloud import storage
 import json
@@ -45,9 +45,13 @@ def process_pipeline_image_details(bucket_name: str, file_name: str, key=None, n
         with open(file_name, 'r') as file:
             pipeline_config = json.load(file)
 
+        if file_name.endswith(".json"):
+            parent_key_name = file_name[:-5]
+
         if new_entry is not None:
             logging.info("Appending new entries to the pipeline configuration")
-            pipeline_config.update(new_entry)
+            pipeline_run_data = pipeline_config[parent_key_name]
+            pipeline_run_data.update(new_entry)
 
             logging.info(f"Saving updated JSON to {file_name}")
             with open(file_name, 'w') as file:
@@ -64,5 +68,6 @@ def process_pipeline_image_details(bucket_name: str, file_name: str, key=None, n
         logging.error(f"An error occurred during processing pipeline image details: {str(e)}")
         raise e
 
-
-
+    finally:
+        logging.info("Removing the downloaded file")
+        os.remove(file_name)

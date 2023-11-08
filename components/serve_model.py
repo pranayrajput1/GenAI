@@ -24,7 +24,6 @@ def serve_model_component(
         vertex_endpoint: Output[Artifact],
         vertex_model: Output[Model],
         machine_type: str = 'e2-standard-2',
-
 ):
     """
     Function to upload model to model registry,
