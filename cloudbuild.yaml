@@ -1,40 +1,40 @@
 steps:
 
-#  # Install dependencies
-#  - name: 'python:3.8'
-#    entrypoint: pip
-#    args: ["install", "-r", "requirements.txt", "--user"]
-#
-#  # Build the container image
-#  - name: 'gcr.io/cloud-builders/docker'
-#    args: ['build', '--no-cache', '-t', '${_IMAGE_NAME}', '.' ]
-#    id: 'build'
-#
-#  # Push the container image to Container Registry
-#  - name: 'gcr.io/cloud-builders/docker'
-#    args: [ 'push', '${_IMAGE_NAME}' ]
-#    id: 'push'
-#    waitFor: ['build']
-#
-#  # Compile pipeline
-#  - name: 'python:3.8'
-#    entrypoint: 'python'
-#    args: ['pipeline.py']
-#    id: 'compile'
-#    waitFor: ['push']
-#
-#  # Upload compiled pipeline to GCS.
-#  - name: 'gcr.io/cloud-builders/gsutil'
-#    args: ['cp', 'dbscan_pipeline.json', 'gs://nashtech_vertex_ai_artifact']
-#    id:  'upload'
-#    waitFor: ['compile']
-#
-##   Trigger and create the pipeline
-#  - name: 'python:3.8'
-#    entrypoint: 'python'
-#    args: ['pipeline_run.py']
-#    id: 'run_pipeline'
-#    waitFor: ['upload']
+  # Install dependencies
+  - name: 'python:3.8'
+    entrypoint: pip
+    args: ["install", "-r", "requirements.txt", "--user"]
+
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '--no-cache', '-t', '${_IMAGE_NAME}', '.' ]
+    id: 'build'
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_IMAGE_NAME}' ]
+    id: 'push'
+    waitFor: ['build']
+
+  # Compile pipeline
+  - name: 'python:3.8'
+    entrypoint: 'python'
+    args: ['pipeline.py']
+    id: 'compile'
+    waitFor: ['push']
+
+  # Upload compiled pipeline to GCS.
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cp', 'dbscan_pipeline.json', 'gs://nashtech_vertex_ai_artifact']
+    id:  'upload'
+    waitFor: ['compile']
+
+#   Trigger and create the pipeline
+  - name: 'python:3.8'
+    entrypoint: 'python'
+    args: ['pipeline_run.py']
+    id: 'run_pipeline'
+    waitFor: ['upload']
 
 #   Upload Tag details
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -46,10 +46,9 @@ steps:
         "pipeline_image_tag": "${TAG_NAME}", 
         "pipeline_branch": "${BRANCH_NAME}", 
         "pipeline_trigger_name": "${TRIGGER_NAME}",
-        "pipeline_revision_id": "${REVISION_ID}",
         "pipeline_build_config": ${TRIGGER_BUILD_CONFIG_PATH} }' > pipeline_configuration.json
     id: 'save_details'
-#    waitFor: ['run_pipeline']
+    waitFor: ['run_pipeline']
 
   - name: 'gcr.io/cloud-builders/gsutil'
     args: [ 'cp', 'pipeline_configuration.json', 'gs://clustering-pipeline-artifact' ]
@@ -57,7 +56,7 @@ steps:
 
 substitutions:
   TAG_NAME: 'latest'
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${SHORT_SHA}-${TAG_NAME}-${REVISION_ID}'
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${SHORT_SHA}-${TAG_NAME}'
 
 options:
   dynamicSubstitutions: true
