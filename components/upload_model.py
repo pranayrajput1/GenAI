@@ -39,3 +39,5 @@ def upload_container(
     except Exception as e:
         logging.error("Failed to create serving container and push task: upload_container()")
         raise e
+
+

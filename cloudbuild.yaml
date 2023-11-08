@@ -5,16 +5,6 @@ steps:
     entrypoint: pip
     args: ["install", "-r", "requirements.txt", "--user"]
 
-  # Upload Tag details
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        echo '{"image_tag": '${TAG_NAME}', "commit_tag": '${SHORT_SHA}'}' > pipeline_image_configuration.json
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: [ 'cp', 'pipeline_image_configuration.json', 'gs://clustering-pipeline-artifact' ]
-
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '--no-cache', '-t', '${_IMAGE_NAME}', '.' ]
@@ -34,21 +24,40 @@ steps:
     waitFor: ['push']
 
   # Upload compiled pipeline to GCS.
-#  - name: 'gcr.io/cloud-builders/gsutil'
-#    args: ['cp', 'dbscan_pipeline.json', 'gs://nashtech_vertex_ai_artifact']
-#    id:  'upload'
-#    waitFor: ['compile']
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cp', 'dbscan_pipeline.json', 'gs://nashtech_vertex_ai_artifact']
+    id:  'upload'
+    waitFor: ['compile']
 
-  # Trigger and create the pipeline
-#  - name: 'python:3.8'
-#    entrypoint: 'python'
-#    args: ['pipeline_run.py']
-#    id: 'run_pipeline'
-#    waitFor: ['upload']
+#   Trigger and create the pipeline
+  - name: 'python:3.8'
+    entrypoint: 'python'
+    args: ['pipeline_run.py']
+    id: 'run_pipeline'
+    waitFor: ['upload']
+
+#   Upload Tag details
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo '{"pipeline_commit": "${SHORT_SHA}", 
+        "pipeline_image_tag": "${TAG_NAME}", 
+        "pipeline_branch": "${BRANCH_NAME}", 
+        "pipeline_trigger_name": "${TRIGGER_NAME}",
+        "pipeline_revision_id": "${REVISION_ID}",
+        "pipeline_build_config": ${TRIGGER_BUILD_CONFIG_PATH} }' > pipeline_configuration.json
+    id: 'save_details'
+    waitFor: ['run_pipeline']
+
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: [ 'cp', 'pipeline_image_configuration.json', 'gs://clustering-pipeline-artifact' ]
+    waitFor: ['save_details']
 
 substitutions:
-  TAG_NAME: "0.0.1"
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image-${SHORT_SHA}:${TAG_NAME}'
+  TAG_NAME: 'latest'
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${SHORT_SHA}-${TAG_NAME}-${REVISION_ID}'
 
 options:
   dynamicSubstitutions: true

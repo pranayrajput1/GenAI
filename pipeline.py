@@ -10,7 +10,7 @@ from components.train import fit_model
 from components.upload_model import upload_container
 from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE, cluster_image_bucket, \
                        TRIGGER_ID, REGION, STAGING_BUCKET, SERVING_IMAGE, MODEL_DISPLAY_NAME, SERVICE_ACCOUNT_ML,
-                       dataset_bucket, dataset_name, model_details_file_name, fit_db_model_name)
+                       dataset_bucket, dataset_name, fit_db_model_name, PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE)
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -51,14 +51,17 @@ def pipeline(
         .after(model_evaluation) \
         .set_display_name("Upload Model")
 
+    '''Serving model to endpoint'''
     serve_model_component(project_id,
                           REGION,
                           STAGING_BUCKET,
                           SERVING_IMAGE,
                           MODEL_DISPLAY_NAME,
                           SERVICE_ACCOUNT_ML,
-                          save_model_details_bucket=dataset_bucket,
-                          model_details_file_name=model_details_file_name
+                          PIPELINE_DETAILS_BUCKET,
+                          PIPELINE_DETAILS_FILE,
+                          dataset_name,
+                          model_evaluation.outputs['avg_score'],
                           ) \
         .after(upload_model_task) \
         .set_display_name("Serve Model")

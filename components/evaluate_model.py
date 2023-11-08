@@ -51,5 +51,5 @@ def evaluate_model(
         cluster_image.uri = formed_cluster_image
 
     except Exception as e:
-        logging.info("Failed To Execute Model validation")
+        logging.info(f"Failed To Execute Model validation: {str(e)}")
         raise e

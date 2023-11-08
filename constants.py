@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from src.data import process_pipeline_image_details
+
 path = Path(__file__).resolve().parent
 
 PROJECT_ID = "nashtech-ai-dev-389315"
@@ -16,17 +18,23 @@ PIPELINE_ROOT_GCS = f"gs://{PROJECT_ID}-kubeflow-pipeline"
 BASE_IMAGE_QUALIFIER = "db-scan-image"
 SERVE_IMAGE_QUALIFIER = "dbscan-serve-image"
 
-BASE_IMAGE_TAG = "0.0.1"
-SERVING_IMAGE_TAG = "0.0.1"
 
-BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
-SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
+PIPELINE_DETAILS_BUCKET = "clustering-pipeline-artifact"
+PIPELINE_DETAILS_FILE = "pipeline_configuration.json"
+PIPELINE_IMAGE_TAG_KEY = "pipeline_image_tag"
 
+IMAGE_TAG = process_pipeline_image_details(PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE, PIPELINE_IMAGE_TAG_KEY)
+
+BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
+SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 
 STAGING_BUCKET = "gs://dbscan-model/"
 BATCH_SIZE = 10000
 
-TRIGGER_ID = "b2a05a31-d4bc-4d7c-96e7-3a5cefdc0ac9"
+PIPELINE_JSON = "dbscan_pipeline.json"
+PIPELINE_ARTIFACT = "nashtech_vertex_ai_artifact"
+
+TRIGGER_ID = "8ecef415-9458-48aa-a848-730f41924d9b"
 
 dataset_bucket = "nashtech_vertex_ai_artifact"
 dataset_name = "household_power_consumption.txt"
@@ -43,8 +51,8 @@ experiment_pipeline = "experiment_pipeline.json"
 
 models_list = ["db_scan", "k_means"]
 
-# PIPELINE_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:0.0.1"
-# SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1"
+# PIPELINE_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image"
+# SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image"
 
 
 
