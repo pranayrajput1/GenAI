@@ -30,9 +30,9 @@ steps:
     args:
       - '-c'
       - |
-        docker build -t "${_IMAGE_NAME}:${IMAGE_TAG}" -f serving_container/Dockerfile .
+        docker build -t "${_IMAGE_NAME}:${_IMAGE_TAG}" -f serving_container/Dockerfile .
     env:
-      - 'IMAGE_TAG=$(_IMAGE_TAG)'
+      - '_IMAGE_TAG=$(_IMAGE_TAG)'
 
 
 #  # Push the container image to Container Registry
