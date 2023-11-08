@@ -5,14 +5,28 @@ steps:
     entrypoint: pip
     args: [ "install", "-r", "serving_container/requirements.txt", "--user" ]
 
+  # Download the configuration file from gcs
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: [ 'cp', 'gs://clustering-pipeline-artifact/pipeline_image_configuration.json', 'serving_container/pipeline_image_configuration.json' ]
+
+  # Extract the image tag from json file
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        TAG_NAME=$(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)
+    id: 'extract_tag'
+
   # Build the serving container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '.', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1', '-f', 'serving_container/Dockerfile' ]
+    args: [ 'build', '.', '-t', '${_IMAGE_NAME}', '-f', 'serving_container/Dockerfile' ]
     id: 'build'
+    waitFor: ['extract_tag']
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:0.0.1' ]
+    args: [ 'push', '${_IMAGE_NAME}' ]
     id: 'push'
     waitFor: ['build']
 
@@ -22,6 +36,9 @@ steps:
     args: [ '-c', 'echo "Cloud build has been executed successfully"' ]
     id: 'write-log'
     waitFor: ['push']
+
+substitutions:
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image-${SHORT_SHA}:${TAG_NAME}'
 
 options:
   logging: CLOUD_LOGGING_ONLY
