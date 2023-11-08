@@ -20,6 +20,7 @@ steps:
         apt-get install -y jq
         TAG_NAME=$(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)
         echo "TAG_NAME=${TAG_NAME}" >> TAG_NAME
+        echo "TAG_NAME: ${TAG_NAME}"
     id: 'extract_tag'
     waitFor: ['tag_file']
 
