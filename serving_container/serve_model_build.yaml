@@ -18,15 +18,26 @@ steps:
       - |
         apt-get update
         apt-get install -y jq
-        echo "$(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)"
+        image_tag_version = $(jq -r '.image_tag' serving_container/pipeline_image_configuration.json)
+        echo image_tag_version
+    env:
+      - 'IMAGE_TAG=image_tag_version'
     id: 'extract_tag'
     waitFor: ['tag_file']
 
-#  # Build the serving container image
-#  - name: 'gcr.io/cloud-builders/docker'
-#    args: [ 'build', '.', '-t', '${_IMAGE_NAME}:${TAG_NAME}', '-f', 'serving_container/Dockerfile' ]
-#    id: 'build'
-#    waitFor: ['extract_tag']
+  # Build the serving container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '.'
+      - '-t'
+      - '${_IMAGE_NAME}:${IMAGE_TAG}'
+      - '-f'
+      - 'serving_container/Dockerfile'
+    id: 'build'
+    waitFor:
+      - 'extract_tag'
+
 #
 #  # Push the container image to Container Registry
 #  - name: 'gcr.io/cloud-builders/docker'
