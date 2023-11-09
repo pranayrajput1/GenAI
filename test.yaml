@@ -17,12 +17,12 @@ steps:
     waitFor: ['tag_file']
 
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:$(cat _TAG)_${SHORT_SHA}', '.']
+    args: ['build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:$(cat _TAG)', '.']
     id: 'build'
     waitFor: ['extract_tag']
 
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:$(cat _TAG)_${SHORT_SHA}' ]
+    args: [ 'push', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:$(cat _TAG)' ]
     id: 'push'
     waitFor: ['build']
 
