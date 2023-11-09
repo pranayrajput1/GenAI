@@ -1,6 +1,6 @@
-import logging
 from pathlib import Path
-from src.data import process_pipeline_image_details
+
+from src.data import get_sha
 
 path = Path(__file__).resolve().parent
 
@@ -17,23 +17,17 @@ PIPELINE_ROOT_GCS = f"gs://{PROJECT_ID}-kubeflow-pipeline"
 
 BASE_IMAGE_QUALIFIER = "db-scan-image"
 SERVE_IMAGE_QUALIFIER = "dbscan-serve-image"
-PIPELINE_DETAILS_BUCKET = "clustering-pipeline-artifact"
 
-'''Pipeline Base Image Constants'''
-PIPELINE_VERSION_TAG = "0.0.1"
-PIPELINE_DETAILS_FILE = "pipeline_configuration.json"
-PIPELINE_IMAGE_TAG_KEY = "pipeline_image_tag"
-
-IMAGE_TAG = process_pipeline_image_details(PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE,
-                                           PIPELINE_IMAGE_TAG_KEY, new_entry=None)
+'''Pipeline Base & Serve Image Constants'''
+IMAGE_TAG = get_sha()
 BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
-
-'''Serving Image Constants'''
 SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 
 STAGING_BUCKET = "gs://dbscan-model/"
 BATCH_SIZE = 10000
 
+SAVE_MODEL_DETAILS_BUCKET = "clustering-pipeline-artifact"
+SAVE_MODEL_DETAILS_FILE = "model_details.json"
 PIPELINE_JSON = "dbscan_pipeline.json"
 PIPELINE_ARTIFACT = "nashtech_vertex_ai_artifact"
 

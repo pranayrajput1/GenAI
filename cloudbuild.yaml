@@ -32,11 +32,11 @@ steps:
     waitFor: ['compile']
 
 #   Trigger and create the pipeline
-#  - name: 'python:3.8'
-#    entrypoint: 'python'
-#    args: ['pipeline_run.py']
-#    id: 'run_pipeline'
-#    waitFor: ['upload']
+  - name: 'python:3.8'
+    entrypoint: 'python'
+    args: ['pipeline_run.py']
+    id: 'run_pipeline'
+    waitFor: ['upload']
 
 substitutions:
   _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${SHORT_SHA}'

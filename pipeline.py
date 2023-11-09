@@ -8,9 +8,10 @@ from components.process_data import pre_process_data
 from components.serve_model import serve_model_component
 from components.train import fit_model
 from components.upload_model import upload_container
-from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE, cluster_image_bucket, \
+from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE, cluster_image_bucket,
                        TRIGGER_ID, REGION, STAGING_BUCKET, SERVING_IMAGE, MODEL_DISPLAY_NAME, SERVICE_ACCOUNT_ML,
-                       dataset_bucket, dataset_name, fit_db_model_name, PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE)
+                       dataset_bucket, dataset_name, fit_db_model_name, SAVE_MODEL_DETAILS_BUCKET,
+                       SAVE_MODEL_DETAILS_FILE)
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -58,10 +59,8 @@ def pipeline(
                           SERVING_IMAGE,
                           MODEL_DISPLAY_NAME,
                           SERVICE_ACCOUNT_ML,
-                          PIPELINE_DETAILS_BUCKET,
-                          PIPELINE_DETAILS_FILE,
-                          dataset_name,
-                          model_evaluation.outputs['avg_score']) \
+                          SAVE_MODEL_DETAILS_BUCKET,
+                          SAVE_MODEL_DETAILS_FILE) \
         .after(upload_model_task) \
         .set_display_name("Serve Model")
 

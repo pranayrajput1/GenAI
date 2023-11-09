@@ -1,5 +1,5 @@
 from kfp.v2.components.component_decorator import component
-from kfp.v2.dsl import Artifact, Output, Model, Input, Metrics
+from kfp.v2.dsl import Artifact, Output, Model
 from components.dependencies import resolve_dependencies
 from constants import BASE_IMAGE
 
@@ -17,13 +17,12 @@ def serve_model_component(
         serving_image_uri: str,
         model_display_name: str,
         service_account: str,
-        details_bucket: str,
-        details_file_name: str,
-        dataset_name: str,
-        evaluation_score: Input[Metrics],
+        save_model_details_bucket: str,
+        model_details_file_name: str,
         vertex_endpoint: Output[Artifact],
         vertex_model: Output[Model],
         machine_type: str = 'e2-standard-2',
+
 ):
     """
     Function to upload model to model registry,
@@ -37,8 +36,8 @@ def serve_model_component(
     @vertex_model: Model located at model registry
     """
     from google.cloud import aiplatform
+    from src.model import save_model_details
     import logging
-    from src.data import process_pipeline_image_details
 
     logger = logging.getLogger('tipper')
     logger.setLevel(logging.DEBUG)
@@ -81,20 +80,12 @@ def serve_model_component(
         model_details = {
             "deployed_display_name": deployed_display_name,
             "endpoint_id": endpoint_id,
-            "deployed_model_id": deployed_model_id,
-            "machine_type": machine_type,
-            "dataset": dataset_name,
-            "evaluation_score": evaluation_score,
+            "deployed_model_id": deployed_model_id
         }
 
         logging.info("Saving Deployed Model Details Over GCS Bucket")
-
-        logging.info(f"Saving pipeline details into file: {details_file_name}")
-        process_pipeline_image_details(bucket_name=details_bucket,
-                                       file_name=details_file_name,
-                                       key=None,
-                                       new_entry=model_details)
+        save_model_details(model_details, model_details_file_name, save_model_details_bucket)
 
     except Exception as e:
-        logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")
+        logging.error(f"Failed to Deployed Model To an Endpoint! {str(e)}")
         raise e

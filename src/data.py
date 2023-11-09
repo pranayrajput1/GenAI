@@ -4,6 +4,7 @@ import pandas as pd
 from utils import preprocessing
 from google.cloud import storage
 import json
+import git
 
 logger = logging.getLogger('tipper')
 logger.setLevel(logging.DEBUG)
@@ -80,18 +81,16 @@ def process_pipeline_image_details(bucket_name: str, file_name: str, key=None, n
 
     finally:
         logging.info("Removing the downloaded file")
-        # os.remove(file_name)
+        os.remove(file_name)
 
 
-# model_details = {
-#     "deployed_display_name": "deployed_display_name",
-#     "endpoint_id": "endpoint_id",
-#     "deployed_model_id": "deployed_model_id",
-#     "machine_type": "machine_type",
-#     "dataset": "dataset_name",
-#     "evaluation_score": "evaluation_score",
-# }
-print(process_pipeline_image_details(bucket_name="clustering-pipeline-artifact",
-                                     file_name="pipeline_configuration.json",
-                                     key="pipeline_image_tag",
-                                     new_entry=None))
+def get_sha(branch='clustering-pipeline'):
+    repo = git.Repo(search_parent_directories=True)
+
+    '''Ensure the specified branch exists in the repository'''
+    if branch not in repo.heads:
+        raise ValueError(f"Branch '{branch}' not found in the repository.")
+
+    repo.heads[branch].checkout()
+    short_sha = repo.head.object.hexsha[:7]
+    return short_sha

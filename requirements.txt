@@ -34,3 +34,4 @@ urllib3==1.26.15
 
 scipy~=1.10.1
 PyYAML~=5.4.1
+GitPython==3.1.40
