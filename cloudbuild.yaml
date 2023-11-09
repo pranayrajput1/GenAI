@@ -18,17 +18,37 @@ steps:
     id: 'push'
     waitFor: ['build']
 
+  #  Upload  details
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo '{"pipeline_run_configuration": {
+        "pipeline_commit": "${SHORT_SHA}", 
+        "pipeline_branch": "${BRANCH_NAME}", 
+        "pipeline_build_config": "${TRIGGER_BUILD_CONFIG_PATH}"}}' > pipeline_configuration.json
+    id: 'save_details'
+    waitFor: [ 'push' ]
+
+  # Upload pipeline details to GCS Bucket
+  - name: 'gcr.io/cloud-builders/gsutil'
+    entrypoint: 'sh'
+    args: ['-c', 'gsutil cp pipeline_configuration.json gs://clustering-pipeline-artifact' ]
+    id: 'upload_details'
+    waitFor: [ 'save_details' ]
+
   # Compile pipeline
   - name: 'python:3.8'
     entrypoint: 'python'
     args: ['pipeline.py']
     id: 'compile'
-    waitFor: ['push']
+    waitFor: ['upload_details']
 
   # Upload compiled pipeline to GCS.
   - name: 'gcr.io/cloud-builders/gsutil'
     args: ['cp', 'dbscan_pipeline.json', 'gs://nashtech_vertex_ai_artifact']
-    id:  'upload'
+    id:  'upload_pipeline'
     waitFor: ['compile']
 
 #   Trigger and create the pipeline
@@ -36,7 +56,7 @@ steps:
     entrypoint: 'python'
     args: ['pipeline_run.py']
     id: 'run_pipeline'
-    waitFor: ['upload']
+    waitFor: ['upload_pipeline']
 
 substitutions:
   _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${SHORT_SHA}'

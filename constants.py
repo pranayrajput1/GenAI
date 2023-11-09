@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from src.data import get_sha
+from src.data import process_pipeline_image_details
 
 path = Path(__file__).resolve().parent
 
@@ -19,14 +19,20 @@ BASE_IMAGE_QUALIFIER = "db-scan-image"
 SERVE_IMAGE_QUALIFIER = "dbscan-serve-image"
 
 '''Pipeline Base & Serve Image Constants'''
-IMAGE_TAG = get_sha()
+
+SHA_GET_KEY = "pipeline_commit"
+PIPELINE_CONFIG_FILE = "pipeline_configuration.json"
+SAVE_MODEL_DETAILS_BUCKET = "clustering-pipeline-artifact"
+
+IMAGE_TAG = process_pipeline_image_details(SAVE_MODEL_DETAILS_BUCKET, PIPELINE_CONFIG_FILE,
+                                           key=SHA_GET_KEY, new_entry=None)
+
 BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 
 STAGING_BUCKET = "gs://dbscan-model/"
 BATCH_SIZE = 10000
 
-SAVE_MODEL_DETAILS_BUCKET = "clustering-pipeline-artifact"
 SAVE_MODEL_DETAILS_FILE = "model_details.json"
 PIPELINE_JSON = "dbscan_pipeline.json"
 PIPELINE_ARTIFACT = "nashtech_vertex_ai_artifact"
