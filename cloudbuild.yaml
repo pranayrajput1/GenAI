@@ -44,7 +44,7 @@ steps:
         "pipeline_trigger_name": "${TRIGGER_NAME}",
         "pipeline_build_config": "${TRIGGER_BUILD_CONFIG_PATH}"}' > pipeline_configuration_$(cat _TAG).json
     id: 'save_details'
-    waitFor: [ 'push' ]
+#    waitFor: [ 'push' ]
 
   # Upload details to GCs Bucket
   - name: 'gcr.io/cloud-builders/gsutil'
