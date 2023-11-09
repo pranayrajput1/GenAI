@@ -9,15 +9,15 @@ steps:
   # Download _TAG File from GCS
   - name: 'gcr.io/cloud-builders/gsutil'
     args: [ 'cp', 'gs://clustering-pipeline-artifact/_TAG', 'serving_container/' ]
-    id: 'upload'
-    waitFor: [ 'write' ]
+    id: 'download'
+    waitFor: ['requirements']
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: 'sh'
     args: [ '-c', 'docker build . -t ${_IMAGE_NAME}:$(cat serving_container/_TAG) -f serving_container/Dockerfile' ]
     id: 'build'
-    waitFor: [ 'upload' ]
+    waitFor: ['download']
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
