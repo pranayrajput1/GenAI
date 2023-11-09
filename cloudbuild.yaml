@@ -25,7 +25,8 @@ steps:
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', '${_IMAGE_NAME}:$(cat _TAG)' ]
+    entrypoint: 'sh'
+    args: ['-c', 'docker push ${_IMAGE_NAME}:$(cat _TAG)' ]
     id: 'push'
     waitFor: ['build']
 
