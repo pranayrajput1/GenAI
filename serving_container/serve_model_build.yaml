@@ -21,7 +21,7 @@ steps:
     waitFor: [ 'build' ]
 
 substitutions:
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${SHORT_SHA}'
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:${SHORT_SHA}'
 
 options:
   dynamicSubstitutions: true
