@@ -15,7 +15,7 @@ steps:
 #    waitFor: ['tag_file']
 
   - name: 'ubuntu'
-    args: [ 'export', '_BUILD_TAG=`date', '-u', '+%Y%m%dT%H%M%S_$SHORT_SHA`' ]
+    args: [ 'export', '_BUILD_TAG=`date', '-u', '+%Y%m%dT%H%M%S_${SHORT_SHA}`' ]
     id: ['set_tag']
 
   - name: 'gcr.io/cloud-builders/docker'
