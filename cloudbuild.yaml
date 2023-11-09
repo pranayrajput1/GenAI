@@ -46,10 +46,10 @@ steps:
     id: 'save_details'
 #    waitFor: [ 'push' ]
 
-  # Upload details to GCs Bucket
+# Upload details to GCS Bucket
   - name: 'gcr.io/cloud-builders/gsutil'
     entrypoint: 'sh'
-    args: ['-c', 'gsutil cp pipeline_configuration_$(cat _TAG).json', 'gs://clustering-pipeline-artifact' ]
+    args: ['-c', 'gsutil cp pipeline_configuration_$(cat _TAG).json gs://clustering-pipeline-artifact' ]
     id: 'upload_details'
     waitFor: [ 'save_details' ]
 
