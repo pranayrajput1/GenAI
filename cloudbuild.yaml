@@ -39,7 +39,7 @@ steps:
         echo '{"pipeline_run_configuration": {
         "pipeline_commit": "${SHORT_SHA}", 
         "pipeline_version": "${TAG_NAME}", 
-        "pipeline_image_tag": "$(cat _TAG)",  
+        "pipeline_image_tag": "'$(cat _TAG)'",  
         "pipeline_branch": "${BRANCH_NAME}", 
         "pipeline_trigger_name": "${TRIGGER_NAME}",
         "pipeline_build_config": "${TRIGGER_BUILD_CONFIG_PATH}"}}' > pipeline_configuration.json
