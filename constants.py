@@ -21,17 +21,15 @@ PIPELINE_DETAILS_BUCKET = "clustering-pipeline-artifact"
 
 '''Pipeline Base Image Constants'''
 PIPELINE_VERSION_TAG = "0.0.1"
-PIPELINE_DETAILS_FILE = f"pipeline_configuration_{PIPELINE_VERSION_TAG}.json"
+PIPELINE_DETAILS_FILE = "pipeline_configuration.json"
 PIPELINE_IMAGE_TAG_KEY = "pipeline_image_tag"
-BASE_IMAGE_TAG = process_pipeline_image_details(PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE,
-                                                PIPELINE_IMAGE_TAG_KEY, new_entry=None)
-BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
+
+IMAGE_TAG = process_pipeline_image_details(PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE,
+                                           PIPELINE_IMAGE_TAG_KEY, new_entry=None)
+BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 
 '''Serving Image Constants'''
-SERVE_IMAGE_TAG_KEY = "serve_image_tag"
-SERVE_IMAGE_TAG = process_pipeline_image_details(PIPELINE_DETAILS_BUCKET, PIPELINE_DETAILS_FILE,
-                                                 SERVE_IMAGE_TAG_KEY, new_entry=None)
-SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{SERVE_IMAGE_TAG}"
+SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 
 STAGING_BUCKET = "gs://dbscan-model/"
 BATCH_SIZE = 10000

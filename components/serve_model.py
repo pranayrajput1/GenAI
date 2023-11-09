@@ -89,17 +89,11 @@ def serve_model_component(
 
         logging.info("Saving Deployed Model Details Over GCS Bucket")
 
-        try:
-            logging.info(f"Saving pipeline details into file: {details_file_name}")
-            process_pipeline_image_details(bucket_name=details_bucket,
-                                           file_name=details_file_name,
-                                           key=None,
-                                           new_entry=model_details)
-        except Exception as e:
-            logging.error(f"Failed to save pipeline details into file: {details_file_name}")
-            raise e
-
-        logger.info('Returning deployed model details')
+        logging.info(f"Saving pipeline details into file: {details_file_name}")
+        process_pipeline_image_details(bucket_name=details_bucket,
+                                       file_name=details_file_name,
+                                       key=None,
+                                       new_entry=model_details)
 
     except Exception as e:
         logging.error("Failed to Deployed Model To an Endpoint! Task: (serve_model_component)")

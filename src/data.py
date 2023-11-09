@@ -60,13 +60,9 @@ def process_pipeline_image_details(bucket_name: str, file_name: str, key=None, n
         with open(file_name, 'r') as file:
             pipeline_config = json.load(file)
 
-        '''Removing extension from the file name'''
-        if file_name.endswith(".json"):
-            parent_key_name = file_name[:-5]
-
         if new_entry is not None:
             logging.info("Appending new entries to the pipeline configuration")
-            pipeline_run_data = pipeline_config[parent_key_name]
+            pipeline_run_data = pipeline_config["pipeline_run_configuration"]
             pipeline_run_data.update(new_entry)
 
             logging.info(f"Saving updated JSON to {file_name}")
@@ -76,7 +72,7 @@ def process_pipeline_image_details(bucket_name: str, file_name: str, key=None, n
             logging.info(f"Uploading the updated file: {file_name} to GCS")
             upload_file_to_gcs(client, bucket_name, file_name)
         else:
-            return pipeline_config[parent_key_name][key]
+            return pipeline_config["pipeline_run_configuration"][key]
 
     except Exception as e:
         logging.error(f"An error occurred during processing pipeline image details: {str(e)}")
@@ -85,17 +81,3 @@ def process_pipeline_image_details(bucket_name: str, file_name: str, key=None, n
     finally:
         logging.info("Removing the downloaded file")
         os.remove(file_name)
-
-
-# model_details = {
-#     "deployed_display_name": "deployed_display_name",
-#     "endpoint_id": "endpoint_id",
-#     "deployed_model_id": "deployed_model_id",
-#     "machine_type": "machine_type",
-#     "dataset": "dataset_name",
-#     "evaluation_score": "evaluation_score",
-# }
-# process_pipeline_image_details(bucket_name="clustering-pipeline-artifact",
-#                                file_name="pipeline_configuration_0.0.1.json",
-#                                key=None,
-#                                new_entry=model_details)

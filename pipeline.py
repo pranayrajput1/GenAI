@@ -61,8 +61,7 @@ def pipeline(
                           PIPELINE_DETAILS_BUCKET,
                           PIPELINE_DETAILS_FILE,
                           dataset_name,
-                          model_evaluation.outputs['avg_score'],
-                          ) \
+                          model_evaluation.outputs['avg_score']) \
         .after(upload_model_task) \
         .set_display_name("Serve Model")
 
