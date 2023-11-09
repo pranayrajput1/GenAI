@@ -30,5 +30,6 @@ steps:
     entrypoint: sh
     args: ['-c', 'docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/image_name:$(cat _TAG) .']
 
+
 options:
   logging: CLOUD_LOGGING_ONLY
