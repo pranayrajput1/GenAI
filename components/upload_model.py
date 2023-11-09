@@ -37,7 +37,7 @@ def upload_container(
             logging.error("Cloud Build failed. Cannot proceed to the next component.")
 
     except Exception as e:
-        logging.error("Failed to create serving container and push task: upload_container()")
+        logging.error(f"Failed to create serving container and push task {str(e)}")
         raise e
 
 
