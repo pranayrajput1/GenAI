@@ -14,14 +14,20 @@ steps:
 #    id: 'extract_tag'
 #    waitFor: ['tag_file']
 
-  - name: 'ubuntu'
-    args: [ 'export', '_BUILD_TAG=`date', '-u', '+%Y%m%dT%H%M%S_${SHORT_SHA}`' ]
-    id: ['set_tag']
+#  - name: 'ubuntu'
+#    args: [ 'export', '_BUILD_TAG=`date', '-u', '+%Y%m%dT%H%M%S_${SHORT_SHA}`' ]
+#    id: ['set_tag']
+#
+#  - name: 'gcr.io/cloud-builders/docker'
+#    args: ['build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${_BUILD_TAG}_${SHORT_SHA}', '.']
+#    id: 'build'
+#    waitFor: ['set_tag']
 
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${_BUILD_TAG}_${SHORT_SHA}', '.']
-    id: 'build'
-    waitFor: ['set_tag']
+ - name: 'ubuntu'
+   args: ['export', '_BUILD_TAG=`date', '-u', '+%Y%m%dT%H%M%S_$SHORT_SHA`']
+
+ - name: gcr.io/cloud-builders/docker
+   args: [ 'build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/$_BUILD_TAG', '.' ]
 
 options:
   logging: CLOUD_LOGGING_ONLY
