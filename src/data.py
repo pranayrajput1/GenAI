@@ -80,4 +80,18 @@ def process_pipeline_image_details(bucket_name: str, file_name: str, key=None, n
 
     finally:
         logging.info("Removing the downloaded file")
-        os.remove(file_name)
+        # os.remove(file_name)
+
+
+# model_details = {
+#     "deployed_display_name": "deployed_display_name",
+#     "endpoint_id": "endpoint_id",
+#     "deployed_model_id": "deployed_model_id",
+#     "machine_type": "machine_type",
+#     "dataset": "dataset_name",
+#     "evaluation_score": "evaluation_score",
+# }
+print(process_pipeline_image_details(bucket_name="clustering-pipeline-artifact",
+                                     file_name="pipeline_configuration.json",
+                                     key="pipeline_image_tag",
+                                     new_entry=None))

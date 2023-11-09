@@ -1,0 +1,10 @@
+{
+  "pipeline_run_configuration": {
+    "pipeline_commit": "44fff0a",
+    "pipeline_version": "0.0.1",
+    "pipeline_image_tag": "$(cat _TAG)",
+    "pipeline_branch": "clustering-pipeline",
+    "pipeline_trigger_name": "clustering-pipeline-trigger",
+    "pipeline_build_config": "cloudbuild.yaml"
+  }
+}

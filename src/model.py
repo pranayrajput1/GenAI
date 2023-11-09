@@ -7,6 +7,7 @@ import pickle
 import os
 import logging
 from kfp.v2 import dsl
+from google.cloud.devtools import cloudbuild_v2
 from google.cloud.devtools import cloudbuild_v1
 from google.cloud import storage
 import json
@@ -22,7 +23,8 @@ def get_validated_model(score_one, score_two):
 
 def upload_model(project, trigger):
     logging.info("Making Client Connection: ")
-    cloud_build_client = cloudbuild_v1.CloudBuildClient()
+
+    cloud_build_client = cloudbuild_v2.CloudBuildClient()
 
     logging.info("Triggering Cloud Build For Serving Container")
     response = cloud_build_client.run_build_trigger(project_id=project, trigger_id=trigger)
