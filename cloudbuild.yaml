@@ -16,19 +16,19 @@ steps:
     id: 'upload'
     waitFor: [ 'write' ]
 
-  # Build the container image
-  - name: 'gcr.io/cloud-builders/docker'
-    entrypoint: 'sh'
-    args: ['-c', 'docker build -t ${_IMAGE_NAME}:$(cat _TAG) .']
-    id: 'build'
-    waitFor: ['upload']
-
-  # Push the container image to Container Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    entrypoint: 'sh'
-    args: ['-c', 'docker push ${_IMAGE_NAME}:$(cat _TAG)' ]
-    id: 'push'
-    waitFor: ['build']
+#  # Build the container image
+#  - name: 'gcr.io/cloud-builders/docker'
+#    entrypoint: 'sh'
+#    args: ['-c', 'docker build -t ${_IMAGE_NAME}:$(cat _TAG) .']
+#    id: 'build'
+#    waitFor: ['upload']
+#
+#  # Push the container image to Container Registry
+#  - name: 'gcr.io/cloud-builders/docker'
+#    entrypoint: 'sh'
+#    args: ['-c', 'docker push ${_IMAGE_NAME}:$(cat _TAG)' ]
+#    id: 'push'
+#    waitFor: ['build']
 
   #  Upload  details
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -49,7 +49,7 @@ steps:
   # Upload details to GCs Bucket
   - name: 'gcr.io/cloud-builders/gsutil'
     entrypoint: 'sh'
-    args: [ 'cp', 'pipeline_configuration_$(cat _TAG).json', 'gs://clustering-pipeline-artifact' ]
+    args: ['-c', 'gsutil cp pipeline_configuration_$(cat _TAG).json', 'gs://clustering-pipeline-artifact' ]
     id: 'upload_details'
     waitFor: [ 'save_details' ]
 
