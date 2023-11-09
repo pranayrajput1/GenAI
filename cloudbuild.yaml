@@ -1,67 +1,77 @@
 steps:
 
   # Install dependencies
-  - name: 'python:3.8'
-    entrypoint: pip
-    args: ["install", "-r", "requirements.txt", "--user"]
+#  - name: 'python:3.8'
+#    entrypoint: pip
+#    args: ["install", "-r", "requirements.txt", "--user"]
+
+  # Writing Date, SHA, TAG in a file
+  - name: 'ubuntu'
+    args: [ 'bash', '-c', 'date -u +%Y_%m_%d_${SHORT_SHA}_${TAG_NAME} > _TAG' ]
+    id: 'write'
+
+  # Uploading File to GCS
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: [ 'cp', '_TAG', 'gs://clustering-pipeline-artifact' ]
+    id: 'upload'
+    waitFor: [ 'write' ]
 
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '--no-cache', '-t', '${_IMAGE_NAME}', '.' ]
+    args: ['build', '--no-cache', '-t', '${_IMAGE_NAME}:$(cat _TAG)', '.' ]
     id: 'build'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', '${_IMAGE_NAME}' ]
+    args: [ 'push', '${_IMAGE_NAME}:$(cat _TAG)' ]
     id: 'push'
     waitFor: ['build']
 
   #  Upload  details
   - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
+    entrypoint: 'sh'
     args:
       - '-c'
       - |
-        echo '{"pipeline_configuration_${TAG_NAME}": {
+        echo '{"pipeline_run_configuration_$(cat _TAG)": {
         "pipeline_commit": "${SHORT_SHA}", 
         "pipeline_version": "${TAG_NAME}", 
-        "pipeline_image_tag": "${SHORT_SHA}-${TAG_NAME}", 
+        "pipeline_image_tag": "$(cat _TAG)", 
         "pipeline_branch": "${BRANCH_NAME}", 
         "pipeline_trigger_name": "${TRIGGER_NAME}",
-        "pipeline_build_config": "${TRIGGER_BUILD_CONFIG_PATH}",
-        "serve_image_tag": "${SHORT_SHA}-latest"}}' > pipeline_configuration_${TAG_NAME}.json
+        "pipeline_build_config": "${TRIGGER_BUILD_CONFIG_PATH}"}' > pipeline_configuration_$(cat _TAG).json
     id: 'save_details'
     waitFor: [ 'push' ]
 
   # Upload details to GCs Bucket
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: [ 'cp', 'pipeline_configuration_${TAG_NAME}.json', 'gs://clustering-pipeline-artifact' ]
+    args: [ 'cp', 'pipeline_configuration_$(cat _TAG).json', 'gs://clustering-pipeline-artifact' ]
     id: 'upload_details'
     waitFor: [ 'save_details' ]
 
-  # Compile pipeline
-  - name: 'python:3.8'
-    entrypoint: 'python'
-    args: ['pipeline.py']
-    id: 'compile'
-    waitFor: ['upload_details']
-
-  # Upload compiled pipeline to GCS.
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp', 'dbscan_pipeline.json', 'gs://nashtech_vertex_ai_artifact']
-    id:  'upload'
-    waitFor: ['compile']
-
-#   Trigger and create the pipeline
-  - name: 'python:3.8'
-    entrypoint: 'python'
-    args: ['pipeline_run.py']
-    id: 'run_pipeline'
-    waitFor: ['upload']
+#  # Compile pipeline
+#  - name: 'python:3.8'
+#    entrypoint: 'python'
+#    args: ['pipeline.py']
+#    id: 'compile'
+#    waitFor: ['upload_details']
+#
+#  # Upload compiled pipeline to GCS.
+#  - name: 'gcr.io/cloud-builders/gsutil'
+#    args: ['cp', 'dbscan_pipeline.json', 'gs://nashtech_vertex_ai_artifact']
+#    id:  'upload'
+#    waitFor: ['compile']
+#
+##   Trigger and create the pipeline
+#  - name: 'python:3.8'
+#    entrypoint: 'python'
+#    args: ['pipeline_run.py']
+#    id: 'run_pipeline'
+#    waitFor: ['upload']
 
 substitutions:
   TAG_NAME: '0.0.1'
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${SHORT_SHA}-${TAG_NAME}'
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image'
 
 options:
   dynamicSubstitutions: true
