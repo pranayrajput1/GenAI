@@ -3,16 +3,19 @@ steps:
     args: ['cp', 'gs://clustering-pipeline-artifact/tag_details.json', 'serving_container/tag_details.json']
     id: 'tag_file'
 
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        apt-get update
-        apt-get install -y jq
-        export _BUILD_TAG=$(jq -r .image_tag serving_container/tag_details.json)
-    id: 'extract_tag'
-    waitFor: ['tag_file']
+#  - name: 'gcr.io/cloud-builders/gcloud'
+#    entrypoint: 'bash'
+#    args:
+#      - '-c'
+#      - |
+#        apt-get update
+#        apt-get install -y jq
+#        export _BUILD_TAG=$(jq -r .image_tag serving_container/tag_details.json)
+#    id: 'extract_tag'
+#    waitFor: ['tag_file']
+
+  - name: 'ubuntu'
+    args: [ 'export', '_BUILD_TAG=`date', '-u', '+%Y%m%dT%H%M%S_$SHORT_SHA`' ]
 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '--no-cache', '-t', 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${_BUILD_TAG}_${SHORT_SHA}', '.']
