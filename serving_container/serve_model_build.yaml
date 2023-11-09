@@ -6,21 +6,28 @@ steps:
     args: [ "install", "-r", "serving_container/requirements.txt", "--user" ]
     id: 'requirements'
 
-    # Build the container image
+  # Download _TAG File from GCS
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: [ 'cp', 'gs://clustering-pipeline-artifact/_TAG', 'serving_container/' ]
+    id: 'upload'
+    waitFor: [ 'write' ]
+
+  # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '--no-cache', '-t', '${_IMAGE_NAME}', '.' ]
+    entrypoint: 'sh'
+    args: [ '-c', 'docker build . -t ${_IMAGE_NAME}:$(cat serving_container/_TAG) -f serving_container/Dockerfile' ]
     id: 'build'
-    waitFor: ['requirements']
+    waitFor: [ 'upload' ]
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', '${_IMAGE_NAME}' ]
+    entrypoint: 'sh'
+    args: [ '-c', 'docker push ${_IMAGE_NAME}:$(cat serving_container/_TAG)' ]
     id: 'push'
-    waitFor: ['build']
+    waitFor: [ 'build' ]
 
 substitutions:
-  TAG_NAME: 'latest'
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image:${SHORT_SHA}-${TAG_NAME}'
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/dbscan-serve-image'
 
 options:
   dynamicSubstitutions: true
