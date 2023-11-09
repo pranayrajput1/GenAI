@@ -29,5 +29,5 @@ def delete_custom_job_sample(
     pipeline_client.delete_pipeline_job(name=pipeline_job_name)
 
 
-# cancel_custom_job_sample(PROJECT_ID, 'clustering-kubeflow-20231102142718')
-delete_custom_job_sample(PROJECT_ID, "clustering-kubeflow-20231102142718")
+cancel_custom_job_sample(PROJECT_ID, 'clustering-kubeflow-20231108120549')
+# delete_custom_job_sample(PROJECT_ID, "clustering-kubeflow-20231102142718")

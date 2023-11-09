@@ -28,13 +28,14 @@ steps:
         "pipeline_image_tag": "${SHORT_SHA}-${TAG_NAME}", 
         "pipeline_branch": "${BRANCH_NAME}", 
         "pipeline_trigger_name": "${TRIGGER_NAME}",
-        "pipeline_build_config": "${TRIGGER_BUILD_CONFIG_PATH}" }}' > pipeline_configuration_${TAG_NAME}.json
+        "pipeline_build_config": "${TRIGGER_BUILD_CONFIG_PATH}",
+        "serve_image_tag": "${SHORT_SHA}-latest"}}' > pipeline_configuration_${TAG_NAME}.json
     id: 'save_details'
     waitFor: [ 'push' ]
 
   # Upload details to GCs Bucket
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: [ 'cp', 'pipeline_configuration.json', 'gs://clustering-pipeline-artifact' ]
+    args: [ 'cp', 'pipeline_configuration_${TAG_NAME}', 'gs://clustering-pipeline-artifact' ]
     id: 'upload_details'
     waitFor: [ 'save_details' ]
 
