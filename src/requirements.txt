@@ -1,11 +1,7 @@
-pip==23.2.1
-setuptools==68.1.0
-google-cloud-aiplatform==1.38.1
 transformers==4.34.1
 peft==0.4.0
 bitsandbytes==0.41.1
 accelerate==0.22.0
-trl==0.4.7
-datasets==2.14.7
 torch==2.1.1
 flask==3.0.0
+scipy

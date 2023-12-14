@@ -8,6 +8,7 @@ from src.utils.constants import model_id
 
 torch.cuda.empty_cache()
 
+
 def get_model_tokenizer(model_name: str):
     bnb_config = BitsAndBytesConfig(
         load_in_8bit=True,
@@ -28,18 +29,20 @@ def get_model_tokenizer(model_name: str):
         model_name,
         trust_remote_code=True,
         token=auth_token
-	)
+    )
     loaded_tokenizer.pad_token = loaded_tokenizer.eos_token
     return loaded_model, loaded_tokenizer
 
 
 model, tokenizer = get_model_tokenizer(model_id)
 
+
 def generate_text(inputs):
     model_inputs = tokenizer.apply_chat_template(inputs, return_tensors="pt")
     generated_ids = model.generate(model_inputs, max_new_tokens=1000, do_sample=True)
     decoded = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     return decoded
+
 
 def get_response(user_query):
     messages = [

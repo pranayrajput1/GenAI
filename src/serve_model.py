@@ -5,7 +5,8 @@ import os
 app = Flask(__name__)
 
 
-@app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
+@app.route('/ping', methods=['GET'])
+# @app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
 def health_check():
     """
     Function to check health status of endpoint.
@@ -13,8 +14,8 @@ def health_check():
     return {"status": "healthy"}, 200
 
 
-# @app.route('/predict', methods=['POST'])
-@app.route(os.environ['AIP_PREDICT_ROUTE'], methods=['POST'])
+@app.route('/predict', methods=['POST'])
+# @app.route(os.environ['AIP_PREDICT_ROUTE'], methods=['POST'])
 def serve_model():
     try:
         if request.method == 'POST':
