@@ -1,7 +1,5 @@
-from kfp.v2.components.component_decorator import component
-from kfp.v2.dsl import Artifact, Output, Model
-from components.dependencies import resolve_dependencies
-from constants import BASE_IMAGE
+from src.utils.constants import PROJECT_ID, REGION, STAGING_BUCKET, SERVING_IMAGE, MODEL_DISPLAY_NAME, \
+    SERVICE_ACCOUNT_ML
 
 
 def serve_model_component(
@@ -11,11 +9,11 @@ def serve_model_component(
         serving_image_uri: str,
         model_display_name: str,
         service_account: str,
-        save_model_details_bucket: str,
-        model_details_file_name: str,
-        vertex_endpoint: Output[Artifact],
-        vertex_model: Output[Model],
-        machine_type: str = 'e2-standard-2',
+        # save_model_details_bucket: str,
+        # model_details_file_name: str,
+        # vertex_endpoint: Output[Artifact],
+        # vertex_model: Output[Model],
+        machine_type: str = 'g2-standard-24',
 
 ):
     """
@@ -30,7 +28,6 @@ def serve_model_component(
     @vertex_model: Model located at model registry
     """
     from google.cloud import aiplatform
-    from src.model import save_model_details
     import logging
 
     logger = logging.getLogger('tipper')
@@ -55,31 +52,40 @@ def serve_model_component(
         endpoint = model.deploy(machine_type=machine_type,
                                 min_replica_count=1,
                                 max_replica_count=1,
-                                accelerator_type=None,
-                                accelerator_count=None,
-                                service_account=service_account)
+                                accelerator_type="NVIDIA_L4",
+                                accelerator_count=2,
+                                service_account=service_account,
+                                enableContainerLogging=True)
         logging.info(endpoint)
 
-        vertex_endpoint.uri = endpoint.resource_name
-        vertex_model.uri = model.resource_name
-
-        logging.info("Task: Uploaded Model to an Endpoint Successfully")
-
-        logging.info("Task: Extracting model id and endpoint id")
-        deployed_display_name = f"{model_display_name}_endpoint"
-        deployed_model_id = model.resource_name.split("/")[-1]
-        endpoint_id = endpoint.resource_name.split("/")[-1]
-
-        logging.info("Task: Appending ID's to the dictionary")
-        model_details = {
-            "deployed_display_name": deployed_display_name,
-            "endpoint_id": endpoint_id,
-            "deployed_model_id": deployed_model_id
-        }
-
-        logging.info("Saving Deployed Model Details Over GCS Bucket")
-        save_model_details(model_details, model_details_file_name, save_model_details_bucket)
+        # vertex_endpoint.uri = endpoint.resource_name
+        # vertex_model.uri = model.resource_name
+        #
+        # logging.info("Task: Uploaded Model to an Endpoint Successfully")
+        #
+        # logging.info("Task: Extracting model id and endpoint id")
+        # deployed_display_name = f"{model_display_name}_endpoint"
+        # deployed_model_id = model.resource_name.split("/")[-1]
+        # endpoint_id = endpoint.resource_name.split("/")[-1]
+        #
+        # logging.info("Task: Appending ID's to the dictionary")
+        # model_details = {
+        #     "deployed_display_name": deployed_display_name,
+        #     "endpoint_id": endpoint_id,
+        #     "deployed_model_id": deployed_model_id
+        # }
+        #
+        # logging.info("Saving Deployed Model Details Over GCS Bucket")
+        # save_model_details(model_details, model_details_file_name, save_model_details_bucket)
 
     except Exception as e:
         logging.error(f"Failed to Deployed Model To an Endpoint! {str(e)}")
         raise e
+
+
+serve_model_component(PROJECT_ID,
+                      REGION,
+                      STAGING_BUCKET,
+                      SERVING_IMAGE,
+                      MODEL_DISPLAY_NAME,
+                      SERVICE_ACCOUNT_ML)
