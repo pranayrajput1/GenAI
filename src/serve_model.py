@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from src.model.model import get_response
+from model.model import get_response
 import os
 
 app = Flask(__name__)
@@ -31,4 +31,4 @@ def serve_model():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=5050)

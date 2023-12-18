@@ -4,7 +4,7 @@ from transformers import (
     AutoTokenizer
 )
 import torch
-from src.utils.constants import model_id
+from utils.constants import model_id
 
 torch.cuda.empty_cache()
 
