@@ -16,7 +16,6 @@ def get_model_tokenizer(model_name: str):
     auth_token = "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"
     device_map = "auto"
 
-    print("Loading model")
     loaded_model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=bnb_config,
@@ -24,7 +23,6 @@ def get_model_tokenizer(model_name: str):
         token=auth_token
     )
 
-    print("Loading tokenizer")
     loaded_tokenizer = AutoTokenizer.from_pretrained(
         model_name,
         trust_remote_code=True,

@@ -10,3 +10,7 @@ STAGING_BUCKET = "gs://dbscan-model/"
 
 SERVING_IMAGE = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/nashtech-ai-docker-registry/mistral-image:0.1"
 MODEL_DISPLAY_NAME = "mistral"
+
+decimal_model_name = "Deci/DeciLM-7B-instruct"
+
+system_prompt = "You are an AI assistant that follows instruction extremely well. Help as much as you can."
