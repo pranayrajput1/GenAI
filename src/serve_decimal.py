@@ -1,9 +1,8 @@
 from flask import Flask, jsonify, request
-from model.model import get_response
 import os
 
-from src.decimal_model.decimal_model import get_decimal_pipeline, get_decimal_response
-from src.utils.constants import decimal_model_name, system_prompt
+from decimal_model.decimal_model import get_decimal_pipeline, get_decimal_response
+from utils.constants import decimal_model_name, system_prompt
 
 app = Flask(__name__)
 
