@@ -1,8 +1,12 @@
 from flask import Flask, jsonify, request
-from model.model import get_response
+from model.model import get_response, get_model_tokenizer
 import os
 
+from utils.constants import model_id
+
 app = Flask(__name__)
+
+initial_loaded_model, initial_loaded_tokenizer = get_model_tokenizer(model_id)
 
 
 @app.route('/ping', methods=['GET'])
@@ -21,7 +25,10 @@ def serve_model():
         if request.method == 'POST':
             data = request.get_json()
             user_input = data['input']
-            response = get_response(f'Forget the old response history if you are maintaining any, and take this input as new:{user_input}')
+            state = data['model_state']
+            query = f'Forget the old response history if you are maintaining any, and take this input as new:{user_input}'
+            response = get_response(user_query=query, model=initial_loaded_model,
+                                    tokenizer=initial_loaded_tokenizer, reload_state=state)
 
             return jsonify({
                 "predictions": response

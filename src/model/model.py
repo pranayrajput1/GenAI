@@ -32,19 +32,31 @@ def get_model_tokenizer(model_name: str):
     return loaded_model, loaded_tokenizer
 
 
-model, tokenizer = get_model_tokenizer(model_id)
+def reload_model(model_id: str):
+    print("Reloading model and tokenizer again")
+    try:
+        reloaded_model, reloaded_tokenizer = get_model_tokenizer(model_id)
+        return reloaded_model, reloaded_tokenizer
+    except Exception as e:
+        print(f"Error reloading model: {e}")
+        return None, None
 
 
-def generate_text(inputs):
+def generate_text(inputs, model, tokenizer, reload_model_state: bool):
+    if reload_model_state:
+        reloaded_model, reloaded_tokenizer = reload_model(model_id)
+        if reloaded_model and reloaded_tokenizer:
+            model, tokenizer = reloaded_model, reloaded_tokenizer
+
     model_inputs = tokenizer.apply_chat_template(inputs, return_tensors="pt")
     generated_ids = model.generate(model_inputs, max_new_tokens=1000, do_sample=True)
     decoded = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
     return decoded
 
 
-def get_response(user_query):
-    messages = [
+def get_response(user_query, model, tokenizer, reload_state):
+    user_input = [
         {"role": "user", "content": f'{user_query}'}
     ]
-    model_response = generate_text(messages)
+    model_response = generate_text(user_input, model, tokenizer, reload_model_state=reload_state)
     return model_response
