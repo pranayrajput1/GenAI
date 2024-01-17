@@ -21,7 +21,7 @@ def serve_model():
         if request.method == 'POST':
             data = request.get_json()
             user_input = data['input']
-            response = get_response(user_input)
+            response = get_response(f'Forget the old response history if you are maintaining any, and take this input as new:{user_input}')
 
             return jsonify({
                 "predictions": response
