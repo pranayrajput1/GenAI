@@ -11,7 +11,7 @@ torch.cuda.empty_cache()
 
 def get_model_tokenizer(model_name: str):
     bnb_config = BitsAndBytesConfig(
-        load_in_8bit=True,
+        load_in_4bit=True,
     )
     auth_token = "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"
     device_map = "auto"

@@ -5,7 +5,7 @@ import torch
 def get_quantization_config(boolean_input: bool):
     if boolean_input:
         return dict(quantization_config=BitsAndBytesConfig(
-            load_in_8bit=True,
+            load_in4bit=True,
             bnb_4bit_compute_dtype=torch.bfloat16
         ))
     else:
