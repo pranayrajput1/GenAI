@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from model.model import get_response, get_model_tokenizer
-from src.insert_text_vector.chroma_db_impl import resume_vec_insert
-from src.insert_text_vector.text_structuring import process_resumes_structuring
+#from insert_text_vector.chroma_db_impl import resume_vec_insert
+from insert_text_vector.text_structuring import process_resumes_structuring
 from utils.helpers import download_files_from_bucket
 from utils.constants import model_id, resume_bucket_path, resume_path, persistence_directory, structured_text_dir
 
@@ -53,13 +53,13 @@ def update_vector_database():
             if not response or response_code != 200:
                 return jsonify({"response": response}), response_code
 
+	    
             '''Resume vector insertion'''
-            response, response = resume_vec_insert(persistence_directory, structured_text_dir)
-            if not response or response != 200:
-                return jsonify({"response": response}), response_code
+            #response, response = resume_vec_insert(persistence_directory, structured_text_dir)
+            #if not response or response != 200:
+            #   return jsonify({"response": response}), response_code
 
             return jsonify({"response": "Updated Vector Database Successfully Completed"}), response_code
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

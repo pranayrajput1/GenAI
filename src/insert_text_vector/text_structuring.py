@@ -1,10 +1,10 @@
 import glob
 import time
 
-from src.model.model import get_response
-from src.templates.structuring_template import string_template, task, decorator
-from src.utils.constants import structured_text_dir
-from src.utils.helpers import setup_logger, get_time, read_pdf
+from model.model import get_response
+from templates.structuring_template import string_template, task, decorator
+from utils.constants import structured_text_dir
+from utils.helpers import setup_logger, get_time, read_pdf
 
 
 def process_resumes_structuring(resume_directory, input_model, input_tokenizer, model_reload_state):
@@ -18,7 +18,7 @@ def process_resumes_structuring(resume_directory, input_model, input_tokenizer, 
         for resume in path_list:
             extracted_resume_text = read_pdf(resume)
             filename = resume.split('/')[-1].split('.')[0]
-            logger.info("Processing Resume: ", filename)
+            logger.info(f"Processing Resume: {filename}")
             input_template = string_template.format(TASK=task,
                                                     RESUME=extracted_resume_text,
                                                     DECORATOR=decorator)

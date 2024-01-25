@@ -1,9 +1,10 @@
+'''
 import chromadb
 from chromadb.config import Settings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from chromadb.utils import embedding_functions
-from src.utils.constants import structured_text_dir, embeddings_model, persistence_directory
-from src.utils.helpers import setup_logger
+from utils.constants import structured_text_dir, embeddings_model, persistence_directory
+from utils.helpers import setup_logger
 
 logger = setup_logger()
 
@@ -49,3 +50,4 @@ def resume_vec_insert(persist_directory, structured_resume_dir):
 
     # if __name__ == "__main__":
 #     resume_vec_insert(persistence_directory, structured_text_dir)
+'''

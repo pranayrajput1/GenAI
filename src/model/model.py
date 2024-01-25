@@ -4,7 +4,7 @@ from transformers import (
     AutoTokenizer
 )
 import torch
-from src.utils.constants import model_id, auth_token
+from utils.constants import model_id, auth_token
 
 torch.cuda.empty_cache()
 
@@ -12,6 +12,7 @@ torch.cuda.empty_cache()
 def get_model_tokenizer(model_name: str):
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
+	bnb_4bit_compute_dtype=torch.bfloat16
     )
     device_map = "auto"
 
@@ -20,7 +21,7 @@ def get_model_tokenizer(model_name: str):
         quantization_config=bnb_config,
         device_map=device_map,
         token=auth_token,
-        torch_dtype=torch.bfloat16
+        #torch_dtype=torch.bfloat16
     )
 
     loaded_tokenizer = AutoTokenizer.from_pretrained(

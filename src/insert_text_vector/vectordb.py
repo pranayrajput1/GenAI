@@ -6,8 +6,8 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain_community.document_loaders import DirectoryLoader
 
-from src.utils.constants import structured_text_dir, sentence_transformer_model
-from src.utils.helpers import setup_logger
+from utils.constants import structured_text_dir, sentence_transformer_model
+from utils.helpers import setup_logger
 
 logger = setup_logger()
 
