@@ -4,7 +4,7 @@ from transformers import (
     AutoTokenizer
 )
 import torch
-from utils.constants import model_id
+from src.utils.constants import model_id, auth_token
 
 torch.cuda.empty_cache()
 
@@ -13,7 +13,6 @@ def get_model_tokenizer(model_name: str):
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
     )
-    auth_token = "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"
     device_map = "auto"
 
     loaded_model = AutoModelForCausalLM.from_pretrained(
@@ -33,10 +32,10 @@ def get_model_tokenizer(model_name: str):
     return loaded_model, loaded_tokenizer
 
 
-def reload_model(model_id: str):
+def reload_model(model_name: str):
     print("Reloading model and tokenizer again")
     try:
-        reloaded_model, reloaded_tokenizer = get_model_tokenizer(model_id)
+        reloaded_model, reloaded_tokenizer = get_model_tokenizer(model_name)
         return reloaded_model, reloaded_tokenizer
     except Exception as e:
         print(f"Error reloading model: {e}")
@@ -55,7 +54,7 @@ def generate_text(inputs, model, tokenizer, reload_model_state: bool):
     return decoded
 
 
-def get_response(user_query, model, tokenizer, reload_state):
+def get_response(user_query, model, tokenizer, reload_state=None):
     user_input = [
         {"role": "user", "content": f'{user_query}'}
     ]

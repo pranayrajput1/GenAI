@@ -1,6 +1,7 @@
 import time
 import logging
 from google.cloud import storage
+import PyPDF2
 
 
 def setup_logger():
@@ -53,3 +54,17 @@ def download_files_from_bucket(bucket_name, destination_folder):
     except Exception as e:
         logger.error(f"Some error occurred in downloading resume from bucket, error: {str(e)}")
         raise
+
+
+def read_pdf(filepath):
+    pdf_reader = PyPDF2.PdfReader(filepath)
+    num_page = len(pdf_reader.pages)
+    logger.info(f'Total Number of pages in the PDF:{num_page}')
+    texts = []
+
+    for page_no in range(num_page):
+        page_object = pdf_reader.pages[page_no]
+        texts.append(page_object.extract_text())
+
+    text_example = '\n'.join(texts)
+    return text_example

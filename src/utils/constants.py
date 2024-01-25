@@ -5,7 +5,7 @@ import os
 root = Path(__file__).resolve().parent.parent
 
 model_id = "mistralai/Mistral-7B-Instruct-v0.1"
-
+auth_token = "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"
 image_name = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/nashtech-ai-docker-registry/mistral-image"
 image_tag = "0.1"
 PROJECT_ID = "nashtech-ai-dev-389315"
@@ -24,6 +24,13 @@ system_prompt = "You are an AI assistant that follows instruction extremely well
 resume_bucket_path = "dbscan-model"
 
 data_dir = root / "data"
-download_resume_path = data_dir / "resumes"
+resume_path = data_dir / "resumes"
+
+structured_text_dir = data_dir / "structured_text"
+sentence_transformer_model = 'sentence-transformers/all-mpnet-base-v2'
+
+embeddings_model = 'all-MiniLM-L6-v2'
+
+persistence_directory = "test_db"
 
 os.environ['GOOGLE_CLOUD_PROJECT'] = PROJECT_ID

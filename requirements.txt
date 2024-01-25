@@ -11,3 +11,4 @@ chromadb==0.3.29
 langchain==0.0.350
 
 google-cloud-storage==2.14.0
+pypdf2~=3.0.1
