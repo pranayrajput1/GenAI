@@ -43,7 +43,7 @@ def update_vector_database():
             response, response_code = download_files_from_bucket(resume_bucket_path, download_resume_path)
 
             if response and response_code == 200:
-                return jsonify({"response": "Updated Vector Database Successfully"}), response_code
+                return jsonify({"response": "Updated Vector Database Successfully Completed"}), response_code
             else:
                 return jsonify({"response": response}), response_code
 
