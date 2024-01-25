@@ -20,7 +20,8 @@ def get_model_tokenizer(model_name: str):
         model_name,
         quantization_config=bnb_config,
         device_map=device_map,
-        token=auth_token
+        token=auth_token,
+        torch_dtype=torch.bfloat16
     )
 
     loaded_tokenizer = AutoTokenizer.from_pretrained(

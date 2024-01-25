@@ -1,3 +1,9 @@
+from pathlib import Path
+import os
+
+
+root = Path(__file__).resolve().parent.parent
+
 model_id = "mistralai/Mistral-7B-Instruct-v0.1"
 
 image_name = "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/nashtech-ai-docker-registry/mistral-image"
@@ -14,3 +20,10 @@ MODEL_DISPLAY_NAME = "mistral"
 decimal_model_name = "Deci/DeciLM-7B-instruct"
 
 system_prompt = "You are an AI assistant that follows instruction extremely well. Help as much as you can."
+
+resume_bucket_path = "dbscan-model"
+
+data_dir = root / "data"
+download_resume_path = data_dir / "resumes"
+
+os.environ['GOOGLE_CLOUD_PROJECT'] = PROJECT_ID
