@@ -4,9 +4,6 @@ __pycache__/
 *$py.class
 
 *.csv
-*.pdf
-*.txt
-
 # C extensions
 *.so
 
@@ -165,3 +162,5 @@ cython_debug/
 #.idea/
 
 
+/src/data/resumes/*.pdf
+/src/data/structured_text/*.txt

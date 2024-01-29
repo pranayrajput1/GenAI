@@ -12,3 +12,4 @@ langchain==0.0.350
 
 google-cloud-storage==2.14.0
 pypdf2~=3.0.1
+requests~=2.31.0

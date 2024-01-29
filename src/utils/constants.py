@@ -34,3 +34,11 @@ embeddings_model = 'all-MiniLM-L6-v2'
 persistence_directory = "test_db"
 
 os.environ['GOOGLE_CLOUD_PROJECT'] = PROJECT_ID
+reload_model_state = False
+
+instance_ip = '34.32.138.230'
+port = "5050"
+predict_route_url = f'http://{instance_ip}:{port}/predict'
+
+local_ip = '127.1.2.0'
+local_instance_endpoint_url = f'http://{local_ip}:{port}/update-vectors'
