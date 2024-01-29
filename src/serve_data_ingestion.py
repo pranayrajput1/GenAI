@@ -7,7 +7,7 @@ from utils.constants import resume_bucket_path, resume_path, persistence_directo
 app = Flask(__name__)
 
 
-@app.route('/ping-ingestion', methods=['GET'])
+#@app.route('/ping-ingestion', methods=['GET'])
 def health_check():
     """
     Function to check health status of endpoint.
@@ -15,10 +15,11 @@ def health_check():
     return {"status": "healthy"}, 200
 
 
-@app.route('/update-vectors', methods=['PUT'])
-def update_vector_database():
+#@app.route('/update-vectors', methods=['PUT'])
+def update_vector_database(input_command):
     try:
-        if request.method == 'PUT':
+        #if request.method == 'PUT':
+	if input_command == "yes":
             '''Download files'''
             response, response_code = download_files_from_bucket(resume_bucket_path, resume_path)
             if not response or response_code != 200:
@@ -40,5 +41,7 @@ def update_vector_database():
         return jsonify({"error": str(e)}), 500
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=4040)
+one, two = update_vector_database("yes")
+print(one)
+#if __name__ == '__main__':
+#    app.run(host='0.0.0.0', port=4040)
