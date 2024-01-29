@@ -10,7 +10,7 @@ import json
 def local_inference_point(input_prompt):
     logger = setup_logger()
     logger.info("I am in predict endpoint.")
-    data = {"input": input_prompt}
+    data = {"input": input_prompt, "model_state": False}
     response = requests.post(url=local_instance_endpoint_url, json=data)
     logger.info(f"Mistral Predict Endpoint Status Code:{response.status_code}")
     return json.loads(response.text)
