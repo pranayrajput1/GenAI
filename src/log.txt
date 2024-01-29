@@ -1,24 +1,14 @@
 nohup: ignoring input
-2024-01-25 11:33:49,106 - INFO - We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.69s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.60s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.76s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.26s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.25s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.40s/it]
 /usr/local/lib/python3.9/dist-packages/transformers/utils/hub.py:374: FutureWarning: The `use_auth_token` argument is deprecated and will be removed in v5 of Transformers. Please use `token` instead.
   warnings.warn(
  * Serving Flask app 'serve_model'
  * Debug mode: off
-2024-01-25 11:33:55,464 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5050
  * Running on http://10.164.0.21:5050
-2024-01-25 11:33:55,464 - INFO - [33mPress CTRL+C to quit[0m
-2024-01-25 11:34:12,408 - INFO - Downloaded  9182668798_yashithareddy.pdf to /home/nashtech/Mlops/src/data/resumes/ 9182668798_yashithareddy.pdf
-2024-01-25 11:34:12,998 - INFO - Downloaded 6362525095_rashmiudaypawar.pdf to /home/nashtech/Mlops/src/data/resumes/6362525095_rashmiudaypawar.pdf
-2024-01-25 11:34:13,447 - INFO - Downloaded 7709886461_nitishdhaubhadel.pdf to /home/nashtech/Mlops/src/data/resumes/7709886461_nitishdhaubhadel.pdf
-2024-01-25 11:34:13,447 - INFO - Performing resume structuring
-2024-01-25 11:34:13,447 - INFO - ['/home/nashtech/Mlops/src/data/resumes/7709886461_nitishdhaubhadel.pdf', '/home/nashtech/Mlops/src/data/resumes/ 9182668798_yashithareddy.pdf', '/home/nashtech/Mlops/src/data/resumes/6362525095_rashmiudaypawar.pdf']
-2024-01-25 11:34:13,449 - INFO - Total Number of pages in the PDF:3
-2024-01-25 11:34:13,533 - INFO - Processing Resume: 7709886461_nitishdhaubhadel
-The attention mask and the pad token id were not set. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
-Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
-/usr/local/lib/python3.9/dist-packages/transformers/generation/utils.py:1591: UserWarning: You are calling .generate() with the `input_ids` being on a device type different than your model's device. `input_ids` is on cpu, whereas the model is on cuda. You may experience unexpected behaviors or slower generation. Please make sure that you have put `input_ids` to the correct device by calling for example input_ids = input_ids.to('cuda') before running `.generate()`.
-  warnings.warn(
-2024-01-25 11:34:47,144 - INFO - 203.189.252.74 - - [25/Jan/2024 11:34:47] "[35m[1mPUT /update-vectors HTTP/1.1[0m" 505 -
+[33mPress CTRL+C to quit[0m
+27.6.204.234 - - [29/Jan/2024 09:39:00] "GET /ping HTTP/1.1" 200 -
+27.6.204.234 - - [29/Jan/2024 09:47:45] "GET /ping HTTP/1.1" 200 -
+27.6.204.234 - - [29/Jan/2024 09:57:27] "GET /ping HTTP/1.1" 200 -

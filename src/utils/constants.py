@@ -34,3 +34,7 @@ embeddings_model = 'all-MiniLM-L6-v2'
 persistence_directory = "test_db"
 
 os.environ['GOOGLE_CLOUD_PROJECT'] = PROJECT_ID
+
+port = '5050'
+local_ip = '127.0.0.1'
+local_instance_endpoint_url = f'http://{local_ip}:{port}/predict'

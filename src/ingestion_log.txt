@@ -1,0 +1,12 @@
+nohup: ignoring input
+ * Serving Flask app 'serve_data_ingestion'
+ * Debug mode: off
+2024-01-29 09:57:42,651 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:4040
+ * Running on http://10.164.0.21:4040
+2024-01-29 09:57:42,651 - INFO - [33mPress CTRL+C to quit[0m
+2024-01-29 09:58:21,290 - INFO - 27.6.204.234 - - [29/Jan/2024 09:58:21] "GET /ping-ingestion HTTP/1.1" 200 -
+2024-01-29 09:58:40,645 - INFO - 27.6.204.234 - - [29/Jan/2024 09:58:40] "[31m[1mGET /update-vectors HTTP/1.1[0m" 405 -
+2024-01-29 09:58:48,104 - ERROR - Some error occurred in downloading resume from bucket, error: [Errno 13] Permission denied: '/home/nashtech/Mlops/src/data/resumes/ 9182668798_yashithareddy.pdf'
+2024-01-29 09:58:48,104 - INFO - 27.6.204.234 - - [29/Jan/2024 09:58:48] "[35m[1mPUT /update-vectors HTTP/1.1[0m" 500 -

@@ -1,4 +1,3 @@
-'''
 import chromadb
 from chromadb.config import Settings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
@@ -48,6 +47,5 @@ def resume_vec_insert(persist_directory, structured_resume_dir):
         raise
 
 
-    # if __name__ == "__main__":
+#if __name__ == "__main__":
 #     resume_vec_insert(persistence_directory, structured_text_dir)
-'''

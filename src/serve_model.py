@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, request
 from model.model import get_response, get_model_tokenizer
 #from insert_text_vector.chroma_db_impl import resume_vec_insert
-from insert_text_vector.text_structuring import process_resumes_structuring
-from utils.helpers import download_files_from_bucket
+#from insert_text_vector.text_structuring import process_resumes_structuring
+#from utils.helpers import download_files_from_bucket
 from utils.constants import model_id, resume_bucket_path, resume_path, persistence_directory, structured_text_dir
 
 app = Flask(__name__)
@@ -34,7 +34,7 @@ def serve_model():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
+"""
 @app.route('/update-vectors', methods=['PUT'])
 def update_vector_database():
     try:
@@ -53,16 +53,18 @@ def update_vector_database():
             if not response or response_code != 200:
                 return jsonify({"response": response}), response_code
 
-	    
             '''Resume vector insertion'''
-            #response, response = resume_vec_insert(persistence_directory, structured_text_dir)
-            #if not response or response != 200:
-            #   return jsonify({"response": response}), response_code
+            response, response = resume_vec_insert(persistence_directory, structured_text_dir)
+            if not response or response != 200:
+               return jsonify({"response": response}), response_code
 
             return jsonify({"response": "Updated Vector Database Successfully Completed"}), response_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+"""
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5050)
+    server_host = '0.0.0.0'
+    server_port = 5050
+    app.run(host=server_host, port=server_port)
