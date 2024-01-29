@@ -1,16 +1,16 @@
 import glob
 import time
 import requests
-from src.templates.structuring_template import string_template, task, decorator
-from src.utils.constants import structured_text_dir, reload_model_state, local_instance_endpoint_url
-from src.utils.helpers import setup_logger, get_time, read_pdf
+from templates.structuring_template import string_template, task, decorator
+from utils.constants import structured_text_dir, local_instance_endpoint_url
+from utils.helpers import setup_logger, get_time, read_pdf
 import json
 
 
 def local_inference_point(input_prompt):
     logger = setup_logger()
     logger.info("I am in predict endpoint.")
-    data = {"input": input_prompt, "model_state": reload_model_state}
+    data = {"input": input_prompt}
     response = requests.post(url=local_instance_endpoint_url, json=data)
     logger.info(f"Mistral Predict Endpoint Status Code:{response.status_code}")
     return json.loads(response.text)

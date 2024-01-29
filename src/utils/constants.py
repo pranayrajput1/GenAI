@@ -1,7 +1,6 @@
 from pathlib import Path
 import os
 
-
 root = Path(__file__).resolve().parent.parent
 
 model_id = "mistralai/Mistral-7B-Instruct-v0.1"
@@ -40,5 +39,6 @@ instance_ip = '34.32.138.230'
 port = "5050"
 predict_route_url = f'http://{instance_ip}:{port}/predict'
 
-local_ip = '127.1.2.0'
-local_instance_endpoint_url = f'http://{local_ip}:{port}/update-vectors'
+port = '5050'
+local_ip = '127.0.0.1'
+local_instance_endpoint_url = f'http://{local_ip}:{port}/predict'

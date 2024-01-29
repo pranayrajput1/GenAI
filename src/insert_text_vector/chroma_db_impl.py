@@ -48,5 +48,5 @@ def resume_vec_insert(persist_directory, structured_resume_dir):
         raise
 
 
-# if __name__ == "__main__":
-# resume_vec_insert(persistence_directory, structured_text_dir)
+#if __name__ == "__main__":
+#     resume_vec_insert(persistence_directory, structured_text_dir)
