@@ -36,22 +36,25 @@ def retriever(user_prompt):
 
 def get_ranking_resumes(job_title,
                         desired_skills):
-    vdb_prompt = f"Find resumes containing these mentioned skills {desired_skills}"
+    try:
+        vdb_prompt = f"Find resumes containing these mentioned skills {desired_skills}"
 
-    logger.info(f"Fetching resume vectors data from chroma db")
-    resumes = retriever(user_prompt=vdb_prompt)
+        logger.info(f"Fetching resume vectors data from chroma db")
+        resumes = retriever(user_prompt=vdb_prompt)
 
-    if len(resumes) > 0:
-        logger.info(f"Retrieved Resumes:{resumes}")
+        if len(resumes) > 0:
+            logger.info(f"Retrieved Resumes:{resumes}")
 
-        model_input_prompt = f"""IT HR Recruiter Task: Rank resumes for '{job_title}' based on:
-        1. Job Title: '{job_title}'
-        2. Skills: {desired_skills}
+            model_input_prompt = f"""IT HR Recruiter Task: Rank resumes for '{job_title}' based on:
+            1. Job Title: '{job_title}'
+            2. Skills: {desired_skills}
+    
+            Rank resumes by assessing candidates' proficiency in the specified skills. 
+            Resumes: {resumes}
+    
+            Provide a list of technical skills for each candidate. Use format: ["skill_1", "skill_2", ...]"""
 
-        Rank resumes by assessing candidates' proficiency in the specified skills. 
-        Resumes: {resumes}
-
-        Provide a list of technical skills for each candidate. Use format: ["skill_1", "skill_2", ...]"""
-
-        output_mistral = local_inference_point(input_prompt=model_input_prompt)
-        return output_mistral
+            output_mistral = local_inference_point(input_prompt=model_input_prompt)
+            return output_mistral
+    except Exception as e:
+        return f"Some error occurred in ranking resumes, error: {str(e)}"
