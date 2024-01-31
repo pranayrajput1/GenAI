@@ -3,6 +3,7 @@ from insert_text_vector.chroma_db_impl import resume_vec_insert
 from insert_text_vector.text_structuring import process_resumes_structuring
 from utils.helpers import download_files_from_bucket
 from utils.constants import resume_bucket_path, resume_path, persistence_directory, structured_text_dir
+from retriever.retriever import get_ranking_resumes
 
 app = Flask(__name__)
 
@@ -36,6 +37,23 @@ def update_vector_database():
 
             return jsonify({"response": "Updated Vector Database Successfully Completed"}), response_code
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/ranking', methods=['POST'])
+def rank_resume():
+    try:
+        if request.method == 'POST':
+            data = request.get_json()
+            user_input = data['input']
+
+            final_response = get_ranking_resumes(job_title=user_input["job_tile"],
+                                                 desired_skills=user_input["desired_skills"])
+
+            return jsonify({
+                "predictions": final_response
+            }), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

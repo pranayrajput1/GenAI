@@ -3,7 +3,8 @@ from utils.constants import embeddings_model, preprocessing_dir
 import chromadb
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
-import time
+
+from src.insert_text_vector.text_structuring import local_inference_point
 
 client = chromadb.Client(Settings(chroma_db_impl="duckdb+parquet",
                                   persist_directory=f"{preprocessing_dir}/test_db"
@@ -50,4 +51,5 @@ def get_ranking_resumes(job_title,
 
         Provide a list of technical skills for each candidate. Use format: ["skill_1", "skill_2", ...]"""
 
-        return model_input_prompt
+        output_mistral = local_inference_point(input_prompt=model_input_prompt)
+        return output_mistral
