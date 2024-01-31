@@ -51,7 +51,7 @@ def rank_resume():
             final_response = get_ranking_resumes(job_title=user_input["job_tile"],
                                                  desired_skills=user_input["desired_skills"])
             if final_response:
-                return jsonify({"predictions": final_response}), 200
+                return final_response, 200
             else:
                 return jsonify({"ERR_EMPTY_RESPONSE"}, 408)
     except Exception as e:

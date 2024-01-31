@@ -1,11 +1,9 @@
-from utils.helpers import setup_logger
-from utils.constants import embeddings_model
+from src.utils.helpers import setup_logger, local_inference_point
+from src.utils.constants import embeddings_model
 import chromadb
 from chromadb.config import Settings
-from insert_text_vector.text_structuring import local_inference_point
-from utils.constants import persistence_directory
-
-from insert_text_vector.chroma_db_impl import get_embeddings_function
+from src.utils.constants import persistence_directory
+from src.insert_text_vector.chroma_db_impl import get_embeddings_function
 
 logger = setup_logger()
 
@@ -39,6 +37,7 @@ def get_ranking_resumes(job_title,
 
         logger.info(f"Fetching resume vectors data from chroma db")
         resumes = retriever(user_prompt=vdb_prompt)
+        logger.info(f"Retrieved Resumes: {resumes}")
 
         if len(resumes) > 0:
             logger.info(f"Retrieved Resumes:{resumes}")

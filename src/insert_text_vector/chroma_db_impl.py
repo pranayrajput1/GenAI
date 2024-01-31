@@ -2,8 +2,8 @@ import chromadb
 from chromadb.config import Settings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from chromadb.utils import embedding_functions
-from utils.constants import structured_text_dir, embeddings_model, persistence_directory
-from utils.helpers import setup_logger
+from src.utils.constants import structured_text_dir, embeddings_model, persistence_directory
+from src.utils.helpers import setup_logger
 
 logger = setup_logger()
 

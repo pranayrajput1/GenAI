@@ -5,7 +5,7 @@ import PyPDF2
 import requests
 import json
 
-from utils.constants import local_instance_endpoint_url
+from src.utils.constants import local_instance_endpoint_url
 
 
 def setup_logger():
@@ -56,8 +56,7 @@ def download_files_from_bucket(bucket_name, destination_folder):
             return f"No files found in the bucket: {bucket_name}", 404
 
     except Exception as e:
-        logger.error(f"Some error occurred in downloading resume from bucket, error: {str(e)}")
-        raise
+        return logger.error(f"Some error occurred in downloading resume from bucket, error: {str(e)}")
 
 
 def read_pdf(filepath):
