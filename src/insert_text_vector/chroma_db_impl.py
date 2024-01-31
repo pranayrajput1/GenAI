@@ -2,8 +2,8 @@ import chromadb
 from chromadb.config import Settings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from chromadb.utils import embedding_functions
-from utils.constants import structured_text_dir, embeddings_model, persistence_directory
-from utils.helpers import setup_logger
+from src.utils.constants import structured_text_dir, embeddings_model, persistence_directory
+from src.utils.helpers import setup_logger
 
 logger = setup_logger()
 
@@ -18,7 +18,7 @@ def resume_vec_insert(persist_directory, structured_resume_dir):
     try:
         logger.info("Initialising vectordb connection")
         client = chromadb.Client(Settings(chroma_db_impl="duckdb+parquet",
-                                          persist_directory=persist_directory
+                                          persist_directory=f"./{persist_directory}"
                                           ))
 
         logger.info("Loading files from directory: connection")
@@ -44,8 +44,8 @@ def resume_vec_insert(persist_directory, structured_resume_dir):
         logger.info(f"Inserted structured resumes data into vector db successfully")
         return "Updated Vector Db Successfully", 200
     except Exception as e:
-        return logger.error(f"Some error occurred in entering structured resumes into vector db, error: {str(e)}")
+        raise logger.error(f"Some error occurred in entering structured resumes into vector db, error: {str(e)}")
 
 
-#if __name__ == "__main__":
-#     resume_vec_insert(persistence_directory, structured_text_dir)
+if __name__ == "__main__":
+    resume_vec_insert(persistence_directory, structured_text_dir)
