@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from model.model import get_response, get_model_tokenizer
-from src.retriever.retriever import get_ranking_resumes
+from retriever.retriever import get_ranking_resumes
 from utils.constants import model_id
 
 app = Flask(__name__)
