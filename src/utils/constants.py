@@ -25,8 +25,6 @@ resume_bucket_path = "dbscan-model"
 data_dir = root / "data"
 resume_path = data_dir / "resumes"
 
-preprocessing_dir = root / "test_db"
-
 structured_text_dir = data_dir / "structured_text"
 sentence_transformer_model = 'sentence-transformers/all-mpnet-base-v2'
 
