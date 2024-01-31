@@ -42,10 +42,10 @@ def resume_vec_insert(persist_directory, structured_resume_dir):
                         metadatas=input_data[1],
                         ids=input_data[2])
         logger.info(f"Inserted structured resumes data into vector db successfully")
+        client.persist()
         return "Updated Vector Db Successfully", 200
     except Exception as e:
         return logger.error(f"Some error occurred in entering structured resumes into vector db, error: {str(e)}")
-
 
 # if __name__ == "__main__":
 #     resume_vec_insert(persistence_directory, structured_text_dir)
