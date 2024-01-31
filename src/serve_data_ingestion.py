@@ -52,6 +52,8 @@ def rank_resume():
                                                  desired_skills=user_input["desired_skills"])
             if final_response:
                 return jsonify({"predictions": final_response}), 200
+            else:
+                return jsonify({"ERR_EMPTY_RESPONSE"}, 408)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
