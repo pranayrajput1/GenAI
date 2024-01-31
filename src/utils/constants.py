@@ -30,7 +30,7 @@ sentence_transformer_model = 'sentence-transformers/all-mpnet-base-v2'
 
 embeddings_model = 'all-MiniLM-L6-v2'
 
-persistence_directory = "test_db"
+persistence_directory = root / "test_db"
 
 os.environ['GOOGLE_CLOUD_PROJECT'] = PROJECT_ID
 reload_model_state = False

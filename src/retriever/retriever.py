@@ -1,5 +1,5 @@
 from utils.helpers import setup_logger
-from utils.constants import embeddings_model, preprocessing_dir
+from utils.constants import embeddings_model
 import chromadb
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
