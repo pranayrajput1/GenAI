@@ -2,23 +2,21 @@ from utils.helpers import setup_logger
 from utils.constants import embeddings_model
 import chromadb
 from chromadb.config import Settings
-from chromadb.utils import embedding_functions
-
 from insert_text_vector.text_structuring import local_inference_point
-
 from utils.constants import persistence_directory
 
-client = chromadb.Client(Settings(chroma_db_impl="duckdb+parquet",
-                                  persist_directory=persistence_directory
-                                  ))
-embedding_functions = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=embeddings_model)
-
-collection2 = client.get_or_create_collection(name="test_one", embedding_function=embedding_functions)
+from src.insert_text_vector.chroma_db_impl import get_embeddings_function
 
 logger = setup_logger()
 
 
 def retriever(user_prompt):
+    client = chromadb.Client(Settings(chroma_db_impl="duckdb+parquet",
+                                      persist_directory=f".{persistence_directory}"
+                                      ))
+    embedding_function = get_embeddings_function(embeddings_model)
+
+    collection2 = client.get_or_create_collection(name="test_one", embedding_function=embedding_function)
     results = collection2.query(
         query_texts=[user_prompt],
         n_results=5

@@ -2,6 +2,10 @@ import time
 import logging
 from google.cloud import storage
 import PyPDF2
+import requests
+import json
+
+from utils.constants import local_instance_endpoint_url
 
 
 def setup_logger():
@@ -68,3 +72,11 @@ def read_pdf(filepath):
 
     text_example = '\n'.join(texts)
     return text_example
+
+
+def local_inference_point(input_prompt):
+    logger.info("I am in predict endpoint.")
+    data = {"input": input_prompt, "model_state": False}
+    response = requests.post(url=local_instance_endpoint_url, json=data)
+    logger.info(f"Mistral Predict Endpoint Status Code:{response.status_code}")
+    return json.loads(response.text)

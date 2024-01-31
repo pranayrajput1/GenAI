@@ -44,8 +44,8 @@ def resume_vec_insert(persist_directory, structured_resume_dir):
         logger.info(f"Inserted structured resumes data into vector db successfully")
         return "Updated Vector Db Successfully", 200
     except Exception as e:
-        raise logger.error(f"Some error occurred in entering structured resumes into vector db, error: {str(e)}")
+        return logger.error(f"Some error occurred in entering structured resumes into vector db, error: {str(e)}")
 
 
-if __name__ == "__main__":
-    resume_vec_insert(persistence_directory, structured_text_dir)
+# if __name__ == "__main__":
+#     resume_vec_insert(persistence_directory, structured_text_dir)
