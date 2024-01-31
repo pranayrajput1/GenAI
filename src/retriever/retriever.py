@@ -5,14 +5,14 @@ from chromadb.config import Settings
 from insert_text_vector.text_structuring import local_inference_point
 from utils.constants import persistence_directory
 
-from src.insert_text_vector.chroma_db_impl import get_embeddings_function
+from insert_text_vector.chroma_db_impl import get_embeddings_function
 
 logger = setup_logger()
 
 
 def retriever(user_prompt):
     client = chromadb.Client(Settings(chroma_db_impl="duckdb+parquet",
-                                      persist_directory=f".{persistence_directory}"
+                                      persist_directory=f"./{persistence_directory}"
                                       ))
     embedding_function = get_embeddings_function(embeddings_model)
 
