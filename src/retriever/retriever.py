@@ -4,7 +4,7 @@ import chromadb
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
 
-from src.insert_text_vector.text_structuring import local_inference_point
+from insert_text_vector.text_structuring import local_inference_point
 
 client = chromadb.Client(Settings(chroma_db_impl="duckdb+parquet",
                                   persist_directory=f"{preprocessing_dir}/test_db"
