@@ -2,7 +2,6 @@ import time
 import logging
 from google.cloud import storage
 import PyPDF2
-#from constants import resume_bucket_path, resume_path
 
 
 def setup_logger():
@@ -69,6 +68,3 @@ def read_pdf(filepath):
 
     text_example = '\n'.join(texts)
     return text_example
-
-
-#download_files_from_bucket(resume_bucket_path, resume_path)
