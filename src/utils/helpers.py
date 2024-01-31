@@ -5,7 +5,7 @@ import PyPDF2
 import requests
 import json
 
-from src.utils.constants import local_instance_endpoint_url
+from utils.constants import local_instance_endpoint_url
 
 
 def setup_logger():
