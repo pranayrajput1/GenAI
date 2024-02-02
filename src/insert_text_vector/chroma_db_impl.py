@@ -1,16 +1,10 @@
 import chromadb
 from chromadb.config import Settings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
-from chromadb.utils import embedding_functions
-from utils.constants import embeddings_model
-from utils.helpers import setup_logger
+from src.utils.constants import embeddings_model
+from src.utils.helpers import setup_logger, get_embeddings_function
 
 logger = setup_logger()
-
-
-def get_embeddings_function(model: str):
-    """Function to return embeddings function based on provide model name as input"""
-    return embedding_functions.SentenceTransformerEmbeddingFunction(model_name=model)
 
 
 def resume_vec_insert(persist_directory, structured_resume_dir):

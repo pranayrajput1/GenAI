@@ -1,11 +1,15 @@
 import time
-import logging
 from google.cloud import storage
 import PyPDF2
 import requests
 import json
-from retriever.retriever import retriever
-from utils.constants import local_instance_endpoint_url
+from src.utils.constants import local_instance_endpoint_url
+from chromadb.utils import embedding_functions
+from src.utils.constants import embeddings_model
+import chromadb
+from chromadb.config import Settings
+from src.utils.constants import persistence_directory
+import logging
 
 
 def setup_logger():
@@ -17,6 +21,11 @@ def setup_logger():
 
 
 logger = setup_logger()
+
+
+def get_embeddings_function(model: str):
+    """Function to return embeddings function based on provide model name as input"""
+    return embedding_functions.SentenceTransformerEmbeddingFunction(model_name=model)
 
 
 def get_time(start_time_input, end_time_input):
@@ -79,6 +88,28 @@ def local_inference_point(input_prompt):
     response = requests.post(url=local_instance_endpoint_url, json=data)
     logger.info(f"Mistral Predict Endpoint Status Code:{response.status_code}")
     return json.loads(response.text)
+
+
+def retriever(user_prompt):
+    client = chromadb.Client(Settings(chroma_db_impl="duckdb+parquet",
+                                      persist_directory=f"./{persistence_directory}"
+                                      ))
+    embedding_function = get_embeddings_function(embeddings_model)
+
+    collection2 = client.get_or_create_collection(name="test_one", embedding_function=embedding_function)
+    results = collection2.query(
+        query_texts=[user_prompt],
+        n_results=5
+    )
+    indexes = [index for index in range(len(results['distances'][0])) if results['distances'][0][index] >= 0.10]
+    logging.info(indexes)
+    # threshold_docs = ["\n Resume-{}:\n".format(i+1)+results['documents'][0][index] for i, index in enumerate(indexes)]
+    threshold_docs = ["\n Resume ID: {}:\n".format(results["ids"][0][index]) + results['documents'][0][index] for index
+                      in
+                      indexes]
+    retrieved_documents = '\n'.join(threshold_docs)
+    # logger.info(retrieved_documents)
+    return retrieved_documents
 
 
 def get_ranking_resumes(job_title,
