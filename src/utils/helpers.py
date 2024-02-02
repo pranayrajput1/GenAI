@@ -130,6 +130,8 @@ def get_ranking_resumes(job_title,
 
             Rank resumes by assessing candidates' proficiency in the specified skills. 
             Resumes: {resumes}
+            
+            Also State the reasons of ranking those resumes corresponding to them.
 
             Provide a list of technical skills for each candidate. Use format: ["skill_1", "skill_2", ...]"""
 
