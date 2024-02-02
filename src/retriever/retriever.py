@@ -1,5 +1,5 @@
-from src.utils.helpers import setup_logger, local_inference_point
-from src.utils.constants import embeddings_model
+from utils.helpers import setup_logger
+from utils.constants import embeddings_model
 import chromadb
 from chromadb.config import Settings
 from utils.constants import persistence_directory
