@@ -4,8 +4,8 @@ from google.cloud import storage
 import PyPDF2
 import requests
 import json
-from src.retriever.retriever import retriever
-from src.utils.constants import local_instance_endpoint_url
+from retriever.retriever import retriever
+from utils.constants import local_instance_endpoint_url
 
 
 def setup_logger():

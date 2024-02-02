@@ -2,8 +2,8 @@ from src.utils.helpers import setup_logger, local_inference_point
 from src.utils.constants import embeddings_model
 import chromadb
 from chromadb.config import Settings
-from src.utils.constants import persistence_directory
-from src.insert_text_vector.chroma_db_impl import get_embeddings_function
+from utils.constants import persistence_directory
+from insert_text_vector.chroma_db_impl import get_embeddings_function
 
 logger = setup_logger()
 
