@@ -106,4 +106,3 @@ def get_ranking_resumes(job_title,
             return output_mistral
     except Exception as e:
         return f"Some error occurred in ranking resumes, error: {str(e)}"
-

@@ -2,7 +2,7 @@ import chromadb
 from chromadb.config import Settings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from chromadb.utils import embedding_functions
-from src.utils.constants import structured_text_dir, embeddings_model, persistence_directory
+from src.utils.constants import embeddings_model
 from src.utils.helpers import setup_logger
 
 logger = setup_logger()
@@ -46,6 +46,3 @@ def resume_vec_insert(persist_directory, structured_resume_dir):
         return "Updated Vector Db Successfully", 200
     except Exception as e:
         return logger.error(f"Some error occurred in entering structured resumes into vector db, error: {str(e)}")
-
-# if __name__ == "__main__":
-#     resume_vec_insert(persistence_directory, structured_text_dir)
