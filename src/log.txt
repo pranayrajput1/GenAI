@@ -1,14 +1,0 @@
-nohup: ignoring input
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.26s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.25s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.40s/it]
-/usr/local/lib/python3.9/dist-packages/transformers/utils/hub.py:374: FutureWarning: The `use_auth_token` argument is deprecated and will be removed in v5 of Transformers. Please use `token` instead.
-  warnings.warn(
- * Serving Flask app 'serve_model'
- * Debug mode: off
-[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5050
- * Running on http://10.164.0.21:5050
-[33mPress CTRL+C to quit[0m
-27.6.204.234 - - [29/Jan/2024 09:39:00] "GET /ping HTTP/1.1" 200 -
-27.6.204.234 - - [29/Jan/2024 09:47:45] "GET /ping HTTP/1.1" 200 -
-27.6.204.234 - - [29/Jan/2024 09:57:27] "GET /ping HTTP/1.1" 200 -

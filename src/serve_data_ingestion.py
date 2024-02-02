@@ -1,9 +1,8 @@
 from flask import Flask, jsonify, request
 from insert_text_vector.chroma_db_impl import resume_vec_insert
 from insert_text_vector.text_structuring import process_resumes_structuring
-from utils.helpers import download_files_from_bucket
+from utils.helpers import download_files_from_bucket, get_ranking_resumes
 from utils.constants import resume_bucket_path, resume_path, persistence_directory, structured_text_dir
-from retriever.retriever import get_ranking_resumes
 app = Flask(__name__)
 
 
@@ -20,14 +19,14 @@ def update_vector_database():
     try:
         if request.method == 'PUT':
             '''Download files'''
-            # response, response_code = download_files_from_bucket(resume_bucket_path, resume_path)
-            # if not response or response_code != 200:
-            #     return jsonify({"response": response}), response_code
-            #
-            # '''Process resumes structuring'''
-            # response, response_code = process_resumes_structuring(resume_directory=resume_path)
-            # if not response or response_code != 200:
-            #     return jsonify({"response": response}), response_code
+            response, response_code = download_files_from_bucket(resume_bucket_path, resume_path)
+            if not response or response_code != 200:
+                return jsonify({"response": response}), response_code
+
+            '''Process resumes structuring'''
+            response, response_code = process_resumes_structuring(resume_directory=resume_path)
+            if not response or response_code != 200:
+                return jsonify({"response": response}), response_code
 
             '''Resume vector insertion'''
             response, response_code = resume_vec_insert(persistence_directory, structured_text_dir)

@@ -38,5 +38,4 @@ reload_model_state = False
 port = "5050"
 
 local_ip = '127.0.0.1'
-# instance_ip = '34.141.179.215'
 local_instance_endpoint_url = f'http://{local_ip}:{port}/predict'
