@@ -3,12 +3,12 @@ from google.cloud import storage
 import PyPDF2
 import requests
 import json
-from src.utils.constants import local_instance_endpoint_url
+from utils.constants import local_instance_endpoint_url
 from chromadb.utils import embedding_functions
-from src.utils.constants import embeddings_model
+from utils.constants import embeddings_model
 import chromadb
 from chromadb.config import Settings
-from src.utils.constants import persistence_directory
+from utils.constants import persistence_directory
 import logging
 
 
