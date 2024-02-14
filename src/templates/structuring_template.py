@@ -10,7 +10,7 @@ Email: email
 Mobile: mobile number
 
 Technical Skills: Technical Skills present in the resume.
-
+    
 Education: Education Qualification present in the resume
 
 Other Information:
