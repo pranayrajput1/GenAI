@@ -23,8 +23,9 @@ SERVE_IMAGE_QUALIFIER = "dbscan-serve-image"
 SHA_GET_KEY = "pipeline_commit"
 PIPELINE_CONFIG_FILE = "pipeline_configuration.json"
 SAVE_MODEL_DETAILS_BUCKET = "clustering-pipeline-artifact"
+PIPELINE_ARTIFACT = "nashtech_vertex_ai_artifact"
 
-IMAGE_TAG = process_pipeline_image_details(SAVE_MODEL_DETAILS_BUCKET, PIPELINE_CONFIG_FILE,
+IMAGE_TAG = process_pipeline_image_details(PIPELINE_ARTIFACT, PIPELINE_CONFIG_FILE,
                                            key=SHA_GET_KEY, new_entry=None)
 
 BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
@@ -35,7 +36,7 @@ BATCH_SIZE = 10000
 
 SAVE_MODEL_DETAILS_FILE = "model_details.json"
 PIPELINE_JSON = "dbscan_pipeline.json"
-PIPELINE_ARTIFACT = "nashtech_vertex_ai_artifact"
+
 
 TRIGGER_ID = "8ecef415-9458-48aa-a848-730f41924d9b"
 
