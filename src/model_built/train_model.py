@@ -1,5 +1,6 @@
 from Mlops.src.utils.constant import df
-from Mlops.src.cloud.create_model import create_model
+from Mlops.src.model_built.create_model import create_model
+
 model = create_model()
 
 

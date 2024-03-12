@@ -1,6 +1,6 @@
 from Mlops.src.utils.constant import model_path
-from Mlops.src.cloud.create_model import create_model
-from Mlops.src.cloud.train_model import train_model,model
+from Mlops.src.model_built.create_model import create_model
+from Mlops.src.model_built.train_model import train_model,model
 
 
 class Prep_Pipeline:
@@ -8,8 +8,7 @@ class Prep_Pipeline:
         pass
 
     def run_pipeline(self, df):
-        # Step 1: Data Preprocessing
-        preprocessed_data = create_model()
+        model_data = create_model()
 
 
         # Train the model
