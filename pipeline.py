@@ -40,7 +40,7 @@ def pipeline(
 
     """Evaluate model component"""
     model_evaluation = evaluate_model(batch_size=BATCH_SIZE,
-                                      bucket_name=cluster_image_bucket,
+                                      bucket_name=dataset_bucket,
                                       dataset_path=fetch_data_task.output,
                                       trained_model=train_model.output) \
         .after(train_model) \
