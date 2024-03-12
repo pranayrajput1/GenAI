@@ -34,7 +34,7 @@ steps:
   # Upload pipeline details to GCS Bucket
   - name: 'gcr.io/cloud-builders/gsutil'
     entrypoint: 'sh'
-    args: ['-c', 'gsutil cp pipeline_configuration.json gs://clustering-pipeline-artifact' ]
+    args: ['-c', 'gsutil cp pipeline_configuration.json gs://nashtech_vertex_ai_artifact' ]
     id: 'upload_details'
     waitFor: [ 'save_details' ]
 

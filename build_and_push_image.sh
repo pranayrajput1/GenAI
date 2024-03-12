@@ -7,7 +7,7 @@ fi
 
 PIPELINE_QUALIFIER="$1"
 VERSION_TAG="$2"
-IMAGE="gcr.io/d-ulti-ml-ds-dev-9561/${PIPELINE_QUALIFIER}:${VERSION_TAG}"
+IMAGE="gcr.io/nashtech-ai-dev-389315/${PIPELINE_QUALIFIER}:${VERSION_TAG}"
 
 echo "Building and pushing image: ${IMAGE}"
 docker buildx build --platform=linux/x86_64 -t "$IMAGE" .
