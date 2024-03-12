@@ -1,5 +1,6 @@
 from Mlops.src.utils.constant import df
 from Mlops.src.model_built.create_model import create_model
+from Mlops.src.utils.constant import TARGET_COLUMN
 
 model = create_model()
 
@@ -31,8 +32,8 @@ def train_model(model, df, model_path):
         train_model(model, df_train, 'trained_model.h5')
 
     """
-    X = df.drop(columns=["SalePrice"])
-    y = df["SalePrice"]
+    X = df.drop(columns=[TARGET_COLUMN])
+    y = df[TARGET_COLUMN]
 
     # Compile the model
     model.compile(optimizer='adam',
