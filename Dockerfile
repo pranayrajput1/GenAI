@@ -4,15 +4,15 @@ FROM python:3.8
 
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y \
-  graphviz
+# RUN apt-get update && apt-get install -y \
+# graphviz
 
 
 # Copy requirements and install them first so that layer is not rebuilt every time we build.
 COPY requirements_x86.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENV AIP_MODEL_DIR=gs://dbscan-model/
+ENV AIP_MODEL_DIR=gs://nashtech_vertex_ai_artifact/
 
 # Copy over and install source code from this package.
 COPY src ./src

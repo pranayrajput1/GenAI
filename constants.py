@@ -25,13 +25,12 @@ PIPELINE_CONFIG_FILE = "pipeline_configuration.json"
 SAVE_MODEL_DETAILS_BUCKET = "clustering-pipeline-artifact"
 PIPELINE_ARTIFACT = "nashtech_vertex_ai_artifact"
 
-IMAGE_TAG = process_pipeline_image_details(PIPELINE_ARTIFACT, PIPELINE_CONFIG_FILE,
-                                           key=SHA_GET_KEY, new_entry=None)
+IMAGE_TAG =process_pipeline_image_details(PIPELINE_ARTIFACT, PIPELINE_CONFIG_FILE,key=SHA_GET_KEY, new_entry=None)
 
 BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 
-STAGING_BUCKET = "gs://dbscan-model/"
+STAGING_BUCKET = "gs://nashtech_vertex_ai_artifact/"
 BATCH_SIZE = 10000
 
 SAVE_MODEL_DETAILS_FILE = "model_details.json"

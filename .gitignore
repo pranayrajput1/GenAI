@@ -143,3 +143,6 @@ Footer
 /experiment_pipeline.json
 /serving_container/validated_model.json
 /terraform/
+dbscan_pipeline.json
+env.sh
+run_local.py

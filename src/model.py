@@ -74,7 +74,8 @@ def fit_model(
     with open(file_name, 'wb') as file:
         pickle.dump(model, file)
 
-    logging.info("Saving Model To Bucket: 'gs://dbscan-model/'")
+    logging.info("Saving Model To Bucket: 'gs://nashtech_vertex_ai_artifact/'")
+    # model_name=f"gs://nashtech}"
     local_path = f"{model_name}.joblib"
     joblib.dump(model, local_path)
 

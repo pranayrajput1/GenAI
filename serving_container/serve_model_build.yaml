@@ -1,7 +1,7 @@
 steps:
 
   # Install dependencies
-  - name: 'python:3.11'
+  - name: 'python:3.8'
     entrypoint: pip
     args: [ "install", "-r", "serving_container/requirements.txt", "--user" ]
     id: 'requirements'
