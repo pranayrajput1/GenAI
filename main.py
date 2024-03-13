@@ -1,5 +1,6 @@
-from src.utils.constant import df
-from src.pipeline.pipeline import Prep_Pipeline
+from Mlops.src.utils.constant import df
+from Mlops.src.pipeline.pipeline import Prep_Pipeline
+
 
 if __name__ == "__main__":
     # Initialize the Prep Pipeline

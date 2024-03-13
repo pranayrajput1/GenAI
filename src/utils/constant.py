@@ -10,7 +10,7 @@ PROJECT_ID='nashtech-ai-dev-389315'
 REGION='us-central1'
 DATA_PATH = "gs://{}/housepp.csv".format(BUCKET_NAME)
 MODEL_PATH = "gs://{}/house-model".format(BUCKET_NAME)
-model_path= "/Mlops/src/model"
+model_path= "src/model"
 TARGET_COLUMN = "SalePrice"
 df = pd.read_csv(DATA_PATH)
 # print(df.columns)
