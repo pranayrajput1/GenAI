@@ -45,7 +45,7 @@ dataset_name = "household_power_consumption.txt"
 fit_db_model_name = "db_scan"
 fit_k_means_model_name = "k_means"
 
-cluster_image_bucket = "clustering-pipeline-artifact"
+# cluster_image_bucket = "clustering-pipeline-artifact"
 
 model_details_file_name = "model_details.json"
 validated_file_name = "validated_model.json"
