@@ -3,30 +3,31 @@ import json
 import os
 from flask import Flask, request, jsonify
 from serving_container.utils.constants import SUBSET_PATH, MODEL_DETAILS_BUCKET, MODEl_DETAILS_FILE_NAME, \
-    SAVED_MODEL_BUCKET
+    SAVED_MODEL_BUCKET,fit_db_model_name
 from serving_container.utils.input_handler import handle_json, gcs_file_download
 import logging
 
 logging.basicConfig(level=logging.INFO)
 
-logging.info(f"Task: Downloading {MODEl_DETAILS_FILE_NAME} from: {MODEL_DETAILS_BUCKET}")
-gcs_file_download(MODEL_DETAILS_BUCKET, MODEl_DETAILS_FILE_NAME)
-
-with open(MODEl_DETAILS_FILE_NAME, 'rb') as model_file_name:
-    model_detail = json.load(model_file_name)
-
-model_name = model_detail["validated_model"]
-
-logging.info(f"Task: Downloading {model_name}.joblib from: {SAVED_MODEL_BUCKET}")
-gcs_file_download(SAVED_MODEL_BUCKET, f'{model_name}.joblib')
-
-"""Defining trained model path"""
-trained_model_file = f"./{model_name}.joblib"
+# logging.info(f"Task: Downloading {MODEl_DETAILS_FILE_NAME} from: {MODEL_DETAILS_BUCKET}")
+# gcs_file_download(MODEL_DETAILS_BUCKET, MODEl_DETAILS_FILE_NAME)
+#
+# with open(MODEl_DETAILS_FILE_NAME, 'rb') as model_file_name:
+#     model_detail = json.load(model_file_name)
+#
+# model_name = model_detail["validated_model"]
+#
+# logging.info(f"Task: Downloading {model_name}.joblib from: {SAVED_MODEL_BUCKET}")
+# gcs_file_download(SAVED_MODEL_BUCKET, f'{model_name}.joblib')
+#
+# """Defining trained model path"""
+logging.info("model loading ...")
+trained_model_file = f"gs://{SAVED_MODEL_BUCKET}/{fit_db_model_name}.joblib"
 
 """Reading trained model saved as joblib file"""
 with open(trained_model_file, 'rb') as file:
     model = joblib.load(file)
-
+logging.info("model loaded succeed")
 app = Flask(__name__)
 
 

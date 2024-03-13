@@ -146,3 +146,8 @@ Footer
 dbscan_pipeline.json
 env.sh
 run_local.py
+
+local_train.py
+model.joblib
+model.pkl
+serve_model.py
