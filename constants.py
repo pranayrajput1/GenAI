@@ -37,7 +37,7 @@ SAVE_MODEL_DETAILS_FILE = "model_details.json"
 PIPELINE_JSON = "dbscan_pipeline.json"
 
 
-TRIGGER_ID = "8ecef415-9458-48aa-a848-730f41924d9b"
+TRIGGER_ID = "26a3629d-793e-4ab2-a2b3-9b4c0966b20d"
 
 dataset_bucket = "nashtech_vertex_ai_artifact"
 dataset_name = "household_power_consumption.txt"
