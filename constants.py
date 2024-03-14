@@ -10,7 +10,7 @@ SERVICE_ACCOUNT_ML = "nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gservice
 MODEL_DISPLAY_NAME = "db_scan_model"
 
 PIPELINE_NAME = "clustering-kubeflow"
-PIPELINE_DESCRIPTION = "Kubeflow pipeline tutorial."
+PIPELINE_DESCRIPTION = "Vertex AI Kubeflow Pipeline"
 
 PIPELINE_ROOT_GCS = f"gs://{PROJECT_ID}-kubeflow-pipeline"
 
@@ -18,13 +18,12 @@ BASE_IMAGE_QUALIFIER = "db-scan-image"
 SERVE_IMAGE_QUALIFIER = "dbscan-serve-image"
 
 '''Pipeline Base & Serve Image Constants'''
-
 SHA_GET_KEY = "pipeline_commit"
 PIPELINE_CONFIG_FILE = "pipeline_configuration.json"
 SAVE_MODEL_DETAILS_BUCKET = "nashtech_vertex_ai_artifact"
 PIPELINE_ARTIFACT = "nashtech_vertex_ai_artifact"
 
-IMAGE_TAG =process_pipeline_image_details(PIPELINE_ARTIFACT, PIPELINE_CONFIG_FILE,key=SHA_GET_KEY, new_entry=None)
+IMAGE_TAG = process_pipeline_image_details(PIPELINE_ARTIFACT, PIPELINE_CONFIG_FILE, key=SHA_GET_KEY, new_entry=None)
 
 BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
@@ -35,7 +34,6 @@ BATCH_SIZE = 10000
 SAVE_MODEL_DETAILS_FILE = "model_details.json"
 PIPELINE_JSON = "dbscan_pipeline.json"
 
-
 TRIGGER_ID = "26a3629d-793e-4ab2-a2b3-9b4c0966b20d"
 
 dataset_bucket = "nashtech_vertex_ai_artifact"
@@ -43,8 +41,6 @@ dataset_name = "household_power_consumption.txt"
 
 fit_db_model_name = "db_scan"
 fit_k_means_model_name = "k_means"
-
-# cluster_image_bucket = "clustering-pipeline-artifact"
 
 model_details_file_name = "model_details.json"
 validated_file_name = "validated_model.json"
