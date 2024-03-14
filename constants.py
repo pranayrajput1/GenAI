@@ -3,7 +3,6 @@ from pathlib import Path
 from src.data import process_pipeline_image_details
 
 path = Path(__file__).resolve().parent
-
 PROJECT_ID = "nashtech-ai-dev-389315"
 REGION = "us-central1"
 SERVICE_ACCOUNT_ML = "nashtech-ai-dev-app-sa@nashtech-ai-dev-389315.iam.gserviceaccount.com"

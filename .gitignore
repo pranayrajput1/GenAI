@@ -150,4 +150,6 @@ run_local.py
 local_train.py
 model.joblib
 model.pkl
-serve_model.py
+serve_models.py
+delete_endpoints.py
+local_deploy.py
