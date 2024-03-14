@@ -54,7 +54,7 @@ Below is the pipeline definition. We will add tasks which are instances of compo
 PIPELINE_NAME = "dbscan-cluster-kubeflow"
 PIPELINE_DESCRIPTION = "Kubeflow pipeline tutorial."
 PIPELINE_JSON = './dbscan_pipeline.json'
-PIPELINE_ROOT_GCS = "gs://sylvan-presence-386106-kubeflow-tutorial-pipeline"
+PIPELINE_ROOT_GCS = "gs://nashtech-ai-dev-389315-kubeflow-tutorial-pipeline"
 
 @kfp.dsl.pipeline(name=PIPELINE_NAME,
                   description=PIPELINE_DESCRIPTION,
@@ -122,7 +122,7 @@ kfp components build components/ --component-filepattern train.py --no-push-imag
 
 ```python
 """
-PROJECT_ID = "sylvan-presence-386106"
+PROJECT_ID = "nashtech-ai-dev-389315"
 BASE_IMAGE_QUALIFIER = "db-scan-image"
 BASE_IMAGE_TAG = "0.0.1"
 BASE_IMAGE = f"gcr.io/{PROJECT_ID}/{BASE_IMAGE_QUALIFIER}:{BASE_IMAGE_TAG}"
