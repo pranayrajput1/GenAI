@@ -21,7 +21,7 @@ SERVE_IMAGE_QUALIFIER = "dbscan-serve-image"
 
 SHA_GET_KEY = "pipeline_commit"
 PIPELINE_CONFIG_FILE = "pipeline_configuration.json"
-SAVE_MODEL_DETAILS_BUCKET = "clustering-pipeline-artifact"
+SAVE_MODEL_DETAILS_BUCKET = "nashtech_vertex_ai_artifact"
 PIPELINE_ARTIFACT = "nashtech_vertex_ai_artifact"
 
 IMAGE_TAG =process_pipeline_image_details(PIPELINE_ARTIFACT, PIPELINE_CONFIG_FILE,key=SHA_GET_KEY, new_entry=None)
