@@ -27,7 +27,7 @@ def evaluate_model(
 ):
     import logging
     from src.model import evaluation_score
-    from constants import models_list
+    from constants import fit_db_model_name
 
     logger = logging.getLogger('tipper')
     logger.setLevel(logging.DEBUG)
@@ -35,7 +35,7 @@ def evaluate_model(
 
     try:
         """Evaluating Db-Scan Model Performance"""
-        logging.info(f"Task: Evaluating Model Performance of {models_list[0]} model")
+        logging.info(f"Task: Evaluating Model Performance of {fit_db_model_name} model")
         image_name = "formed_cluster_image.png"
         silhouette_score, formed_cluster_image = evaluation_score(batch_size,
                                                                   bucket_name,
