@@ -23,19 +23,14 @@ SERVE_IMAGE_QUALIFIER = "dbscan-serve-image"
 '''Pipeline Base & Serve Image Constants'''
 SHA_GET_KEY = "pipeline_commit"
 PIPELINE_CONFIG_FILE = "pipeline_configuration.json"
-SAVE_MODEL_DETAILS_BUCKET = "clustering-pipeline-artifact"
+RESOURCE_BUCKET = "nashtech_vertex_ai_artifact"
 
 '''Uncomment this below line whenever you submit pipeline using cloud build trigger'''
-IMAGE_TAG = process_pipeline_image_details(SAVE_MODEL_DETAILS_BUCKET, PIPELINE_CONFIG_FILE,
+IMAGE_TAG = process_pipeline_image_details(RESOURCE_BUCKET, PIPELINE_CONFIG_FILE,
                                            key=SHA_GET_KEY, new_entry=None)
-
-'''Uncomment this below line whenever you submit pipeline locally'''
-# IMAGE_TAG = "0.0.1"
 
 BASE_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{BASE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
 SERVING_IMAGE = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/clustering-pipeline/{SERVE_IMAGE_QUALIFIER}:{IMAGE_TAG}"
-
-RESOURCE_BUCKET = "nashtech_vertex_ai_artifact"
 
 STAGING_BUCKET = f"gs://{RESOURCE_BUCKET}/"
 BATCH_SIZE = 10000
@@ -45,11 +40,8 @@ PIPELINE_JSON = "pipeline_configuration.json"
 
 TRIGGER_ID = "26a3629d-793e-4ab2-a2b3-9b4c0966b20d"
 
-dataset_bucket = "nashtech_vertex_ai_artifact"
 dataset_name = "household_power_consumption.txt"
 
 fit_db_model_name = "db_scan"
 
 cluster_image_bucket = "clustering-pipeline-artifact"
-
-model_details_file_name = "model_details.json"

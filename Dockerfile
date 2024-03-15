@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 COPY requirements_x86.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENV AIP_MODEL_DIR=gs://dbscan-model/
+ENV AIP_MODEL_DIR=gs://nashtech_vertex_ai_artifact/
 
 # Copy over and install source code from this package.
 COPY src ./src

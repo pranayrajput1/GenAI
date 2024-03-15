@@ -10,7 +10,7 @@ from components.train import fit_model
 from components.upload_model import upload_container
 from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE, cluster_image_bucket,
                        TRIGGER_ID, REGION, STAGING_BUCKET, SERVING_IMAGE, MODEL_DISPLAY_NAME, SERVICE_ACCOUNT_ML,
-                       dataset_bucket, dataset_name, fit_db_model_name, SAVE_MODEL_DETAILS_BUCKET,
+                       RESOURCE_BUCKET, dataset_name, fit_db_model_name,
                        SAVE_MODEL_DETAILS_FILE, PIPELINE_JSON)
 
 logging.basicConfig(level=logging.DEBUG)
@@ -22,11 +22,10 @@ logger = logging.getLogger(__name__)
                   pipeline_root=PIPELINE_ROOT_GCS)
 def pipeline(
         project_id: str,
-        job_id: str
 ):
 
     """Fetching Dataset from GCs Bucket"""
-    fetch_data_task = fetch_dataset(dataset_bucket, dataset_name)\
+    fetch_data_task = fetch_dataset(RESOURCE_BUCKET, dataset_name)\
         .set_display_name("Fetch Dataset")
 
     """Pre-Processing Dataset"""
@@ -62,7 +61,7 @@ def pipeline(
                           SERVING_IMAGE,
                           MODEL_DISPLAY_NAME,
                           SERVICE_ACCOUNT_ML,
-                          SAVE_MODEL_DETAILS_BUCKET,
+                          RESOURCE_BUCKET,
                           SAVE_MODEL_DETAILS_FILE) \
         .after(upload_model_task) \
         .set_display_name("Serve Model")

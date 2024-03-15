@@ -17,10 +17,6 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
 
-def get_validated_model(score_one, score_two):
-    return "db_scan" if score_one > score_two else "k_means"
-
-
 def upload_model(project, trigger):
     logging.info("Making Client Connection: ")
     cloud_build_client = cloudbuild_v1.CloudBuildClient()
@@ -74,7 +70,7 @@ def fit_model(
     with open(file_name, 'wb') as file:
         pickle.dump(model, file)
 
-    logging.info("Saving Model To Bucket: 'gs://dbscan-model/'")
+    logging.info("Saving Model To Bucket: 'gs://nashtech_vertex_ai_artifact/'")
     local_path = f"{model_name}.joblib"
     joblib.dump(model, local_path)
 
