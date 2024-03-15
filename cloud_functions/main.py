@@ -48,52 +48,78 @@ def get_big_query_data(
     return df
 
 
-def get_precision_recall_accuracy(dataframe):
-    """Precision and Recall"""
-    true_positive = ((dataframe['RESPONSE'] == 'Outlier') & (dataframe['FEEDBACK'] == True)).sum()
-    true_negative = ((dataframe['RESPONSE'] != 'Outlier') & (dataframe['FEEDBACK'] == True)).sum()
-    false_positive = ((dataframe['RESPONSE'] == 'Outlier') & (dataframe['FEEDBACK'] == False)).sum()
-    false_negative = ((dataframe['RESPONSE'] != 'Outlier') & (dataframe['FEEDBACK'] == False)).sum()
+def get_table(project_id: str,
+              dataset_id: str,
+              table_id: str
+              ):
+    query = f'SELECT * FROM `{project_id}.{dataset_id}.{table_id}`'
+    logger.info(f'Task: Query: {query}')
 
-    precision = true_positive / (true_positive + false_positive)
-    recall = true_positive / (true_positive + false_negative)
+    logger.info('Task: Establishing BigQuery Client connection')
+    bg_client = bigquery.Client()
 
-    """Accuracy"""
-    accuracy = (true_positive + true_negative) / (true_positive + true_negative + false_positive + false_negative)
+    logger.info('Task: Reading data from BigQuery')
+    df = bg_client.query(query).to_dataframe()
 
-    return precision, recall, accuracy
+    logger.info("Task: Closing BigQuery Client Connection")
+    bg_client.close()
+
+    return df
+
+
+def get_scores(dataframe):
+    try:
+        """Calculate precision, recall, accuracy, confusion matrix, and F1 score."""
+        true_positive = ((dataframe['RESPONSE'] == 'Outlier') & (dataframe['FEEDBACK'] == True)).sum()
+        true_negative = ((dataframe['RESPONSE'] != 'Outlier') & (dataframe['FEEDBACK'] == True)).sum()
+        false_positive = ((dataframe['RESPONSE'] == 'Outlier') & (dataframe['FEEDBACK'] == False)).sum()
+        false_negative = ((dataframe['RESPONSE'] != 'Outlier') & (dataframe['FEEDBACK'] == False)).sum()
+
+        precision = true_positive / (true_positive + false_positive) if (true_positive + false_positive) > 0 else 0
+        recall = true_positive / (true_positive + false_negative) if (true_positive + false_negative) > 0 else 0
+
+        accuracy = (true_positive + true_negative) / (len(dataframe)) if len(dataframe) > 0 else 0
+
+        cnf_matrix = [[true_positive, false_positive], [false_negative, true_negative]]
+
+        f1_score_value = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
+        return precision, recall, accuracy, cnf_matrix, f1_score_value
+
+    except Exception as e:
+        raise logger.error(f"Some error occurred in calculating metrics: {str(e)}")
 
 
 def get_stats(dataframe):
-    logger.info('Task: Getting precision, recall and accuracy')
-    precision, recall, acc_score = get_precision_recall_accuracy(dataframe)
-
-    dataframe['FEEDBACK'] = dataframe['FEEDBACK'].apply(lambda x: 'Outlier' if x else 'Not Outlier')
+    logger.info('Getting precision, recall and accuracy')
+    precision, recall, acc_score, cnf_matrix, f_one_score = get_scores(dataframe)
 
     global_intensity = np.array(dataframe['Global_intensity'])
     global_reactive_power = np.array(dataframe['Global_reactive_power'])
 
+    logger.info('Calculating Inter-quartiles')
     quartiles_intensity = np.percentile(global_intensity, [25, 50, 75])
     quartiles_reactive_power = np.percentile(global_reactive_power, [25, 50, 75])
 
     timestamp = get_time()
 
+    logger.info("Creating metrics dictionary")
     generated_stats_dict = {
-        "ACCURACY": acc_score,
+        "TEST_ACCURACY": acc_score,
         "PRECISION": precision,
         "RECALL": recall,
         "MEAN_REACTIVE_POWER": dataframe['Global_reactive_power'].mean(),
         "STD_REACTIVE_POWER": dataframe['Global_reactive_power'].std(),
         "MEAN_INTENSITY": dataframe['Global_intensity'].mean(),
         "STD_INTENSITY": dataframe['Global_intensity'].std(),
-        "F1_SCORE": f1_score(dataframe["RESPONSE"], dataframe["FEEDBACK"], average='weighted'),
-        "CNF_MATRIX": confusion_matrix(dataframe["RESPONSE"], dataframe["FEEDBACK"]),
+        "F1_SCORE": f_one_score,
+        "CNF_MATRIX": str(cnf_matrix),
         "IQR_INTENSITY": quartiles_intensity[2] - quartiles_intensity[0],
         "IQR_REACTIVE_POWER": quartiles_reactive_power[2] - quartiles_reactive_power[0],
         "SKEW_INTENSITY": stats.skew(global_intensity),
-        "skew_reactive_power": stats.skew(global_reactive_power),
-        "kurtosis_intensity": stats.kurtosis(global_intensity),
-        "kurtosis_reactive_power": stats.kurtosis(global_reactive_power),
+        "SKEW_REACTIVE_POWER": stats.skew(global_reactive_power),
+        "KURTOSIS_INTENSITY": stats.kurtosis(global_intensity),
+        "KURTOSIS_REACTIVE_POWER": stats.kurtosis(global_reactive_power),
         "date_time": timestamp
     }
 
@@ -110,7 +136,7 @@ def write_table_to_bigquery(dataframe, project_id, big_query_table_id):
         logger.info(f"Type of data incoming: {type(dataframe)}")
 
         schema = [
-            bigquery.SchemaField("ACCURACY", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("TEST_ACCURACY", bigquery.enums.SqlTypeNames.FLOAT),
             bigquery.SchemaField("PRECISION", bigquery.enums.SqlTypeNames.FLOAT),
             bigquery.SchemaField("RECALL", bigquery.enums.SqlTypeNames.FLOAT),
             bigquery.SchemaField("MEAN_REACTIVE_POWER", bigquery.enums.SqlTypeNames.FLOAT),
@@ -122,13 +148,13 @@ def write_table_to_bigquery(dataframe, project_id, big_query_table_id):
             bigquery.SchemaField("IQR_INTENSITY", bigquery.enums.SqlTypeNames.FLOAT),
             bigquery.SchemaField("IQR_REACTIVE_POWER", bigquery.enums.SqlTypeNames.FLOAT),
             bigquery.SchemaField("SKEW_INTENSITY", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("skew_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("kurtosis_intensity", bigquery.enums.SqlTypeNames.FLOAT),
-            bigquery.SchemaField("kurtosis_reactive_power", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("SKEW_REACTIVE_POWER", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("KURTOSIS_INTENSITY", bigquery.enums.SqlTypeNames.FLOAT),
+            bigquery.SchemaField("KURTOSIS_REACTIVE_POWER", bigquery.enums.SqlTypeNames.FLOAT),
             bigquery.SchemaField("date_time", bigquery.enums.SqlTypeNames.DATETIME),
         ]
 
-        dataframe["cnf_matrix"] = dataframe["cnf_matrix"].astype(str)
+        # dataframe["CNF_MATRIX"] = dataframe["CNF_MATRIX"].astype(str)
 
         job_config = bigquery.LoadJobConfig(
             schema=schema,
@@ -150,20 +176,18 @@ def write_table_to_bigquery(dataframe, project_id, big_query_table_id):
 
     except Exception as e:
         logger.error(f"Exception raised: {e}")
-        return e
+        raise f"Exception raised: {e}"
 
 
 @functions_framework.http
 def generate_matrix(request):
     project = 'nashtech-ai-dev-389315'
 
-    request_schema = "REQUEST"
     response_schema = "RESPONSE"
     feedback_schema = 'FEEDBACK'
 
     dataset = 'clustering_history_dataset'
     read_table = 'response_table'
-    limit = 1000
 
     bigquery_dataset_id = f"{project}.clustering_history_dataset"
     bigquery_table_id = f"{bigquery_dataset_id}.metric_table"
@@ -171,23 +195,20 @@ def generate_matrix(request):
     try:
         logger.info('Task: Initiating Read Data from Big Query')
 
-        logger.info("Task: Reading REQUEST from Big Query Table")
-        bq_requests = get_big_query_data(request_schema, project, dataset, read_table, limit)
+        logger.info("Getting table from bigquery")
+        retrieved_table = get_table(project, dataset, read_table)
 
         logger.info("Task: Normalizing requests data")
-        normalized_request_df = normalize_requests_data(bq_requests)
+        normalized_df = normalize_requests_data(retrieved_table)
 
-        logger.info("Task: Reading RESPONSE from Big Query Table")
-        bq_response = get_big_query_data(response_schema, project, dataset, read_table, limit)
-
-        logger.info("Task: Reading FEEDBACK from Big Query Table")
-        bq_feedback = get_big_query_data(feedback_schema, project, dataset, read_table, limit)
-
-        if not bq_feedback.empty and not bq_response.empty and not normalized_request_df.empty:
+        if not normalized_df.empty:
             logger.info("Task: Read data from Big Query Completed Successfully")
 
-        concatenated_df = pd.concat([normalized_request_df, bq_response, bq_feedback], axis=1)
-        # concatenated_df.to_csv("feedback.csv", index=False)
+        concatenated_df = pd.concat([normalized_df,
+                                     retrieved_table[response_schema],
+                                     retrieved_table[feedback_schema]],
+                                    axis=1)
+        # concatenated_df.to_csv("feedback_records.csv", index=False)
 
         logger.info("Task: Getting statistical measure of data")
         stats_df = get_stats(concatenated_df)
@@ -196,7 +217,6 @@ def generate_matrix(request):
         logger.info("Task: Writing generated stats to big query table")
         write_table_to_bigquery(stats_df, project, bigquery_table_id)
         logger.info("Feedback Metric Uploaded to BigQuery Successfully")
-
         return make_response("Feedback metrics uploaded successfully.", 200)
 
     except Exception as e:
