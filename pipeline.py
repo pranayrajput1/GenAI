@@ -11,7 +11,7 @@ from components.upload_model import upload_container
 from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE, cluster_image_bucket,
                        TRIGGER_ID, REGION, STAGING_BUCKET, SERVING_IMAGE, MODEL_DISPLAY_NAME, SERVICE_ACCOUNT_ML,
                        RESOURCE_BUCKET, dataset_name, fit_db_model_name,
-                       SAVE_MODEL_DETAILS_FILE, PIPELINE_JSON)
+                       SAVE_MODEL_DETAILS_FILE, COMPILE_PIPELINE_JSON)
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ def pipeline(
         .set_display_name("Serve Model")
 
 
-def compile_pipeline(pipeline_template_name=f'./{PIPELINE_JSON}'):
+def compile_pipeline(pipeline_template_name=f'./{COMPILE_PIPELINE_JSON}'):
     compiler.Compiler().compile(
         pipeline_func=pipeline,
         package_path=pipeline_template_name

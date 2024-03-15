@@ -36,7 +36,7 @@ STAGING_BUCKET = f"gs://{RESOURCE_BUCKET}/"
 BATCH_SIZE = 10000
 
 SAVE_MODEL_DETAILS_FILE = "model_details.json"
-PIPELINE_JSON = "pipeline_configuration.json"
+COMPILE_PIPELINE_JSON = "dbscan_pipeline.json"
 
 TRIGGER_ID = "26a3629d-793e-4ab2-a2b3-9b4c0966b20d"
 
