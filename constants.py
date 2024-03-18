@@ -38,7 +38,7 @@ BATCH_SIZE = 10000
 SAVE_MODEL_DETAILS_FILE = "model_details.json"
 COMPILE_PIPELINE_JSON = "dbscan_pipeline.json"
 
-TRIGGER_ID = "26a3629d-793e-4ab2-a2b3-9b4c0966b20d"
+TRIGGER_ID = "c8b3bb25-d54f-41f5-bee7-96cc05a107fb"
 
 dataset_name = "household_power_consumption.txt"
 
