@@ -8,7 +8,7 @@ from components.process_data import pre_process_data
 from components.serve_model import serve_model_component
 from components.train import fit_model
 from components.upload_model import upload_container
-from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE, cluster_image_bucket,
+from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE,
                        TRIGGER_ID, REGION, STAGING_BUCKET, SERVING_IMAGE, MODEL_DISPLAY_NAME, SERVICE_ACCOUNT_ML,
                        RESOURCE_BUCKET, dataset_name, fit_db_model_name,
                        SAVE_MODEL_DETAILS_FILE, COMPILE_PIPELINE_JSON)
@@ -43,7 +43,7 @@ def pipeline(
 
     """Evaluate model component"""
     model_evaluation = evaluate_model(batch_size=BATCH_SIZE,
-                                      bucket_name=cluster_image_bucket,
+                                      bucket_name=RESOURCE_BUCKET,
                                       dataset_path=fetch_data_task.output,
                                       trained_model=train_model.output) \
         .after(train_model) \

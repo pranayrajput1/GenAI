@@ -43,5 +43,3 @@ TRIGGER_ID = "26a3629d-793e-4ab2-a2b3-9b4c0966b20d"
 dataset_name = "household_power_consumption.txt"
 
 fit_db_model_name = "db_scan"
-
-cluster_image_bucket = "clustering-pipeline-artifact"

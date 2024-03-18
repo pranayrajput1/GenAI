@@ -8,7 +8,6 @@ import os
 import logging
 from kfp.v2 import dsl
 from google.cloud.devtools import cloudbuild_v1
-from google.cloud.devtools import cloudbuild_v2
 from google.cloud import storage
 import json
 
