@@ -19,7 +19,6 @@ def run_pipeline_job(
     )
 
     aiplatform.init(project=PROJECT_ID, location=REGION)
-    aiplatform.init(project=PROJECT_ID, location=REGION)
 
     pipeline_job = aiplatform.PipelineJob(
         project=PROJECT_ID,
