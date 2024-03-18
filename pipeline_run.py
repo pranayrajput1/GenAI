@@ -1,12 +1,12 @@
 from google.cloud import aiplatform
 from datetime import datetime
 import os
-from constants import PIPELINE_NAME, PROJECT_ID, REGION, SERVICE_ACCOUNT_ML, PIPELINE_JSON, RESOURCE_BUCKET
+from constants import PIPELINE_NAME, PROJECT_ID, REGION, SERVICE_ACCOUNT_ML, COMPILE_PIPELINE_JSON, RESOURCE_BUCKET
 
 
 def run_pipeline_job(
         sync: bool = False, *,
-        pipeline_template_name: str = f'gs://{RESOURCE_BUCKET}/{PIPELINE_JSON}',
+        pipeline_template_name: str = f'gs://{RESOURCE_BUCKET}/{COMPILE_PIPELINE_JSON}',
         cleanup_compiled_pipeline: bool = False,
         enable_caching: bool = False,
 ) -> aiplatform.PipelineJob:
