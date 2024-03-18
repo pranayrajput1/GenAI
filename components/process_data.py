@@ -27,24 +27,16 @@ def pre_process_data(
     """
     import logging
     from src import data
-    import mlflow
 
     logger = logging.getLogger('tipper')
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler())
     try:
-        with mlflow.start_run(run_name="ProcessData", nested=True) as process_data:
+        train_batches = data.dataset_processing(dataset_path.path, batch_size)
 
-            train_batches = data.dataset_processing(dataset_path.path, batch_size)
-
-            logger.info('Task: Setting processed training batches')
-            train_batches.to_parquet(train_dataset.path)
-
-            mlflow.log_param("batch_size", batch_size)
+        logger.info('Task: Setting processed training batches')
+        train_batches.to_parquet(train_dataset.path)
 
     except Exception as e:
         logging.error("Failed to Pre-Process Dataset")
         raise e
-
-    finally:
-        mlflow.end_run()
