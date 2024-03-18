@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
                   pipeline_root=PIPELINE_ROOT_GCS)
 def pipeline(
         project_id: str,
+        job_id: str
 ):
 
     """Fetching Dataset from GCs Bucket"""
