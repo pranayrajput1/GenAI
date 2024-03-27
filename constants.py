@@ -43,3 +43,4 @@ TRIGGER_ID = "c8b3bb25-d54f-41f5-bee7-96cc05a107fb"
 dataset_name = "household_power_consumption.txt"
 
 fit_db_model_name = "db_scan"
+"""Test Pipeline Changes"""
