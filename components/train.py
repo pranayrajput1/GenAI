@@ -19,9 +19,9 @@ from constants import BASE_IMAGE
     )
 )
 def fit_model(
-        model_name: str,
-        dataset_path: dsl.Input[dsl.Dataset],
-        model_artifact_path: dsl.Output[dsl.Model],
+        x_train_path: dsl.Input[dsl.Dataset],
+        y_train_path: dsl.Input[dsl.Dataset],
+        model_artifact_path: dsl.Output[dsl.Model]
 ):
     """
     Function to train model using household dataset,
@@ -40,7 +40,7 @@ def fit_model(
 
     try:
         logging.info("fitting model on processed data")
-        model.fit_model(model_name, dataset_path.path, model_artifact_path.path)
+        model.fit_model(x_train_path.path, y_train_path.path, model_artifact_path.path)
 
     except Exception as e:
         logging.error("Failed to Save Model to Bucket")

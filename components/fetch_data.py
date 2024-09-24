@@ -33,21 +33,15 @@ def fetch_dataset(
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler())
     try:
-        with mlflow.start_run(run_name="FetchData", nested=True) as fetch_data:
-            logging.info('Task: loading data from gcs bucket"')
-            dataset_source_url = f'gs://{dataset_bucket}/{dataset_name}'
-            house_hold_data = pd.read_csv(dataset_source_url, delimiter=";", low_memory=False)
-            house_hold_df = pd.DataFrame(house_hold_data)
+        logging.info('Task: loading data from gcs bucket"')
+        dataset_source_url = f'gs://{dataset_bucket}/{dataset_name}'
+        house_hold_data = pd.read_csv(dataset_source_url, delimiter=";", low_memory=False)
+        house_hold_df = pd.DataFrame(house_hold_data)
 
-            logging.info(f"Dataset Features: {house_hold_data.columns}")
-            logging.info(f'Task: saving data to parquet file at path: {dataset.uri}')
-            house_hold_df.to_parquet(dataset.path)
-
-            mlflow.log_param("dataset_path", dataset_source_url)
+        logging.info(f"Dataset Features: {house_hold_data.columns}")
+        logging.info(f'Task: saving data to parquet file at path: {dataset.uri}')
+        house_hold_df.to_parquet(dataset.path)
 
     except Exception as e:
         logging.error("Failed to Save Model to Bucket")
         raise e
-
-    finally:
-        mlflow.end_run()

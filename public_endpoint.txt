@@ -1,0 +1,9 @@
+{
+  "name": "projects/24562761082/locations/us-central1/featureOnlineStores/nashtech_feature_store",
+  "createTime": "2024-09-18T07:03:06.956179Z",
+  "updateTime": "2024-09-18T07:03:07.835433Z",
+  "etag": "AMEw9yOlcJEQ069noJSpSjCpIAw3JSfwJ8Gu2by8uh5JgJf3M8S0RLgEZXCzitpNGTgr",
+  "state": "STABLE",
+  "dedicatedServingEndpoint": {},
+  "optimized": {}
+}
