@@ -7,116 +7,51 @@ from constants import BASE_IMAGE
 @component(
     base_image=BASE_IMAGE,
     packages_to_install=resolve_dependencies(
+        'google-cloud-aiplatform',
         'pandas',
-        'numpy',
-        'google-cloud-storage',
-        'gcsfs',
-        'pyarrow',
-        'fsspec'
     )
 )
-def processed_data(
-        dataset_path: dsl.Input[dsl.Dataset],
-        x_train_path: dsl.Output[dsl.Dataset],
-        x_test_path: dsl.Output[dsl.Dataset],
-        y_train_path: dsl.Output[dsl.Dataset],
-        y_test_path: dsl.Output[dsl.Dataset]
-) -> None:
+def process_data(
+        project: str,
+        location: str,
+        feature_view_id: dsl.Input[dsl.Artifact],
+        feature_online_store_id: dsl.Input[dsl.Artifact],
+        output_csv: dsl.Output[dsl.Dataset],
+        batch_size: int = 1000
+):
     """
-    @param dataset_path: Input path of dataset to be processed.
-    @param x_train_path: Output path of x_train.
-    @param x_test_path: Output path of x_test.
-    @param y_train_path: Output path of y_train.
-    @param y_test_path: Output path of y_test.
+    Function to fetch all data from a Vertex AI Feature Store feature view,
+    process it, and output as a CSV file.
+    @output_csv: Path to the output CSV file containing the processed data
     """
-    import logging
-    from src import data
-    import pandas as pd
+    from google.cloud import aiplatform
+    from vertexai.resources.preview import FeatureView
+    from utils.helpers import setup_data_client, fetch_all_data, process_feature_store_data
+    from src.data import get_logger
 
-    logger = logging.getLogger('tipper')
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(logging.StreamHandler())
-    try:
-        x_train, x_test, y_train, y_test = data.dataset_processing(dataset_path.path)
-        y_test_data_frame = pd.DataFrame(y_test)
-        y_train_data_frame = pd.DataFrame(y_train)
-
-        # Saving the splits of data in parquet format.
-        x_train.to_parquet(x_train_path.path)
-        x_test.to_parquet(x_test_path.path)
-        y_train_data_frame.to_parquet(y_train_path.path)
-        y_test_data_frame.to_parquet(y_test_path.path)
-        logger.info('Processed data splits are saved into the intermediate artifact in parquet format')
-    except Exception as e:
-        logging.error("Failed to Pre-Process Dataset")
-        raise e
-
-
-from kfp.v2.dsl import (
-    component,
-)
-from google.cloud import storage
-import tempfile
-import os
-from utils.preprocessing import create_ray_cluster, data_processing_pipeline
-
-
-@component(
-    base_image="gcr.io/your-project/ray-data-processing:latest",
-    packages_to_install=[
-        "google-cloud-aiplatform",
-        "google-cloud-storage",
-        "vertex-ray",
-        "pandas",
-        "numpy",
-        "scikit-learn",
-        "ray"
-    ],
-)
-def ray_data_processing_component(
-        project_id: str,
-        region: str,
-        input_data: dsl.Input[dsl.Dataset],
-        x_train_path: dsl.Output[dsl.Dataset],
-        x_test_path: dsl.Output[dsl.Dataset],
-        y_train_path: dsl.Output[dsl.Dataset],
-        y_test_path: dsl.Output[dsl.Dataset],
-        cluster_name: str = None,
-) -> None:
-    import ray
-    import logging
-    import numpy as np
-    import vertex_ray
-    import pandas as pd
-
-    logger = logging.getLogger('tipper')
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(logging.StreamHandler())
+    logger = get_logger()
 
     try:
-        # Create Ray cluster if not provided
-        if not cluster_name:
-            cluster_name = create_ray_cluster(project_id, region)
+        aiplatform.init(project=project, location=location)
 
-        # Initialize Ray
-        ray.init(address='auto')
+        logger.info(f"Fetching data from feature view: {feature_view_id}")
+        logger.info(f"Using feature online store: {feature_online_store_id}")
 
-        # Process data
-        X_train, X_test, y_train, y_test = data_processing_pipeline(input_data.uri)
+        data_client = setup_data_client(location)
 
-        y_test_data_frame = pd.DataFrame(y_test)
-        y_train_data_frame = pd.DataFrame(y_train)
+        fv = FeatureView(name=feature_view_id, feature_online_store_id=feature_online_store_id)
 
-        # Saving the splits of data in parquet format.
-        X_train.to_parquet(x_train_path.path)
-        X_test.to_parquet(x_test_path.path)
-        y_train_data_frame.to_parquet(y_train_path.path)
-        y_test_data_frame.to_parquet(y_test_path.path)
-        logger.info('Processed data splits are saved into the intermediate artifact in parquet format')
+        logger.info("Starting to fetch all data")
+        data = fetch_all_data(data_client, fv.resource_name, batch_size)
+        logger.info(f"Fetched {len(data)} batches of data")
 
-        # Clean up Ray cluster
-        vertex_ray.delete_ray_cluster(cluster_name)
-        print(f"Deleted Ray cluster: {cluster_name}")
+        logger.info("Processing fetched data")
+        df = process_feature_store_data(data)
+        logger.info(f"Processed data into DataFrame with shape: {df.shape}")
+
+        logger.info(f"Dataset Features: {df.columns}")
+        logger.info(f'Task: saving data to parquet file at path: {output_csv.uri}')
+        df.to_parquet(output_csv.path)
+
     except Exception as e:
-        logging.error("Failed to Pre-Process Dataset")
-        raise e
+        logger.error(f"Failed to fetch or process feature store data: {e}")

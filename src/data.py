@@ -4,24 +4,13 @@ import pandas as pd
 from utils import preprocessing
 from google.cloud import storage
 import json
-import git
-
-logger = logging.getLogger('tipper')
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
 
 
-def dataset_processing(
-        dataset_path: str):
-    logging.info(f"Reading process data from: {dataset_path}")
-    data_frame = pd.read_parquet(dataset_path)
-
-    logging.info(f"Dataset Features: {data_frame.columns} in model training")
-
-    logging.info('Task: performing preprocessing of data for model training')
-    x_train, x_test, y_train, y_test = preprocessing.data_processing_pipeline(data_frame)
-
-    return x_train, x_test, y_train, y_test
+def get_logger():
+    logger = logging.getLogger('tipper')
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(logging.StreamHandler())
+    return logger
 
 
 def make_gcs_connection():
@@ -75,15 +64,3 @@ def process_pipeline_image_details(bucket_name: str, file_name: str, key=None, n
     finally:
         logging.info("Removing the downloaded file")
         os.remove(file_name)
-
-
-def get_sha(branch='clustering-pipeline'):
-    repo = git.Repo(search_parent_directories=True)
-
-    '''Ensure the specified branch exists in the repository'''
-    if branch not in repo.heads:
-        raise ValueError(f"Branch '{branch}' not found in the repository.")
-
-    repo.heads[branch].checkout()
-    short_sha = repo.head.object.hexsha[:7]
-    return short_sha

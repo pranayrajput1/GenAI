@@ -1,23 +1,24 @@
 from kfp.v2 import dsl
 from kfp.v2.components.component_decorator import component
 from components.dependencies import resolve_dependencies
+from constants import BASE_IMAGE
 
 
 @component(
-    base_image="python:3.8",
+    base_image=BASE_IMAGE,
     packages_to_install=resolve_dependencies(
         'google-cloud-bigquery',
         'google-cloud-storage',
         'pandas',
     )
 )
-def create_new_bigquery_table_from_gcs_csv(
+def create_table(
         project_id: str,
         dataset_id: str,
         new_table_id: str,
-        csv_bucket: str,
+        data_bucket: str,
         csv_file_name: str,
-        output_table_id: dsl.Output[str]
+        output_table_id: dsl.Output[dsl.Artifact]
 ):
     """
     Function to create a new BigQuery table from a CSV file stored in a GCS bucket,
@@ -25,29 +26,24 @@ def create_new_bigquery_table_from_gcs_csv(
 
     @output_table_id: new table ID as output
     """
-    import logging
     from google.cloud import bigquery, storage
     import pandas as pd
     import io
+    from src.data import get_logger
 
-    logger = logging.getLogger('tipper')
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(logging.StreamHandler())
+    logger = get_logger()
 
     try:
-        # Initialize BigQuery and GCS clients
         bigquery_client = bigquery.Client(project=project_id)
         storage_client = storage.Client()
 
-        # Reference the dataset in BigQuery
         dataset_ref = bigquery_client.dataset(dataset_id)
 
-        # Define the GCS file path for the CSV file
-        csv_uri = f'gs://{csv_bucket}/{csv_file_name}'
+        csv_uri = f'gs://{data_bucket}/{csv_file_name}'
 
         # Read the CSV file from GCS into a pandas DataFrame
         logger.info(f"Loading CSV data from GCS: {csv_uri}")
-        bucket = storage_client.bucket(csv_bucket)
+        bucket = storage_client.bucket(data_bucket)
         blob = bucket.blob(csv_file_name)
         csv_data = blob.download_as_text()
 
@@ -82,7 +78,6 @@ def create_new_bigquery_table_from_gcs_csv(
 
         logger.info(f"Data loaded into {new_table_id}.")
 
-        # Set the output for the pipeline
         output_table_id.uri = new_table_id
 
     except Exception as e:

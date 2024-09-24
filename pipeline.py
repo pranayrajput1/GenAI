@@ -1,20 +1,14 @@
-import logging
 from google.cloud import aiplatform
 from kfp.v2 import compiler
 import kfp
-from components.evaluate_model import evaluate_model
-from components.fetch_data import fetch_dataset
-from components.process_data import pre_process_data
-from components.serve_model import serve_model_component
-from components.train import fit_model
-from components.upload_model import upload_container
-from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, BATCH_SIZE,
-                       TRIGGER_ID, REGION, STAGING_BUCKET, SERVING_IMAGE, MODEL_DISPLAY_NAME, SERVICE_ACCOUNT_ML,
-                       RESOURCE_BUCKET, dataset_name, fit_db_model_name,
-                       SAVE_MODEL_DETAILS_FILE, COMPILE_PIPELINE_JSON)
-
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+from components.create_big_query_dataset import create_bigquery_dataset
+from components.create_feature_view import create_feature_view
+from components.create_online_feature_store import create_feature_store
+from components.create_table import create_table
+from components.process_data import process_data
+from constants import (PIPELINE_NAME, PIPELINE_DESCRIPTION, PIPELINE_ROOT_GCS, REGION,
+                       RESOURCE_BUCKET, COMPILE_PIPELINE_JSON, PROJECT_ID, DATASET_ID,
+                       DATASET_LOCATION, TABLE_ID, CSV_FILE_NAME, FEATURE_STORE_ID, FEATURE_STORE_VIEW_ID)
 
 
 @kfp.dsl.pipeline(name=PIPELINE_NAME,
@@ -24,48 +18,40 @@ def pipeline(
         project_id: str,
         job_id: str
 ):
+    create_dataset_task = (create_bigquery_dataset(project_id=PROJECT_ID,
+                                                   dataset_id=DATASET_ID,
+                                                   dataset_location=DATASET_LOCATION,
+                                                   )
+                           .set_display_name("Create Dataset"))
 
-    """Fetching Dataset from GCs Bucket"""
-    fetch_data_task = fetch_dataset(RESOURCE_BUCKET, dataset_name)\
-        .set_display_name("Fetch Dataset")
+    create_table_task = (create_table(project_id=PROJECT_ID,
+                                      dataset_id=DATASET_ID,
+                                      new_table_id=TABLE_ID,
+                                      data_bucket=RESOURCE_BUCKET,
+                                      csv_file_name=CSV_FILE_NAME)
+                         .set_display_name("Create Table")
+                         .after(create_dataset_task))
 
-    """Pre-Processing Dataset"""
-    process_data_task = pre_process_data(fetch_data_task.output, BATCH_SIZE)\
-        .set_display_name("Pre-Process Dataset") \
-        .after(fetch_data_task)
+    create_feature_store_task = ((create_feature_store(project=PROJECT_ID,
+                                                       location=REGION,
+                                                       feature_store_id=FEATURE_STORE_ID)
+                                  .set_display_name("Create Feature Store"))
+                                 .after(create_table_task))
 
-    """Fit DB-Scan model pipeline task"""
-    train_model = fit_model(fit_db_model_name, process_data_task.output) \
-        .after(process_data_task) \
-        .set_display_name("Fit Model") \
-        .set_cpu_request("4") \
-        .set_memory_limit("16G")
+    create_feature_view_task = (create_feature_view(project=PROJECT_ID,
+                                                    location=REGION,
+                                                    feature_store_id=create_feature_store_task.output,
+                                                    feature_view_id=FEATURE_STORE_VIEW_ID,
+                                                    bq_table_uri=create_table_task.output,
+                                                    entity_id_columns=["id"])
+                                .set_display_name("Create Feature View")
+                                .after(create_feature_store_task))
 
-    """Evaluate model component"""
-    model_evaluation = evaluate_model(batch_size=BATCH_SIZE,
-                                      bucket_name=RESOURCE_BUCKET,
-                                      dataset_path=fetch_data_task.output,
-                                      trained_model=train_model.output) \
-        .after(train_model) \
-        .set_display_name("Evaluate Model Performance")
-
-    """Upload Model Component"""
-    upload_model_task = upload_container(project_id,
-                                         TRIGGER_ID) \
-        .after(model_evaluation) \
-        .set_display_name("Upload Model")
-
-    '''Serving model to endpoint'''
-    serve_model_component(project_id,
-                          REGION,
-                          STAGING_BUCKET,
-                          SERVING_IMAGE,
-                          MODEL_DISPLAY_NAME,
-                          SERVICE_ACCOUNT_ML,
-                          RESOURCE_BUCKET,
-                          SAVE_MODEL_DETAILS_FILE) \
-        .after(upload_model_task) \
-        .set_display_name("Serve Model")
+    process_data_task = (process_data(project=PROJECT_ID,
+                                      location=REGION,
+                                      feature_view_id=create_feature_view_task.output,
+                                      feature_online_store_id=create_feature_store_task.output)
+                         .set_display_name("Process Data"))
 
 
 def compile_pipeline(pipeline_template_name=f'./{COMPILE_PIPELINE_JSON}'):

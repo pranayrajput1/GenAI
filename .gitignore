@@ -143,3 +143,4 @@ Footer
 /experiment_pipeline.json
 /serving_container/validated_model.json
 /terraform/
+/data_pipeline.json
