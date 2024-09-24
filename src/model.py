@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.cluster import DBSCAN, KMeans
+from sklearn.ensemble import GradientBoostingRegressor
 from utils import preprocessing
 from utils import silhouette_score
 import joblib
@@ -31,18 +31,18 @@ def upload_model(project, trigger):
         raise RuntimeError
 
 
-def get_model(model_type):
-    model_mapping = {
-        "db_scan": DBSCAN(eps=6.5, min_samples=1000, leaf_size=30, p=2),
-        "k_means": KMeans(n_clusters=3)
-    }
-
-    return model_mapping.get(model_type, None)
+# def get_model(model_type):
+#     model_mapping = {
+#         "db_scan": DBSCAN(eps=6.5, min_samples=1000, leaf_size=30, p=2),
+#         "k_means": KMeans(n_clusters=3)
+#     }
+#
+#     return model_mapping.get(model_type, None)
 
 
 def fit_model(
-        model_name: str,
-        train_dataset: str,
+        x_train_path: str,
+        y_train_path: str,
         model_artifact_path: dsl.Output[dsl.Model],
 ):
     """
@@ -54,14 +54,19 @@ def fit_model(
     @model_name: model name used to save trained model.
     """
 
-    logging.info(f"Reading processed train data from: {train_dataset}")
-    train_data_batch = pd.read_parquet(train_dataset)
+    # Load x_train
+    x_train = pd.read_parquet(x_train_path)
+    logger.info(f"Loaded x_train from: {x_train_path}")
 
+    # Load y_train
+    y_train = pd.read_parquet(y_train_path)
+    logger.info(f"Loaded dataset from: {y_train_path}")
+    model_name = "GradientBoostingRegressor"
     logging.info(f"Task: Fitting {model_name} model")
-    model = get_model(model_name)
+    model = GradientBoostingRegressor()
 
     logging.info("Fitting model")
-    model = model.fit(train_data_batch)
+    model.fit(x_train, y_train)
 
     logging.info(f"Writing Model to pickle file to: {model_artifact_path}")
 

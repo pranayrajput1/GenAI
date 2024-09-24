@@ -1,116 +1,144 @@
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split
-import logging
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+import vertex_ray
+from vertex_ray import Resources
+from google.cloud import aiplatform as vertex_ai
+import ray
 
 
-def processing_data(dataframe):
+def create_ray_cluster(project_id, region, cluster_name=None):
+    """Create a Ray cluster on Vertex AI."""
+    vertex_ai.init(project=project_id, location=region)
+
+    if not cluster_name:
+        import uuid
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        cluster_name = f"ray-cluster-{timestamp}-{uuid.uuid4().hex[:6]}"
+
+    head_node_type = Resources(
+        machine_type="n1-standard-16",
+        node_count=1,
+    )
+    worker_node_types = [
+        Resources(
+            machine_type="n1-standard-4",
+            node_count=1,
+        )
+    ]
+
+    ray_cluster_info = vertex_ray.create_ray_cluster(
+        head_node_type=head_node_type,
+        worker_node_types=worker_node_types,
+        cluster_name=cluster_name,
+    )
+    print(f"Created Ray cluster: {ray_cluster_info}")
+    # Return the connection information
+    return ray_cluster_info['name'], ray_cluster_info['endpoint']
+
+@ray.remote
+def process_batch(batch, preprocessor=None):
+    """Process a single batch of data."""
+    # Handle missing values
+    batch = handle_missing_values(batch)
+
+    # Encode categorical variables
+    batch = encode_categorical_variables(batch)
+
+    # Perform feature engineering
+    batch = feature_engineering(batch)
+
+    # Prepare features and target
+    X, y = prepare_features_and_target(batch)
+
+    # Apply preprocessor if provided
+    if preprocessor:
+        X = preprocessor.transform(X)
+
+    return X, y
+
+
+def data_processing_pipeline(file_path, test_size=0.2, random_state=42, batch_size=1000):
     """
-    Calling all function to perform preprocessing
-    @param: data_frame
-    @return: data_frame after doing all preprocessing
+    Main pipeline function that processes the data using Ray and returns train and test sets.
     """
-    logging.info('Task: dropping columns "Date" & "Time"')
-    dropped_df = drop_columns(dataframe)
+    # Initialize Ray (assuming it's already connected to the cluster)
+    if not ray.is_initialized():
+        ray.init(address='auto')
 
-    # handling missing values
-    logging.info('Task: handling missing values')
-    handled_missing_df = handling_missing_values(dropped_df)
+    # Load data
+    df = load_data(file_path)
 
-    # feature selection
-    logging.info('Task: making feature selection')
-    featured_df = feature_selection(handled_missing_df)
+    # Create batches
+    batches = create_batches(df, batch_size)
 
-    # scaling data
-    logging.info('Task: scaling data')
-    scaled_df = scaling(featured_df)
+    # Process batches in parallel
+    futures = [process_batch.remote(batch) for batch in batches]
+    results = ray.get(futures)
 
-    # performing dimensionality reduction
-    logging.info('Task: reducing dimensions from data')
-    reduced_dimensions_data = dimensionality_reduction(scaled_df)
+    # Combine results
+    X = pd.concat([result[0] for result in results])
+    y = pd.concat([result[1] for result in results])
 
-    logging.info('Task: Splitting data into train and test')
-    train_data, test_data = splitting_data(reduced_dimensions_data)
-    return train_data, test_data
+    # Split the data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
 
+    # Create and fit preprocessor
+    preprocessor = create_preprocessor()
+    X_train_processed = preprocessor.fit_transform(X_train)
+    X_test_processed = preprocessor.transform(X_test)
 
-def drop_columns(data_frame):
-    """
-    getting the dataframe and dropping the un_necessary column
-    @param: data_frame
-    @return: data_frame after dropping columns
-    """
-    dropping_columns = ['Date', 'Time']
-    data_frame = data_frame.drop(dropping_columns, axis=1)
-    return data_frame
+    return X_train_processed, X_test_processed, y_train, y_test
 
 
-def handling_missing_values(data_frame):
-    """
-    getting the dataframe and handling missing values in each column
-    @param: data_frame
-    @return: data_frame after handling missing values
-    """
+def load_data(file_path):
+    """Load the dataset from a CSV file."""
+    return pd.read_csv(file_path)
 
-    columns_to_preprocess = ['Global_active_power', 'Global_reactive_power', 'Voltage', 'Global_intensity',
-                             'Sub_metering_1',
-                             'Sub_metering_2', 'Sub_metering_3']
-    for column in columns_to_preprocess:
-        data_frame[column] = data_frame[column].replace('?', np.nan)
-        data_frame[column] = data_frame[column].astype(float)
-        mean_value = data_frame[column].mean()
-        data_frame[column].fillna(mean_value, inplace=True)
-    return data_frame
+def handle_missing_values(df):
+    """Handle missing values in the dataframe."""
+    # For this example, we'll just drop rows with any missing values
+    # You might want to use more sophisticated imputation techniques depending on your data
+    return df.dropna()
 
+def encode_categorical_variables(df):
+    """Encode binary categorical variables."""
+    binary_features = ['mainroad', 'guestroom', 'basement', 'hotwaterheating', 'airconditioning', 'prefarea']
+    df[binary_features] = df[binary_features].replace({'yes': 1, 'no': 0})
+    return df
 
-def feature_selection(data_frame):
-    """
-    getting the dataframe and doing feature selection
-    @param: data_frame:
-    @return: data_frame after doing feature selection
-    """
-    selected_features = ['Global_active_power', 'Global_reactive_power', 'Voltage', 'Global_intensity',
-                         'Sub_metering_1', 'Sub_metering_2', 'Sub_metering_3']
-    feature_dataframe = data_frame[selected_features]
-    return feature_dataframe
+def feature_engineering(df):
+    """Create new features."""
+    df['price_per_sqft'] = df['price'] / df['area']
+    df['total_rooms'] = df['bedrooms'] + df['bathrooms']
+    df['bed_bath_ratio'] = df['bedrooms'] / df['bathrooms']
+    return df
 
+def prepare_features_and_target(df):
+    """Separate features and target, and log-transform the target."""
+    X = df.drop('price', axis=1)
+    y = np.log(df['price'])
+    return X, y
 
-def scaling(data_frame):
-    """
-    getting the dataframe and normalizing it
-    @param: data_frame
-    @return: data_frame after scaling
-    """
-    scale = StandardScaler()
-    scaled_data = scale.fit_transform(data_frame)
-    scaled_dataframe = pd.DataFrame(scaled_data)
-    return scaled_dataframe
+def create_preprocessor():
+    """Create a preprocessor for numeric and categorical features."""
+    numeric_features = ['area', 'bedrooms', 'bathrooms', 'stories', 'parking', 'price_per_sqft', 'total_rooms', 'bed_bath_ratio']
+    categorical_features = ['furnishingstatus']
 
+    numeric_transformer = StandardScaler()
+    categorical_transformer = OneHotEncoder(drop='first', sparse_output=False)
 
-def dimensionality_reduction(data_frame):
-    """
-    reducing the dimension of dataframe
-    @param: data_frame
-    @return dataframe after applying pca
-    """
-    pca = PCA(n_components=2)
-    X_principal = pca.fit_transform(data_frame)
-    X_principal = pd.DataFrame(X_principal)
-    X_principal.columns = ['P1', 'P2']
-    return X_principal
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', numeric_transformer, numeric_features),
+            ('cat', categorical_transformer, categorical_features)
+        ])
 
-
-def splitting_data(data_frame):
-    """
-    splitting data into training and testing set.
-    @param: data_frame
-    @return dataframe after applying train test split
-    """
-    train_data, test_data = train_test_split(data_frame, test_size=0.005, random_state=42)
-    return train_data, test_data
-
+    return preprocessor
 
 def create_batches(data_frame, batch_size):
     """
@@ -138,3 +166,13 @@ def create_batches(data_frame, batch_size):
         batches_data.append(batch)
 
     return batches_data
+
+# file_path = '/home/nashtech/PycharmProjects/Mlops/Housing.csv'  # Replace with your actual file path
+#
+# X_train, X_test, y_train, y_test = data_processing_pipeline(file_path)
+#
+# print("Shapes of processed datasets:")
+# print(f"X_train: {X_train.shape}")
+# print(f"X_test: {X_test.shape}")
+# print(f"y_train: {y_train.shape}")
+# print(f"y_test: {y_test.shape}")
