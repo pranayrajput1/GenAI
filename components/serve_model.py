@@ -1,5 +1,4 @@
-from kfp.v2.components.component_decorator import component
-from kfp.v2.dsl import Artifact, Output, Model
+from kfp.dsl import component, Artifact, Output, Model
 from components.dependencies import resolve_dependencies
 from constants import BASE_IMAGE
 

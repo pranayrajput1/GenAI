@@ -22,7 +22,7 @@ if __name__ == "__main__":
     setup(
         name="kubeflow-dbscan-pipeline",
         version=version,
-        description="This is DB_Scan Clustering Job For House Hold Appliances to Identify Outliers",
+        description="This is a MLOps pipeline",
         long_description=readme,
         author="Aman Srivastava",
         author_email="aman.srivastava@knoldus.com",

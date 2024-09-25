@@ -1,0 +1,119 @@
+{
+  "components": {
+    "comp-pre-process-data": {
+      "executorLabel": "exec-pre-process-data",
+      "inputDefinitions": {
+        "parameters": {
+          "cluster_name": {
+            "isOptional": true,
+            "parameterType": "STRING"
+          },
+          "project_id": {
+            "parameterType": "STRING"
+          },
+          "region": {
+            "parameterType": "STRING"
+          }
+        }
+      },
+      "outputDefinitions": {
+        "artifacts": {
+          "x_test_path": {
+            "artifactType": {
+              "schemaTitle": "system.Dataset",
+              "schemaVersion": "0.0.1"
+            }
+          },
+          "x_train_path": {
+            "artifactType": {
+              "schemaTitle": "system.Dataset",
+              "schemaVersion": "0.0.1"
+            }
+          },
+          "y_test_path": {
+            "artifactType": {
+              "schemaTitle": "system.Dataset",
+              "schemaVersion": "0.0.1"
+            }
+          },
+          "y_train_path": {
+            "artifactType": {
+              "schemaTitle": "system.Dataset",
+              "schemaVersion": "0.0.1"
+            }
+          }
+        }
+      }
+    }
+  },
+  "defaultPipelineRoot": "gs://nashtech-ai-dev-389315-kubeflow-pipeline",
+  "deploymentSpec": {
+    "executors": {
+      "exec-pre-process-data": {
+        "container": {
+          "args": [
+            "--executor_input",
+            "{{$}}",
+            "--function_to_execute",
+            "pre_process_data"
+          ],
+          "command": [
+            "sh",
+            "-c",
+            "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location 'kfp==2.9.0' '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&  python3 -m pip install --quiet --no-warn-script-location 'google-cloud-aiplatform==1.67.1' 'google-cloud-storage==2.9.0' 'google-cloud-aiplatform[ray]==1.67.1' 'pandas==1.5.3' 'ray==2.33.0' && \"$0\" \"$@\"\n",
+            "sh",
+            "-ec",
+            "program_path=$(mktemp -d)\n\nprintf \"%s\" \"$0\" > \"$program_path/ephemeral_component.py\"\n_KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         \"$program_path/ephemeral_component.py\"                         \"$@\"\n",
+            "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import *\n\ndef pre_process_data(\n        project_id: str,\n        region: str,\n        # input_data: dsl.Input[dsl.Dataset],\n        x_train_path: dsl.Output[dsl.Dataset],\n        x_test_path: dsl.Output[dsl.Dataset],\n        y_train_path: dsl.Output[dsl.Dataset],\n        y_test_path: dsl.Output[dsl.Dataset],\n        cluster_name: str = None,\n) :\n    import ray\n    import logging\n    import pandas as pd\n    import vertex_ray\n    from utils.preprocessing import create_ray_cluster, data_processing_pipeline\n    from src.data import get_logger\n\n    logger = get_logger()\n\n\n    try:\n        # Create Ray cluster if not provided\n        if not cluster_name:\n            cluster_name = create_ray_cluster(project_id, region)\n        logger.info(\"Initializing Cluster\")\n        # Initialize Ray\n        ray.init(\n            address=f'vertex_ray://projects/24562761082/locations/us-central1/persistentResources/{cluster_name}')\n\n        logger.info(\"Processing Dataset\")\n\n        # Process data\n        X_train, X_test, y_train, y_test = data_processing_pipeline()\n\n        logger.info(\"Processing Dataset Completed\")\n\n        y_test_data_frame = pd.DataFrame(y_test)\n        y_train_data_frame = pd.DataFrame(y_train)\n\n        # Saving the splits of data in parquet format.\n        X_train.to_parquet(x_train_path.path)\n        X_test.to_parquet(x_test_path.path)\n        y_train_data_frame.to_parquet(y_train_path.path)\n        y_test_data_frame.to_parquet(y_test_path.path)\n        logger.info('Processed data splits are saved into the intermediate artifact in parquet format')\n\n        # Clean up Ray cluster\n        # vertex_ray.delete_ray_cluster(cluster_name)\n        # logger.info(f\"Deleted Ray cluster: {cluster_name}\")\n    except Exception as e:\n        logging.error(\"Failed to Pre-Process Dataset\")\n        raise e\n\n"
+          ],
+          "image": "us-central1-docker.pkg.dev/nashtech-ai-dev-389315/feature-store-pipeline/house_base_image:0.1"
+        }
+      }
+    }
+  },
+  "pipelineInfo": {
+    "description": "Feature Store Pipeline",
+    "name": "feature-store-kubeflow"
+  },
+  "root": {
+    "dag": {
+      "tasks": {
+        "pre-process-data": {
+          "cachingOptions": {
+            "enableCache": true
+          },
+          "componentRef": {
+            "name": "comp-pre-process-data"
+          },
+          "inputs": {
+            "parameters": {
+              "project_id": {
+                "componentInputParameter": "project_id"
+              },
+              "region": {
+                "runtimeValue": {
+                  "constant": "us-central1"
+                }
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "Pre processing data"
+          }
+        }
+      }
+    },
+    "inputDefinitions": {
+      "parameters": {
+        "job_id": {
+          "parameterType": "STRING"
+        },
+        "project_id": {
+          "parameterType": "STRING"
+        }
+      }
+    }
+  },
+  "schemaVersion": "2.1.0",
+  "sdkVersion": "kfp-2.9.0"
+}

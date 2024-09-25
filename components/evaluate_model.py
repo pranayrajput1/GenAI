@@ -1,5 +1,5 @@
-from kfp.v2.components.component_decorator import component
-from kfp.v2 import dsl
+from kfp import dsl
+from kfp.dsl import component
 from components.dependencies import resolve_dependencies
 from constants import BASE_IMAGE
 from typing import NamedTuple
@@ -14,7 +14,6 @@ from typing import NamedTuple
         'google-cloud-storage',
         'gcsfs',
         'pyarrow',
-        'matplotlib',
         'numpy',
         'scikit-learn'
     )

@@ -59,8 +59,9 @@ steps:
     waitFor: ['upload_pipeline']
 
 substitutions:
-  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/clustering-pipeline/db-scan-image:${SHORT_SHA}'
+  _IMAGE_NAME: 'us-central1-docker.pkg.dev/nashtech-ai-dev-389315/feature-store-pipeline/house_base_image:${SHORT_SHA}'
 
 options:
   dynamicSubstitutions: true
   logging: CLOUD_LOGGING_ONLY
+

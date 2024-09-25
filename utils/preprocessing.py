@@ -8,7 +8,11 @@ import vertex_ray
 from vertex_ray import Resources
 from google.cloud import aiplatform as vertex_ai
 import ray
+import logging
 
+logger = logging.getLogger('tipper')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
 def create_ray_cluster(project_id, region, cluster_name=None):
     """Create a Ray cluster on Vertex AI."""
@@ -35,10 +39,11 @@ def create_ray_cluster(project_id, region, cluster_name=None):
         head_node_type=head_node_type,
         worker_node_types=worker_node_types,
         cluster_name=cluster_name,
+        python_version="3.10.14"
     )
-    print(f"Created Ray cluster: {ray_cluster_info}")
     # Return the connection information
-    return ray_cluster_info['name'], ray_cluster_info['endpoint']
+    logger.info(f"Created cluster with name : {cluster_name}")
+    return cluster_name
 
 @ray.remote
 def process_batch(batch, preprocessor=None):
@@ -62,7 +67,7 @@ def process_batch(batch, preprocessor=None):
     return X, y
 
 
-def data_processing_pipeline(file_path, test_size=0.2, random_state=42, batch_size=1000):
+def data_processing_pipeline( test_size=0.2, random_state=42, batch_size=1000):
     """
     Main pipeline function that processes the data using Ray and returns train and test sets.
     """
@@ -70,9 +75,13 @@ def data_processing_pipeline(file_path, test_size=0.2, random_state=42, batch_si
     if not ray.is_initialized():
         ray.init(address='auto')
 
+    file_path = "gs://nashtech_vertex_ai_artifact/Housing.csv"
     # Load data
+    logger.info("Loading Data")
+
     df = load_data(file_path)
 
+    logger.info("Creating Batches")
     # Create batches
     batches = create_batches(df, batch_size)
 

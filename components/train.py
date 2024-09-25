@@ -1,5 +1,5 @@
-from kfp.v2 import dsl
-from kfp.v2.components.component_decorator import component
+from kfp import dsl
+from kfp.dsl import component
 from components.dependencies import resolve_dependencies
 from constants import BASE_IMAGE
 

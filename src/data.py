@@ -6,10 +6,12 @@ from google.cloud import storage
 import json
 import git
 
-logger = logging.getLogger('tipper')
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler())
 
+def get_logger():
+    logger = logging.getLogger('tipper')
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(logging.StreamHandler())
+    return logger
 
 def dataset_processing(
         dataset_path: str):

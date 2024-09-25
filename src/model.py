@@ -1,7 +1,5 @@
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
-from utils import preprocessing
-from utils import silhouette_score
 import joblib
 import pickle
 import os
@@ -29,15 +27,6 @@ def upload_model(project, trigger):
     else:
         logging.info("Cloud Build Failed !")
         raise RuntimeError
-
-
-# def get_model(model_type):
-#     model_mapping = {
-#         "db_scan": DBSCAN(eps=6.5, min_samples=1000, leaf_size=30, p=2),
-#         "k_means": KMeans(n_clusters=3)
-#     }
-#
-#     return model_mapping.get(model_type, None)
 
 
 def fit_model(
@@ -102,48 +91,3 @@ def save_model_details(dict_data, file_name, bucket_name):
 
     logging.info("Task: Removing model details files from local environment")
     os.remove(file_name)
-
-
-def evaluation_score(batch,
-                     bucket_name,
-                     dataset_path,
-                     model_path,
-                     image_path):
-
-    logging.info(f"Reading model from: {model_path.path}")
-    file_name = model_path.path + ".pkl"
-
-    try:
-        with open(file_name, 'rb') as model_file:
-            trained_model = pickle.load(model_file)
-
-        logging.info(f"Reading process data from: {dataset_path.path}")
-        data_frame = pd.read_parquet(dataset_path.path)
-        household_train, household_test = preprocessing.processing_data(data_frame)
-
-        logging.info("calculating average silhouette_scores")
-        average_silhouette_score = silhouette_score.get_silhouette_score_and_cluster_image(
-            household_train,
-            batch,
-            trained_model,
-            image_path)
-
-        logging.info("Setting client connection using storage client API'")
-        client = storage.Client()
-
-        logging.info(f"Getting bucket: {bucket_name} from GCS")
-        bucket = client.get_bucket(bucket_name)
-        blob = bucket.blob(image_path)
-
-        logging.info(f"Uploading Image to Bucket: 'gs://{bucket_name}/'")
-        with open(image_path, 'rb') as file:
-            blob.upload_from_file(file, content_type='image/png')
-
-        logging.info(f"Uploaded Image to Bucket: 'gs://{bucket_name}/' successfully'")
-        image_url = f"https://storage.cloud.google.com/{bucket_name}/{image_path}"
-
-        return average_silhouette_score, image_url
-
-    except Exception as exc:
-        logging.info("Failed To Save Image to Bucket")
-        raise exc
